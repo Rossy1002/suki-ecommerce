@@ -549,6 +549,9 @@
             document.getElementById('featuredShopsGrid').innerHTML = allShops.map((s, idx) => {
                 const initials = s.shop_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
                 const thumbs = s.products.slice(0, 3).map(p => `<img src="${p.gallery[0]}" alt="${p.title}">`).join('');
+                const avHtml = s.shop_logo_url
+                    ? `<img src="${s.shop_logo_url}" style="width:46px; height:46px; border-radius:12px; object-fit:cover; border:1px solid var(--border);">`
+                    : `<div class="shop-avatar-box ${idx === 1 ? 'blue-av' : ''}">${initials}</div>`;
                 return `
                 <div class="shop-feature-card">
                     <div class="shop-banner" style="background-image:url('${s.shop_banner_url}')">
@@ -557,7 +560,7 @@
                     <div class="shop-card-content">
                         <div class="shop-info-row">
                             <div style="display:flex; align-items:center; gap:12px;">
-                                ${s.shop_logo_url ? `<img src="${s.shop_logo_url}" style="width:46px; height:46px; border-radius:12px; object-fit:cover; border:1px solid var(--border);">` : `<div class="shop-avatar-box ${idx === 1 ? 'blue-av' : ''}">${initials}</div>`}
+                                ${avHtml}
                                 <div>
                                     <h3 style="font-size:1.1rem; font-weight:800;">${s.shop_name} <span style="color:var(--blue);">✓</span></h3>
                                     <small style="color:var(--muted);">@${s.username} &bull; ${s.sales_count.toLocaleString()} sales</small>
@@ -635,6 +638,7 @@
         document.getElementById('pubShopBanner').style.backgroundImage = `url('${shop.shop_banner_url}')`;
         document.getElementById('pubShopTagline').innerText = shop.shop_tagline;
         document.getElementById('pubShopHeadline').innerText = shop.shop_name;
+
         const pubAv = document.getElementById('pubShopInitials');
         if (shop.shop_logo_url) {
             pubAv.innerHTML = `<img src="${shop.shop_logo_url}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
@@ -642,6 +646,7 @@
         } else {
             pubAv.innerText = shop.shop_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
         }
+
         document.getElementById('pubShopName').innerHTML = `${shop.shop_name} <span style="color:var(--blue);">✓</span>`;
         document.getElementById('pubShopHandle').innerText = `@${shop.username}`;
         document.getElementById('pubShopSales').innerText = `${shop.sales_count.toLocaleString()} Sales`;
@@ -754,6 +759,16 @@
         if (name === 'profile') loadProfile();
     }
 
+    function previewShopImage(input, previewId) {
+        if (input.files && input.files[0]) {
+            const img = document.getElementById(previewId);
+            if (img) {
+                img.src = URL.createObjectURL(input.files[0]);
+                img.classList.remove('hidden');
+            }
+        }
+    }
+
     async function loadProfile() {
         const res = await fetch('/api/profile/');
         const data = await res.json();
@@ -770,7 +785,14 @@
                 if (document.getElementById('profShopName')) {
                     document.getElementById('profShopName').value = u.shop_name || '';
                     document.getElementById('profShopTagline').value = u.shop_tagline || '';
-                    document.getElementById('profShopBanner').value = u.shop_banner_url || '';
+                    if (u.effective_logo) {
+                        const lImg = document.getElementById('logoPreviewImg');
+                        if (lImg) { lImg.src = u.effective_logo; lImg.classList.remove('hidden'); }
+                    }
+                    if (u.effective_banner) {
+                        const bImg = document.getElementById('bannerPreviewImg');
+                        if (bImg) { bImg.src = u.effective_banner; bImg.classList.remove('hidden'); }
+                    }
                 }
             }
         }
@@ -778,18 +800,29 @@
 
     async function saveProfile() {
         if (!currentUserId) await loadProfile();
-        const payload = {
-            email: document.getElementById('profEmail').value,
-            saved_payment_method: document.getElementById('profPayment').value,
-            shop_or_bio: document.getElementById('profBio').value
-        };
+        const fd = new FormData();
+        fd.append('email', document.getElementById('profEmail').value);
+        fd.append('saved_payment_method', document.getElementById('profPayment').value);
+        fd.append('shop_or_bio', document.getElementById('profBio').value);
         if (document.getElementById('profShopName')) {
-            payload.shop_name = document.getElementById('profShopName').value;
-            payload.shop_tagline = document.getElementById('profShopTagline').value;
-            payload.shop_banner_url = document.getElementById('profShopBanner').value;
+            fd.append('shop_name', document.getElementById('profShopName').value);
+            fd.append('shop_tagline', document.getElementById('profShopTagline').value);
+            const logoInput = document.getElementById('profShopLogoFile');
+            const bannerInput = document.getElementById('profShopBannerFile');
+            if (logoInput && logoInput.files.length > 0) fd.append('shop_logo', logoInput.files[0]);
+            if (bannerInput && bannerInput.files.length > 0) fd.append('shop_banner', bannerInput.files[0]);
         }
-        const r = await fetch(`/api/profile/${currentUserId}/`, { method: 'PATCH', headers, body: JSON.stringify(payload) });
-        if (r.ok) notify('Profile updated!');
+        const r = await fetch(`/api/profile/${currentUserId}/`, {
+            method: 'PATCH',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: fd
+        });
+        if (r.ok) {
+            notify('Shop profile saved!');
+            loadProfile();
+        } else {
+            notify('Error saving profile.');
+        }
     }
 
     async function loadLoggedProducts() {
@@ -979,8 +1012,7 @@
         const r = await fetch('/api/products/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: fd });
         if (r.ok) {
             notify('Listing published!');
-            ['prodTitle', 'prodPrice', 'prodStock', 'prodSizes', 'prodLink', 'prodDesc', 'prodPhotosInput'].forEach(id => document.getElementById(id).value = '');
-            document.getElementById('prodCat').value = '';
+            ['prodTitle', 'prodCat', 'prodPrice', 'prodStock', 'prodSizes', 'prodLink', 'prodDesc', 'prodPhotosInput'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('uploadPreviewStrip').innerHTML = '';
             loadLoggedProducts();
             showTab('seller-listings', null);
