@@ -468,7 +468,7 @@
 <script>
     const isAuth = {{ user.is_authenticated|yesno:"true,false" }};
     const userRole = "{{ user.role }}";
-    let currentUserId = null;
+    let currentUserId = null; let usdRate = 0.0172; fetch("/api/exchange-rates/").then(r=>r.json()).then(d=>{ if(d.USD) usdRate=d.USD; loadProducts(); }).catch(()=>{});
 
     function getCookie(name) { let v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)'); return v ? v[2] : null; }
     const headers = { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') };
@@ -548,12 +548,12 @@
                         </div>
                         <div>
                             <div class="price-row">
-                                <span class="price">₱${p.price}</span>
+                                <span class="price">₱${p.price} <small style="font-size:0.72rem; color:var(--muted); font-weight:600;">(~$${(p.price * usdRate).toFixed(2)} USD)</small></span>
                                 <span style="font-size:0.8rem; color:var(--muted);">${p.stock_licenses} left</span>
                             </div>
                             ${allowBuy ? `
                                 <div style="display:flex; gap:8px; margin-top:12px;">
-                                    <button class="btn btn-sm" style="flex:1; justify-content:center;" onclick="addToCart(${p.id})">+ Add to Cart</button>
+                                    ${p.stock_licenses > 0 ? `<button class="btn btn-sm" style="flex:1; justify-content:center;" onclick="addToCart(${p.id})">+ Add to Cart</button>` : `<button class="btn btn-outline btn-sm" style="flex:1; justify-content:center; opacity:0.6; cursor:not-allowed;" disabled>Sold Out</button>`}
                                     <button class="btn btn-outline btn-sm" onclick="addToWishlist(${p.id})">♥</button>
                                 </div>
                             ` : ''}
