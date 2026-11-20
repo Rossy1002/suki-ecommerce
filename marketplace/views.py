@@ -80,6 +80,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         for f in files[1:]:
             ProductImage.objects.create(product=product, image=f)
 
+    def perform_update(self, serializer):
+        files = self.request.FILES.getlist('images')[:10]
+        if files:
+            product = serializer.save(image=files[0])
+            product.extra_images.all().delete()
+            for f in files[1:]:
+                ProductImage.objects.create(product=product, image=f)
+        else:
+            serializer.save()
+
 class WishlistViewSet(viewsets.ModelViewSet):
     serializer_class = WishlistSerializer
     permission_classes = [permissions.IsAuthenticated]

@@ -496,15 +496,43 @@
         </div>
     </div>
 </div>
+
+<div id="editListingModal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:640px; max-height:90vh; overflow-y:auto;">
+        <h3 style="margin-bottom:1rem;">Edit Listing</h3>
+        <input type="hidden" id="editProdId">
+        <div class="form-grid">
+            <div class="form-group"><label>Product Title</label><input type="text" id="editProdTitle"></div>
+            <div class="form-group">
+                <label>Select Category</label>
+                <input list="catOptions" id="editProdCat" autocomplete="off">
+            </div>
+            <div class="form-group"><label>Price (₱)</label><input type="number" id="editProdPrice"></div>
+            <div class="form-group"><label>Stock</label><input type="number" id="editProdStock"></div>
+            <div class="form-group"><label>Available Sizes (Comma-separated)</label><input type="text" id="editProdSizes"></div>
+            <div class="form-group"><label>Delivery Link</label><input type="url" id="editProdLink"></div>
+        </div>
+        <div class="form-group">
+            <label>Replace Photos (Optional, Max 10 pictures)</label>
+            <input type="file" id="editProdPhotos" accept="image/*" multiple>
+        </div>
+        <div class="form-group"><label>Product Description</label><textarea id="editProdDesc" rows="3"></textarea></div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn btn-outline" onclick="document.getElementById('editListingModal').classList.add('hidden')">Cancel</button>
+            <button class="btn" onclick="saveEditedProduct()">Save Changes</button>
+        </div>
+    </div>
+</div>
 {% endif %}
 
 <div id="toast"></div>
-
 <script>
     const isAuth = {{ user.is_authenticated|yesno:"true,false" }};
     const userRole = "{{ user.role }}";
+    const currentUsername = "{{ user.username }}";
     let allShops = [];
     let allProducts = [];
+    let loggedProductsCache = [];
     let activeDetailProduct = null;
     let selectedDetailSize = "";
     let activeCatPill = "All";
@@ -829,9 +857,15 @@
         const q = document.getElementById('searchInput')?.value || '';
         const res = await fetch(`/api/products/?search=${encodeURIComponent(q)}`);
         const products = await res.json();
-        if (document.getElementById('statProducts')) document.getElementById('statProducts').innerText = products.length;
+        loggedProductsCache = products;
 
-        const html = products.map(p => `
+        const visibleList = userRole === 'seller'
+            ? products.filter(p => p.seller_name === currentUsername)
+            : products;
+
+        if (document.getElementById('statProducts')) document.getElementById('statProducts').innerText = visibleList.length;
+
+        const html = visibleList.map(p => `
             <div class="prod-card">
                 <img src="${p.gallery[0]}" alt="${p.title}">
                 <div class="prod-card-body">
@@ -839,7 +873,7 @@
                         <span class="cat-pill">${p.category} &bull; ${p.shop_display_name}</span>
                         <h3 style="font-size:1rem; margin-bottom:4px;">${p.title}</h3>
                         <p style="font-size:0.84rem; color:var(--muted); margin-bottom:8px;">${p.description}</p>
-                        <div style="font-size:0.75rem; color:var(--blue); margin-bottom:8px;">Photos: ${p.gallery.length} &bull; ${p.stock_licenses} left</div>
+                        <div style="font-size:0.75rem; color:var(--blue); margin-bottom:8px;">Photos: ${p.gallery.length} &bull; Stock: ${p.stock_licenses}</div>
                         ${userRole === 'customer' ? `
                             <select id="sizeSel-${p.id}" style="margin-bottom:10px; font-size:0.82rem;">
                                 ${p.sizes_list.map(sz => `<option value="${sz}">${sz}</option>`).join('')}
@@ -854,7 +888,12 @@
                                     <button class="btn btn-sm" onclick="addToCart(${p.id})">+ Cart</button>
                                     <button class="btn btn-outline btn-sm" onclick="addToWishlist(${p.id})">♥</button>
                                 </div>
-                            ` : `<button class="btn btn-outline btn-sm" disabled>Sold Out</button>`) : ''}
+                            ` : `<button class="btn btn-outline btn-sm" disabled>Sold Out</button>`) : `
+                                <div style="display:flex; gap:6px;">
+                                    <button class="btn btn-outline btn-sm" onclick="openEditListing(${p.id})">Edit</button>
+                                    <button class="btn btn-outline btn-sm" style="color:#dc2626; border-color:#fecaca;" onclick="deleteListing(${p.id})">Delete</button>
+                                </div>
+                            `}
                         </div>
                     </div>
                 </div>
@@ -863,6 +902,60 @@
 
         if (document.getElementById('customerProductGrid')) document.getElementById('customerProductGrid').innerHTML = html;
         if (document.getElementById('sellerProductGrid')) document.getElementById('sellerProductGrid').innerHTML = html;
+    }
+
+    function openEditListing(id) {
+        const p = loggedProductsCache.find(item => item.id === id);
+        if (!p) return;
+        document.getElementById('editProdId').value = p.id;
+        document.getElementById('editProdTitle').value = p.title;
+        document.getElementById('editProdCat').value = p.category;
+        document.getElementById('editProdPrice').value = p.price;
+        document.getElementById('editProdStock').value = p.stock_licenses;
+        document.getElementById('editProdSizes').value = p.available_sizes || '';
+        document.getElementById('editProdLink').value = p.download_link || '';
+        document.getElementById('editProdDesc').value = p.description || '';
+        document.getElementById('editProdPhotos').value = '';
+        document.getElementById('editListingModal').classList.remove('hidden');
+    }
+
+    async function saveEditedProduct() {
+        const id = document.getElementById('editProdId').value;
+        const fd = new FormData();
+        fd.append('title', document.getElementById('editProdTitle').value.trim());
+        fd.append('category', document.getElementById('editProdCat').value.trim());
+        fd.append('price', document.getElementById('editProdPrice').value);
+        fd.append('stock_licenses', document.getElementById('editProdStock').value);
+        fd.append('available_sizes', document.getElementById('editProdSizes').value || 'Standard Digital');
+        fd.append('download_link', document.getElementById('editProdLink').value.trim());
+        fd.append('description', document.getElementById('editProdDesc').value);
+        const files = Array.from(document.getElementById('editProdPhotos').files).slice(0, 10);
+        files.forEach(f => fd.append('images', f));
+
+        const r = await fetch(`/api/products/${id}/`, {
+            method: 'PATCH',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: fd
+        });
+        if (r.ok) {
+            notify('Listing updated!');
+            document.getElementById('editListingModal').classList.add('hidden');
+            loadLoggedProducts();
+        } else {
+            notify('Error updating listing.');
+        }
+    }
+
+    async function deleteListing(id) {
+        if (!confirm('Delete this listing from your shop?')) return;
+        const r = await fetch(`/api/products/${id}/`, {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        if (r.ok) {
+            notify('Listing deleted.');
+            loadLoggedProducts();
+        }
     }
 
     async function addToCart(id) {
