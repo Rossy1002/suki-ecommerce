@@ -20,26 +20,34 @@ def storefront_view(request):
 
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
+def public_shops_api(request):
+    """Public endpoint so guests can view Featured Seller Shops without logging in."""
+    sellers = User.objects.filter(role='seller').order_by('id')
+    result = []
+    for s in sellers:
+        prods = DigitalProduct.objects.filter(seller=s).order_by('-id')
+        result.append({
+            "id": s.id,
+            "username": s.username,
+            "shop_name": s.shop_name or s.username,
+            "shop_tagline": s.shop_tagline or "DIGITAL CREATOR SHOP",
+            "shop_banner_url": s.shop_banner_url,
+            "bio": s.shop_or_bio,
+            "sales_count": s.sales_count,
+            "followers_count": s.followers_count,
+            "products": ProductSerializer(prods, many=True).data
+        })
+    return Response(result)
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
 def currency_rates_api(request):
-    """2nd Distinct External API Integration: Live PHP Exchange Rates with graceful offline VM fallback."""
     try:
         req = urllib.request.urlopen("https://open.er-api.com/v6/latest/PHP", timeout=3)
         data = json.loads(req.read().decode('utf-8'))
-        return Response({
-            "source": "Live ExchangeRate API",
-            "base": "PHP",
-            "USD": data["rates"].get("USD", 0.017),
-            "EUR": data["rates"].get("EUR", 0.016),
-            "JPY": data["rates"].get("JPY", 2.65)
-        })
+        return Response({"source": "Live ExchangeRate API", "USD": data["rates"].get("USD", 0.0172)})
     except Exception:
-        return Response({
-            "source": "Offline VM Fallback Rate",
-            "base": "PHP",
-            "USD": 0.0172,
-            "EUR": 0.0158,
-            "JPY": 2.62
-        })
+        return Response({"source": "Offline VM Fallback Rate", "USD": 0.0172})
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -56,8 +64,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = DigitalProduct.objects.all().order_by('-id')
         search = self.request.query_params.get('search')
+        category = self.request.query_params.get('category')
         if search:
             qs = qs.filter(title__icontains=search)
+        if category and category != 'All':
+            qs = qs.filter(category__icontains=category)
         return qs
 
     def perform_create(self, serializer):
@@ -89,32 +100,29 @@ class CartViewSet(viewsets.ModelViewSet):
 
         total_cost = sum(item.product.price * item.quantity for item in cart_items)
         if customer.suki_wallet_balance < total_cost:
-            return Response({
-                "error": "Insufficient Suki Wallet credits.",
-                "wallet_balance": customer.suki_wallet_balance,
-                "required": total_cost
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Insufficient Suki Wallet credits."}, status=status.HTTP_400_BAD_REQUEST)
 
         created_orders = []
         for item in cart_items:
             product = item.product
             if product.stock_licenses < item.quantity:
-                return Response({"error": f"Out of stock: Not enough licenses left for {product.title}."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": f"Out of stock: {product.title}"}, status=status.HTTP_400_BAD_REQUEST)
             product.stock_licenses -= item.quantity
             product.save()
 
             seller = product.seller
             seller.suki_wallet_balance += (product.price * item.quantity)
+            seller.sales_count += item.quantity
             seller.save()
 
-            tracking = f"SUKI-DIGI-{uuid.uuid4().hex[:8].upper()}"
             order = Order.objects.create(
                 customer=customer,
                 product=product,
+                selected_size=item.selected_size or "Standard Digital",
                 quantity=item.quantity,
                 total_amount=product.price * item.quantity,
                 status='PENDING',
-                delivery_tracking_code=tracking
+                delivery_tracking_code=f"SUKI-DIGI-{uuid.uuid4().hex[:8].upper()}"
             )
             created_orders.append(order.id)
 
@@ -123,7 +131,7 @@ class CartViewSet(viewsets.ModelViewSet):
         cart_items.delete()
 
         return Response({
-            "message": "Checkout successful! Paid via Suki Wallet. Seller notified for email delivery.",
+            "message": "Checkout successful! Paid via Suki Wallet.",
             "amount_deducted": total_cost,
             "remaining_suki_wallet_balance": customer.suki_wallet_balance,
             "order_ids": created_orders
@@ -145,17 +153,13 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
         recipient = order.customer.email or f"{order.customer.username}@suki.ph"
         send_mail(
-            subject=f"[Suki.ph] Your Digital Product: {order.product.title}",
-            message=f"Hi {order.customer.username},\n\nThank you for your purchase! Access your Canva Template / E-Book here:\n{order.product.download_link}\n\nTracking Code: {order.delivery_tracking_code}",
+            subject=f"[Suki.ph] Your Digital Product ({order.selected_size}): {order.product.title}",
+            message=f"Hi {order.customer.username},\n\nHere is your Canva Template / E-Book link ({order.selected_size}):\n{order.product.download_link}\n\nTracking: {order.delivery_tracking_code}",
             from_email="delivery@suki.ph",
             recipient_list=[recipient],
             fail_silently=True,
         )
-        return Response({
-            "message": f"Sent via Email to {recipient}! Digital access unlocked.",
-            "status": order.status,
-            "delivered_to_email": recipient
-        })
+        return Response({"message": f"Sent via Email to {recipient}!", "status": order.status})
 
     @action(detail=True, methods=['post'])
     def request_return(self, request, pk=None):
