@@ -94,6 +94,9 @@
         .thumb-strip { display: flex; gap: 12px; margin-top: 12px; }
         .thumb-item { width: 110px; height: 78px; object-fit: cover; border-radius: 10px; border: 2px solid transparent; cursor: pointer; opacity: 0.75; transition: 0.15s; }
         .thumb-item.active, .thumb-item:hover { border-color: var(--blue); opacity: 1; }
+        .thumb-more-wrap { position: relative; width: 110px; height: 78px; border-radius: 10px; overflow: hidden; cursor: pointer; }
+        .thumb-more-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb-more-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.68); color: #fff; font-weight: 800; font-size: 1.15rem; display: flex; align-items: center; justify-content: center; letter-spacing: 0.5px; }
         .buy-box { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 1.75rem; box-shadow: 0 6px 18px rgba(15,23,42,0.04); }
         .size-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 1.25rem; }
         .size-chip { border: 1px solid var(--border); background: #f8fafc; padding: 7px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
@@ -321,7 +324,7 @@
                 <button class="side-btn active" onclick="showTab('overview', this)">Overview & Analytics</button>
                 <button class="side-btn" onclick="showTab('seller-listings', this)">My Shop Listings</button>
                 <button class="side-btn" onclick="showTab('seller-orders', this)">Orders & Email Delivery <span class="count-pill" id="orderCount">0</span></button>
-                <button class="side-btn" onclick="showTab('seller-add', this)">+ Create Listing (3 Photos)</button>
+                <button class="side-btn" onclick="showTab('seller-add', this)">+ Create Listing</button>
                 <button class="side-btn" onclick="showTab('profile', this)">Shop Profile & Banner</button>
             {% endif %}
         </div>
@@ -437,32 +440,33 @@
                 <div class="panel"><h3>Orders & Refunds</h3><table><thead><tr><th>Order</th><th>Product</th><th>Size</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody id="sellerOrdersBody"></tbody></table></div>
             </div>
 
-            <!-- SELLER CREATE LISTING (UP TO 3 PHOTOS + SIZES + CATEGORY DROPDOWN/INPUT) -->
+            <!-- SELLER CREATE LISTING -->
             <div id="tab-seller-add" class="tab-section hidden">
                 <div class="panel">
-                    <h3 style="margin-bottom:1rem;">Publish New Template or E-Book (Multi-Photo & Sizes)</h3>
+                    <h3 style="margin-bottom:1.25rem;">Create Listing</h3>
                     <div class="form-grid">
                         <div class="form-group"><label>Product Title</label><input type="text" id="prodTitle" placeholder="e.g. Burgundy Birthday Flipbook Template"></div>
                         <div class="form-group">
-                            <label>Category (Select or type a new category)</label>
-                            <input list="catOpts" id="prodCat" placeholder="Canva Templates or Digital Books">
-                            <datalist id="catOpts">
-                                <option value="Canva Templates">
-                                <option value="Digital Books">
-                                <option value="Notion Templates">
-                                <option value="Printable Planners">
-                            </datalist>
+                            <label>Select Category</label>
+                            <select id="prodCat">
+                                <option value="" disabled selected>Choose a category</option>
+                                <option value="Canva Templates">Canva Templates</option>
+                                <option value="Digital Books">Digital Books</option>
+                                <option value="Notion Templates">Notion Templates</option>
+                                <option value="Printable Planners">Printable Planners</option>
+                            </select>
                         </div>
-                        <div class="form-group"><label>Price (₱)</label><input type="number" id="prodPrice" value="199"></div>
-                        <div class="form-group"><label>Available Licenses</label><input type="number" id="prodStock" value="50"></div>
-                        <div class="form-group"><label>Available Sizes / Formats (Comma-separated)</label><input type="text" id="prodSizes" value="A5 Booklet, A4 Magazine, US Letter"></div>
-                        <div class="form-group"><label>Canva / E-Book Delivery Link</label><input type="url" id="prodLink" value="https://www.canva.com/templates/"></div>
-                        <div class="form-group"><label>Photo 1 (Upload Main Cover)</label><input type="file" id="prodImgFile" accept="image/*"></div>
-                        <div class="form-group"><label>Photo 1 URL (If not uploading file)</label><input type="url" id="prodImg1" placeholder="https://..."></div>
-                        <div class="form-group"><label>Photo 2 URL (Preview Spread / Page 2)</label><input type="url" id="prodImg2" placeholder="https://..."></div>
-                        <div class="form-group"><label>Photo 3 URL (Preview Spread / Page 3)</label><input type="url" id="prodImg3" placeholder="https://..."></div>
+                        <div class="form-group"><label>Price (₱)</label><input type="number" id="prodPrice" placeholder="e.g. 199"></div>
+                        <div class="form-group"><label>Stock</label><input type="number" id="prodStock" placeholder="e.g. 50"></div>
+                        <div class="form-group"><label>Available Sizes (Comma-separated)</label><input type="text" id="prodSizes" placeholder="e.g. A5 Booklet, A4 Magazine, US Letter"></div>
+                        <div class="form-group"><label>Delivery Link</label><input type="url" id="prodLink" placeholder="e.g. https://www.canva.com/templates/..."></div>
                     </div>
-                    <div class="form-group"><label>Product Description</label><textarea id="prodDesc" rows="2"></textarea></div>
+                    <div class="form-group">
+                        <label>Upload Photos (Max 10 pictures)</label>
+                        <input type="file" id="prodPhotosInput" accept="image/*" multiple onchange="previewSelectedPhotos(this)">
+                        <div id="uploadPreviewStrip" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"></div>
+                    </div>
+                    <div class="form-group"><label>Product Description</label><textarea id="prodDesc" rows="3" placeholder="Describe what is included in your template or e-book..."></textarea></div>
                     <button class="btn" onclick="createProduct()">Publish Listing</button>
                 </div>
             </div>
@@ -663,12 +667,10 @@
         document.getElementById('detailStockText').innerText = `${p.stock_licenses} licenses available`;
         document.getElementById('detailPrice').innerHTML = `₱${p.price} <small style="font-size:0.85rem; color:var(--muted); font-weight:600;">(~$${(p.price * usdRate).toFixed(2)} USD)</small>`;
 
-        // Multi-photo gallery (image_5d0060 & image_5d0086)
+        // Multi-photo gallery: show 3 thumbnails with +N overlay on 3rd if > 3 photos
         const mainImg = document.getElementById('detailMainImg');
         mainImg.src = p.gallery[0];
-        document.getElementById('detailThumbStrip').innerHTML = p.gallery.map((url, idx) => `
-            <img src="${url}" class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="selectGalleryPhoto('${url}', this)">
-        `).join('');
+        renderDetailThumbs(p.gallery, false);
 
         // Size / Variant chips
         document.getElementById('detailSizeChips').innerHTML = p.sizes_list.map((sz, idx) => `
@@ -677,6 +679,25 @@
 
         switchDetailTab('desc', document.querySelector('.detail-tab-btn'));
         showGuestView('detail');
+    }
+
+    function renderDetailThumbs(gallery, showAll) {
+        const strip = document.getElementById('detailThumbStrip');
+            const extraCount = gallery.length - 3;
+            strip.innerHTML = gallery.slice(0, 2).map((url, idx) => `
+                <img src="${url}" class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="selectGalleryPhoto('${url}', this)">
+            `).join('') + `
+                <div class="thumb-more-wrap" onclick="renderDetailThumbs(activeDetailProduct.gallery, true)" title="Show all ${gallery.length} photos">
+                    <img src="${gallery[2]}">
+                    <div class="thumb-more-overlay">+${extraCount}</div>
+                </div>
+            `;
+        } else {
+            strip.style.flexWrap = 'wrap';
+            strip.innerHTML = gallery.map((url, idx) => `
+                <img src="${url}" class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="selectGalleryPhoto('${url}', this)">
+            `).join('');
+        }
     }
 
     function selectGalleryPhoto(url, thumbEl) {
@@ -885,23 +906,52 @@
         const d = await r.json(); notify(d.message || 'Updated!'); loadOrders(); loadProfile();
     }
 
+    function previewSelectedPhotos(input) {
+        const strip = document.getElementById('uploadPreviewStrip');
+        strip.innerHTML = '';
+        const files = Array.from(input.files);
+        if (files.length > 10) {
+            notify('Maximum of 10 photos allowed. Only the first 10 will be uploaded.');
+        }
+        files.slice(0, 10).forEach(file => {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.style.cssText = 'width:68px; height:52px; object-fit:cover; border-radius:8px; border:1px solid var(--border);';
+            strip.appendChild(img);
+        });
+    }
+
     async function createProduct() {
+        const title = document.getElementById('prodTitle').value.trim();
+        const cat = document.getElementById('prodCat').value;
+        const price = document.getElementById('prodPrice').value;
+        const stock = document.getElementById('prodStock').value;
+        const link = document.getElementById('prodLink').value.trim();
+            notify('Please fill in Title, Category, Price, Stock, and Delivery Link.');
+            return;
+        }
         const fd = new FormData();
-        fd.append('title', document.getElementById('prodTitle').value);
-        fd.append('category', document.getElementById('prodCat').value || 'Canva Templates');
-        fd.append('price', document.getElementById('prodPrice').value);
-        fd.append('stock_licenses', document.getElementById('prodStock').value);
-        fd.append('available_sizes', document.getElementById('prodSizes').value);
-        fd.append('download_link', document.getElementById('prodLink').value);
+        fd.append('title', title);
+        fd.append('category', cat);
+        fd.append('price', price);
+        fd.append('stock_licenses', stock);
+        fd.append('available_sizes', document.getElementById('prodSizes').value || 'Standard Digital');
+        fd.append('download_link', link);
         fd.append('description', document.getElementById('prodDesc').value);
-        if (document.getElementById('prodImgFile').files.length > 0) fd.append('image', document.getElementById('prodImgFile').files[0]);
-        if (document.getElementById('prodImg1').value) fd.append('image_url', document.getElementById('prodImg1').value);
-        if (document.getElementById('prodImg2').value) fd.append('image_url_2', document.getElementById('prodImg2').value);
-        if (document.getElementById('prodImg3').value) fd.append('image_url_3', document.getElementById('prodImg3').value);
+        const files = Array.from(document.getElementById('prodPhotosInput').files).slice(0, 10);
+        files.forEach(f => fd.append('images', f));
 
         const r = await fetch('/api/products/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: fd });
-        if (r.ok) { notify('Published with multiple photos & sizes!'); loadLoggedProducts(); showTab('seller-listings', null); }
-        else notify('Error creating product.');
+        if (r.ok) {
+            notify('Listing published!');
+            ['prodTitle', 'prodPrice', 'prodStock', 'prodSizes', 'prodLink', 'prodDesc', 'prodPhotosInput'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('prodCat').selectedIndex = 0;
+            document.getElementById('uploadPreviewStrip').innerHTML = '';
+            loadLoggedProducts();
+            showTab('seller-listings', null);
+        } else {
+            notify('Error creating product.');
+        }
     }
 
     function openReviewModal(pid, title) {

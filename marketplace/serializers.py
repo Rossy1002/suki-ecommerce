@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, DigitalProduct, Wishlist, CartItem, Order, Review, SupportTicket
+from .models import User, DigitalProduct, ProductImage, Wishlist, CartItem, Order, Review, SupportTicket
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,13 +42,17 @@ class ProductSerializer(serializers.ModelSerializer):
         pics = []
         if obj.image:
             pics.append(obj.image.url)
-        if obj.image_url:
-            pics.append(obj.image_url)
-        if obj.image_url_2:
-            pics.append(obj.image_url_2)
-        if obj.image_url_3:
-            pics.append(obj.image_url_3)
-        return pics or ["https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80"]
+        for extra in obj.extra_images.all().order_by('id'):
+            if extra.image:
+                pics.append(extra.image.url)
+        if not pics:
+            if obj.image_url:
+                pics.append(obj.image_url)
+            if obj.image_url_2:
+                pics.append(obj.image_url_2)
+            if obj.image_url_3:
+                pics.append(obj.image_url_3)
+        return pics[:10] or ["https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80"]
 
     def get_sizes_list(self, obj):
         if not obj.available_sizes:

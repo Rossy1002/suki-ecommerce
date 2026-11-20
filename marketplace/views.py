@@ -9,7 +9,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
-from .models import User, DigitalProduct, Wishlist, CartItem, Order, Review, SupportTicket
+from .models import User, DigitalProduct, ProductImage, Wishlist, CartItem, Order, Review, SupportTicket
 from .serializers import (
     UserSerializer, ProductSerializer, WishlistSerializer,
     CartItemSerializer, OrderSerializer, ReviewSerializer, SupportTicketSerializer
@@ -72,7 +72,11 @@ class ProductViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        serializer.save(seller=self.request.user)
+        files = self.request.FILES.getlist('images')[:10]
+        first_img = files[0] if files else None
+        product = serializer.save(seller=self.request.user, image=first_img)
+        for f in files[1:]:
+            ProductImage.objects.create(product=product, image=f)
 
 class WishlistViewSet(viewsets.ModelViewSet):
     serializer_class = WishlistSerializer

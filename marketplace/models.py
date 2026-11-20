@@ -78,3 +78,8 @@ class SupportTicket(models.Model):
     message = models.TextField()
     resolved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(DigitalProduct, on_delete=models.CASCADE, related_name='extra_images')
+    image = models.ImageField(upload_to='products/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
