@@ -504,13 +504,18 @@
 
     fetch('/api/exchange-rates/').then(r => r.json()).then(d => { if (d.USD) usdRate = d.USD; }).catch(() => {});
 
-    function getCookie(name) { let v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)'); return v ? v[2] : null; }
+    function getCookie(name) {
+        let v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+        return v ? v[2] : null;
+    }
     const headers = { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') };
 
     function notify(msg) {
         const t = document.getElementById('toast');
-        t.innerText = msg; t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 3200);
+        if (!t) return;
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 3200);
     }
 
     async function initGuestStorefront() {
@@ -574,6 +579,7 @@
         const effectiveCat = activeCatPill !== 'All' ? activeCatPill : dropCat;
         const filtered = allProducts.filter(p => {
             const matchCat = effectiveCat === 'All' || p.category.toLowerCase().includes(effectiveCat.toLowerCase());
+            const matchQ = !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
             return matchCat && matchQ;
         });
         renderDiscoverProducts(filtered);
@@ -581,6 +587,7 @@
 
     function renderDiscoverProducts(list) {
         const grid = document.getElementById('discoverProductsGrid');
+        if (!grid) return;
         grid.innerHTML = list.map(p => `
             <div class="prod-card">
                 <img src="${p.gallery[0]}" alt="${p.title}">
@@ -607,12 +614,15 @@
         ['guest-landing', 'guest-shop', 'guest-detail'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
         document.getElementById('guest-' + viewName)?.classList.remove('hidden');
         const isLanding = viewName === 'landing';
+        document.getElementById('landingSearchWrap')?.classList.toggle('hidden', !isLanding);
+        document.getElementById('landingNavActions')?.classList.toggle('hidden', !isLanding);
         document.getElementById('backMarketWrap')?.classList.toggle('hidden', isLanding);
         window.scrollTo(0, 0);
     }
 
     function openPublicShop(shopId) {
         const shop = allShops.find(s => s.id === shopId);
+        if (!shop) return;
         document.getElementById('pubShopBanner').style.backgroundImage = `url('${shop.shop_banner_url}')`;
         document.getElementById('pubShopTagline').innerText = shop.shop_tagline;
         document.getElementById('pubShopHeadline').innerText = shop.shop_name;
@@ -647,7 +657,7 @@
 
     function openProductDetail(productId) {
         const p = allProducts.find(item => item.id === productId);
-        if (python manage.py runserver 0.0.0.0:8000) return;
+        if (!p) return;
         activeDetailProduct = p;
         selectedDetailSize = p.sizes_list[0] || "Standard Digital";
 
@@ -672,6 +682,7 @@
 
     function renderDetailThumbs(gallery, showAll) {
         const strip = document.getElementById('detailThumbStrip');
+        if (!showAll && gallery.length > 3) {
             const extraCount = gallery.length - 3;
             strip.innerHTML = gallery.slice(0, 2).map((url, idx) => `
                 <img src="${url}" class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="selectGalleryPhoto('${url}', this)">
@@ -705,10 +716,10 @@
         document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         const box = document.getElementById('detailTabContent');
+        if (!activeDetailProduct) return;
         if (tabKey === 'desc') box.innerText = activeDetailProduct.description;
         if (tabKey === 'inc') box.innerText = activeDetailProduct.whats_included;
-        if (tabKey === 'how') box.innerText = "1. Log in to your Suki Customer account and complete checkout using your Suki Wallet credits.
-2. Once the seller processes your order, your Canva Template or E-Book link is sent directly to your registered email and unlocked in your Orders tab.";
+        if (tabKey === 'how') box.innerText = "1. Log in to your Suki Customer account and complete checkout using your Suki Wallet credits.\n2. Once the seller fulfills your order, your Canva Template or E-Book link is sent directly to your registered email and unlocked in your Orders tab.";
         if (tabKey === 'rev') {
             const revs = activeDetailProduct.reviews || [];
             box.innerHTML = revs.length ? revs.map(r => `<div style="padding:10px 0; border-bottom:1px solid var(--border);"><strong>${r.customer_name}</strong> <span style="color:var(--orange);">★ ${r.rating}/5</span><p style="margin-top:4px;">${r.comment}</p></div>`).join('') : "No reviews yet for this item.";
@@ -729,9 +740,11 @@
     }
 
     async function loadProfile() {
-        const res = await fetch('/api/profile/'); const data = await res.json();
+        const res = await fetch('/api/profile/');
+        const data = await res.json();
         if (data.length) {
-            const u = data[0]; currentUserId = u.id;
+            const u = data[0];
+            currentUserId = u.id;
             document.getElementById('walletDisplay').innerText = `Suki Wallet: ₱${u.suki_wallet_balance}`;
             if (document.getElementById('statWallet')) document.getElementById('statWallet').innerText = `₱${u.suki_wallet_balance}`;
             if (document.getElementById('profUsername')) {
@@ -749,6 +762,7 @@
     }
 
     async function saveProfile() {
+        if (!currentUserId) await loadProfile();
         const payload = {
             email: document.getElementById('profEmail').value,
             saved_payment_method: document.getElementById('profPayment').value,
@@ -806,6 +820,7 @@
     async function addToCart(id) {
         const sz = document.getElementById(`sizeSel-${id}`)?.value || 'Standard Digital';
         const r = await fetch('/api/cart/', { method: 'POST', headers, body: JSON.stringify({ product: id, selected_size: sz, quantity: 1 }) });
+        if (r.ok) { notify(`Added (${sz}) to cart!`); loadCart(); }
     }
 
     async function addToWishlist(id) {
@@ -814,35 +829,51 @@
     }
 
     async function loadCart() {
-        const res = await fetch('/api/cart/'); const items = await res.json();
+        const res = await fetch('/api/cart/');
+        const items = await res.json();
         if (document.getElementById('cartCount')) document.getElementById('cartCount').innerText = items.length;
+        const tbody = document.getElementById('cartBody');
+        if (!tbody) return;
         let total = 0;
         tbody.innerHTML = items.map(i => {
-            const sub = parseFloat(i.product_price) * i.quantity; total += sub;
+            const sub = parseFloat(i.product_price) * i.quantity;
+            total += sub;
             return `<tr><td><strong>${i.product_title}</strong></td><td>${i.selected_size}</td><td>₱${i.product_price}</td><td>${i.quantity}</td><td>₱${sub.toFixed(2)}</td><td><button class="btn btn-outline btn-sm" onclick="removeCart(${i.id})">Remove</button></td></tr>`;
         }).join('');
         document.getElementById('cartTotal').innerText = `Total: ₱${total.toFixed(2)}`;
     }
 
-    async function removeCart(id) { await fetch(`/api/cart/${id}/`, { method: 'DELETE', headers }); loadCart(); }
+    async function removeCart(id) {
+        await fetch(`/api/cart/${id}/`, { method: 'DELETE', headers });
+        loadCart();
+    }
 
     async function checkoutCart() {
         const res = await fetch('/api/cart/checkout/', { method: 'POST', headers });
         const data = await res.json();
-        if (res.ok) { notify(`Paid ₱${data.amount_deducted}! Remaining Wallet: ₱${data.remaining_suki_wallet_balance}`); loadProfile(); loadCart(); loadLoggedProducts(); }
-        else notify(data.error || 'Checkout failed');
+        if (res.ok) {
+            notify(`Paid ₱${data.amount_deducted}! Remaining Wallet: ₱${data.remaining_suki_wallet_balance}`);
+            loadProfile();
+            loadCart();
+            loadLoggedProducts();
+        } else {
+            notify(data.error || 'Checkout failed');
+        }
     }
 
     async function loadWishlist() {
-        const res = await fetch('/api/wishlist/'); const items = await res.json();
+        const res = await fetch('/api/wishlist/');
+        const items = await res.json();
         document.getElementById('wishlistBody').innerHTML = items.map(w => `<tr><td><strong>${w.product_title}</strong></td><td>${new Date(w.added_at).toLocaleDateString()}</td><td><button class="btn btn-sm" onclick="addToCart(${w.product})">Move to Cart</button></td></tr>`).join('');
     }
 
     async function loadOrders() {
-        const res = await fetch('/api/orders/'); const orders = await res.json();
+        const res = await fetch('/api/orders/');
+        const orders = await res.json();
         if (userRole === 'customer') {
             const pBody = document.getElementById('customerPendingBody');
             const cBody = document.getElementById('customerCompletedBody');
+            if (!pBody || !cBody) return;
             const pending = orders.filter(o => o.status === 'PENDING' || o.status === 'RETURN_REQUESTED');
             const completed = orders.filter(o => o.status === 'DELIVERED' || o.status === 'REFUNDED');
 
@@ -862,7 +893,7 @@
                 <td style="display:flex; gap:6px; flex-wrap:wrap;">
                     ${o.status === 'DELIVERED' ? `
                         <a href="${o.download_link}" target="_blank" class="btn btn-success btn-sm">Open Link / Email Copy</a>
-                        <button class="btn btn-sm" onclick="openReviewModal(${o.product}, '${o.product_title.replace(/'/g, "\'")}')">Leave Review</button>
+                        <button class="btn btn-sm" onclick="openReviewModal(${o.product})">Leave Review</button>
                         <button class="btn btn-outline btn-sm" onclick="orderAction(${o.id}, 'request_return')">Request Return</button>
                     ` : 'Refunded'}
                 </td>
@@ -888,7 +919,10 @@
 
     async function orderAction(id, act) {
         const r = await fetch(`/api/orders/${id}/${act}/`, { method: 'POST', headers });
-        const d = await r.json(); notify(d.message || 'Updated!'); loadOrders(); loadProfile();
+        const d = await r.json();
+        notify(d.message || 'Updated!');
+        loadOrders();
+        loadProfile();
     }
 
     function previewSelectedPhotos(input) {
@@ -912,6 +946,7 @@
         const price = document.getElementById('prodPrice').value;
         const stock = document.getElementById('prodStock').value;
         const link = document.getElementById('prodLink').value.trim();
+        if (!title || !cat || !price || !stock || !link) {
             notify('Please fill in Title, Category, Price, Stock, and Delivery Link.');
             return;
         }
@@ -939,15 +974,18 @@
         }
     }
 
-    function openReviewModal(pid, title) {
+    function openReviewModal(pid) {
         document.getElementById('revProductId').value = pid;
-        document.getElementById('revModalTitle').innerText = `Review: ${title}`;
+        document.getElementById('revModalTitle').innerText = 'Leave a Review';
         document.getElementById('reviewModal').classList.remove('hidden');
     }
 
     async function submitReview() {
         const r = await fetch('/api/reviews/', { method: 'POST', headers, body: JSON.stringify({ product: document.getElementById('revProductId').value, rating: document.getElementById('revRating').value, comment: document.getElementById('revComment').value }) });
-        if (r.ok) { notify('Review submitted!'); document.getElementById('reviewModal').classList.add('hidden'); }
+        if (r.ok) {
+            notify('Review submitted!');
+            document.getElementById('reviewModal').classList.add('hidden');
+        }
     }
 
     async function submitSupport() {
@@ -955,7 +993,14 @@
         if (r.ok) notify('Support ticket sent!');
     }
 
-    else { loadProfile(); loadLoggedProducts(); if (userRole === 'customer') loadCart(); else loadOrders(); }
+    if (!isAuth) {
+        initGuestStorefront();
+    } else {
+        loadProfile();
+        loadLoggedProducts();
+        if (userRole === 'customer') loadCart();
+        else loadOrders();
+    }
 </script>
 </body>
 </html>
