@@ -448,13 +448,13 @@
                         <div class="form-group"><label>Product Title</label><input type="text" id="prodTitle" placeholder="e.g. Burgundy Birthday Flipbook Template"></div>
                         <div class="form-group">
                             <label>Select Category</label>
-                            <select id="prodCat">
-                                <option value="" disabled selected>Choose a category</option>
-                                <option value="Canva Templates">Canva Templates</option>
-                                <option value="Digital Books">Digital Books</option>
-                                <option value="Notion Templates">Notion Templates</option>
-                                <option value="Printable Planners">Printable Planners</option>
-                            </select>
+                            <input list="catOptions" id="prodCat" placeholder="Select or type a new category..." autocomplete="off">
+                            <datalist id="catOptions">
+                                <option value="Canva Templates">
+                                <option value="Digital Books">
+                                <option value="Notion Templates">
+                                <option value="Printable Planners">
+                            </datalist>
                         </div>
                         <div class="form-group"><label>Price (₱)</label><input type="number" id="prodPrice" placeholder="e.g. 199"></div>
                         <div class="form-group"><label>Stock</label><input type="number" id="prodStock" placeholder="e.g. 50"></div>
@@ -942,7 +942,7 @@
 
     async function createProduct() {
         const title = document.getElementById('prodTitle').value.trim();
-        const cat = document.getElementById('prodCat').value;
+        const cat = document.getElementById('prodCat').value.trim();
         const price = document.getElementById('prodPrice').value;
         const stock = document.getElementById('prodStock').value;
         const link = document.getElementById('prodLink').value.trim();
@@ -965,7 +965,7 @@
         if (r.ok) {
             notify('Listing published!');
             ['prodTitle', 'prodPrice', 'prodStock', 'prodSizes', 'prodLink', 'prodDesc', 'prodPhotosInput'].forEach(id => document.getElementById(id).value = '');
-            document.getElementById('prodCat').selectedIndex = 0;
+            document.getElementById('prodCat').value = '';
             document.getElementById('uploadPreviewStrip').innerHTML = '';
             loadLoggedProducts();
             showTab('seller-listings', null);
