@@ -31,7 +31,8 @@ def public_shops_api(request):
             "username": s.username,
             "shop_name": s.shop_name or s.username,
             "shop_tagline": s.shop_tagline or "DIGITAL CREATOR SHOP",
-            "shop_banner_url": s.shop_banner_url,
+            "shop_banner_url": s.shop_banner.url if s.shop_banner else s.shop_banner_url,
+            "shop_logo_url": s.shop_logo.url if s.shop_logo else "",
             "bio": s.shop_or_bio,
             "sales_count": s.sales_count,
             "followers_count": s.followers_count,
@@ -52,6 +53,7 @@ def currency_rates_api(request):
 class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
 

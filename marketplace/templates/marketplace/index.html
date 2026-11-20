@@ -325,7 +325,7 @@
                 <button class="side-btn" onclick="showTab('seller-listings', this)">My Shop Listings</button>
                 <button class="side-btn" onclick="showTab('seller-orders', this)">Orders & Email Delivery <span class="count-pill" id="orderCount">0</span></button>
                 <button class="side-btn" onclick="showTab('seller-add', this)">+ Create Listing</button>
-                <button class="side-btn" onclick="showTab('profile', this)">Shop Profile & Banner</button>
+                <button class="side-btn" onclick="showTab('profile', this)">Shop Profile</button>
             {% endif %}
         </div>
         <a href="/api/" style="font-size:0.8rem; color:var(--muted); text-decoration:none;">↗ View REST API Endpoints</a>
@@ -421,7 +421,16 @@
                         {% if user.role == 'seller' %}
                         <div class="form-group"><label>Shop Name</label><input type="text" id="profShopName"></div>
                         <div class="form-group"><label>Shop Tagline</label><input type="text" id="profShopTagline"></div>
-                        <div class="form-group"><label>Shop Cover Banner URL</label><input type="url" id="profShopBanner"></div>
+                        <div class="form-group">
+                            <label>Shop Logo</label>
+                            <input type="file" id="profShopLogoFile" accept="image/*" onchange="previewShopImage(this, 'logoPreviewImg')">
+                            <img id="logoPreviewImg" src="" alt="Logo Preview" class="hidden" style="width:64px; height:64px; object-fit:cover; border-radius:12px; border:1px solid var(--border); margin-top:8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Shop Cover Banner</label>
+                            <input type="file" id="profShopBannerFile" accept="image/*" onchange="previewShopImage(this, 'bannerPreviewImg')">
+                            <img id="bannerPreviewImg" src="" alt="Banner Preview" class="hidden" style="width:100%; max-width:240px; height:64px; object-fit:cover; border-radius:10px; border:1px solid var(--border); margin-top:8px;">
+                        </div>
                         {% endif %}
                         <div class="form-group"><label>Payment / Payout Method</label><input type="text" id="profPayment"></div>
                     </div>
@@ -548,7 +557,7 @@
                     <div class="shop-card-content">
                         <div class="shop-info-row">
                             <div style="display:flex; align-items:center; gap:12px;">
-                                <div class="shop-avatar-box ${idx === 1 ? 'blue-av' : ''}">${initials}</div>
+                                ${s.shop_logo_url ? `<img src="${s.shop_logo_url}" style="width:46px; height:46px; border-radius:12px; object-fit:cover; border:1px solid var(--border);">` : `<div class="shop-avatar-box ${idx === 1 ? 'blue-av' : ''}">${initials}</div>`}
                                 <div>
                                     <h3 style="font-size:1.1rem; font-weight:800;">${s.shop_name} <span style="color:var(--blue);">✓</span></h3>
                                     <small style="color:var(--muted);">@${s.username} &bull; ${s.sales_count.toLocaleString()} sales</small>
@@ -626,7 +635,13 @@
         document.getElementById('pubShopBanner').style.backgroundImage = `url('${shop.shop_banner_url}')`;
         document.getElementById('pubShopTagline').innerText = shop.shop_tagline;
         document.getElementById('pubShopHeadline').innerText = shop.shop_name;
-        document.getElementById('pubShopInitials').innerText = shop.shop_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        const pubAv = document.getElementById('pubShopInitials');
+        if (shop.shop_logo_url) {
+            pubAv.innerHTML = `<img src="${shop.shop_logo_url}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+            pubAv.style.background = '#fff';
+        } else {
+            pubAv.innerText = shop.shop_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        }
         document.getElementById('pubShopName').innerHTML = `${shop.shop_name} <span style="color:var(--blue);">✓</span>`;
         document.getElementById('pubShopHandle').innerText = `@${shop.username}`;
         document.getElementById('pubShopSales').innerText = `${shop.sales_count.toLocaleString()} Sales`;

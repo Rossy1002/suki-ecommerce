@@ -2,14 +2,24 @@ from rest_framework import serializers
 from .models import User, DigitalProduct, ProductImage, Wishlist, CartItem, Order, Review, SupportTicket
 
 class UserSerializer(serializers.ModelSerializer):
+    effective_banner = serializers.SerializerMethodField()
+    effective_logo = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
             'id', 'username', 'first_name', 'last_name', 'email', 'role',
             'suki_wallet_balance', 'saved_payment_method', 'shop_name',
-            'shop_tagline', 'shop_banner_url', 'shop_or_bio', 'sales_count', 'followers_count'
+            'shop_tagline', 'shop_logo', 'shop_banner', 'shop_banner_url',
+            'effective_banner', 'effective_logo', 'shop_or_bio', 'sales_count', 'followers_count'
         ]
         read_only_fields = ['username', 'role', 'suki_wallet_balance']
+
+    def get_effective_banner(self, obj):
+        return obj.shop_banner.url if obj.shop_banner else obj.shop_banner_url
+
+    def get_effective_logo(self, obj):
+        return obj.shop_logo.url if obj.shop_logo else '' 
 
 class ReviewSerializer(serializers.ModelSerializer):
     customer_name = serializers.ReadOnlyField(source='customer.username')

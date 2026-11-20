@@ -11,6 +11,8 @@ class User(AbstractUser):
     saved_payment_method = models.CharField(max_length=100, default="Suki Wallet")
     shop_name = models.CharField(max_length=120, blank=True)
     shop_tagline = models.CharField(max_length=120, blank=True, default="CREATIVE DIGITAL SHOP")
+    shop_logo = models.ImageField(upload_to="shops/", blank=True, null=True)
+    shop_banner = models.ImageField(upload_to="shops/", blank=True, null=True)
     shop_banner_url = models.URLField(blank=True, default="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&q=80")
     shop_or_bio = models.TextField(blank=True, default="Verified Suki Digital Member")
     sales_count = models.PositiveIntegerField(default=0)
