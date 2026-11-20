@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from marketplace.views import (
-    storefront_view, UserProfileViewSet, ProductViewSet, WishlistViewSet,
+    storefront_view, currency_rates_api, UserProfileViewSet, ProductViewSet, WishlistViewSet,
     CartViewSet, OrderViewSet, ReviewViewSet, SupportViewSet
 )
 
@@ -20,6 +20,7 @@ router.register(r'support', SupportViewSet, basename='support')
 urlpatterns = [
     path('', storefront_view, name='home'),
     path('admin/', admin.site.urls),
+    path('api/exchange-rates/', currency_rates_api, name='exchange-rates'),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
