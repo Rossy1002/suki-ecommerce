@@ -2,6 +2,7 @@ import uuid
 import json
 import urllib.request
 from django.shortcuts import render
+from django.contrib.auth import authenticate, login
 from django.db import transaction
 from django.db.models import Sum, Count
 from django.core.mail import send_mail
@@ -15,6 +16,48 @@ from .serializers import (
     CartItemSerializer, OrderSerializer, ReviewSerializer, SupportTicketSerializer
 )
 
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def api_login_view(request):
+    username = request.data.get('username', '').strip()
+    password = request.data.get('password', '')
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return Response({'message': 'Logged in successfully!', 'role': user.role})
+    return Response({'error': 'Invalid username or password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def api_register_view(request):
+    username = request.data.get('username', '').strip()
+    email = request.data.get('email', '').strip()
+    password = request.data.get('password', '')
+    role = request.data.get('role', 'seller')
+    shop_name = request.data.get('shop_name', '').strip()
+    shop_tagline = request.data.get('shop_tagline', '').strip() or 'CREATIVE DIGITAL SHOP'
+
+    if not username or not password:
+        return Response({'error': 'Username and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username is already taken.'}, status=status.HTTP_400_BAD_REQUEST)
+    if role == 'seller' and not shop_name:
+        return Response({'error': 'Please enter your Shop Name.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = User.objects.create_user(
+        username=username,
+        email=email or f'{username}@suki.ph',
+        password=password,
+        role=role,
+        suki_wallet_balance=0.00 if role == 'seller' else 5000.00,
+        shop_name=shop_name if role == 'seller' else '',
+        shop_tagline=shop_tagline if role == 'seller' else '',
+        shop_or_bio=f'Welcome to {shop_name}!' if role == 'seller' else 'Verified Suki Buyer'
+    )
+    login(request, user)
+    return Response({'message': 'Account created!', 'role': user.role}, status=status.HTTP_201_CREATED)
+
 def storefront_view(request):
     return render(request, 'marketplace/index.html')
 
@@ -22,7 +65,7 @@ def storefront_view(request):
 @permission_classes([permissions.AllowAny])
 def public_shops_api(request):
     """Public endpoint so guests can view Featured Seller Shops without logging in."""
-    sellers = User.objects.filter(role='seller').order_by('id')
+    sellers = User.objects.filter(role='seller', is_superuser=False).order_by('id')
     result = []
     for s in sellers:
         prods = DigitalProduct.objects.filter(seller=s).order_by('-id')
