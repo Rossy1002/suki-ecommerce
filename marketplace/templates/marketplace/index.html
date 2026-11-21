@@ -1031,6 +1031,12 @@
             }).join('');
         }
 
+        const catSelect = document.getElementById('catFilterSelect');
+        if (catSelect) {
+            const uniqueCats = [...new Set(allProducts.map(p => p.category.trim()).filter(Boolean))].sort();
+            catSelect.innerHTML = '<option value="All">All Categories</option>' +
+                uniqueCats.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
         renderDiscoverProducts(allProducts);
     }
 
@@ -1043,10 +1049,9 @@
 
     function filterLandingProducts() {
         const q = (document.getElementById('landingSearchInput')?.value || '').toLowerCase();
-        const dropCat = document.getElementById('catFilterSelect')?.value || 'All';
-        const effectiveCat = activeCatPill !== 'All' ? activeCatPill : dropCat;
+        const selectedCat = document.getElementById('catFilterSelect')?.value || 'All';
         const filtered = allProducts.filter(p => {
-            const matchCat = effectiveCat === 'All' || p.category.toLowerCase().includes(effectiveCat.toLowerCase());
+            const matchCat = selectedCat === 'All' || p.category.toLowerCase() === selectedCat.toLowerCase();
             const matchQ = !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || (p.seller_name && p.seller_name.toLowerCase().includes(q));
             return matchCat && matchQ;
         });
