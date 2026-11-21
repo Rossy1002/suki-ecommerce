@@ -350,6 +350,7 @@
             <h2 style="font-size:1.25rem; font-weight:800;">Log in to Suki</h2>
         </div>
 
+        <div id="loginErrorMsg" class="hidden" style="background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:10px 12px; border-radius:10px; font-size:0.83rem; font-weight:600; margin-bottom:12px;"></div>
         <div class="form-group">
             <input type="text" id="loginUser" placeholder="Email or username" style="padding:12px 14px; border-radius:12px;">
         </div>
@@ -856,6 +857,7 @@
         } else if (mode === 'buyer') {
             document.getElementById('buyerSignupModal')?.classList.remove('hidden');
         } else {
+            document.getElementById('loginErrorMsg')?.classList.add('hidden');
             document.getElementById('loginModal')?.classList.remove('hidden');
         }
     }
@@ -883,12 +885,35 @@
     }
 
     async function submitPopupLogin() {
-        const username = document.getElementById('loginUser').value.trim();
-        const password = document.getElementById('loginPass').value;
-        if (!username || !password) {
-            notify('Please enter your email/username and password.');
+        const userEl = document.getElementById('loginUser');
+        const passEl = document.getElementById('loginPass');
+        const errBox = document.getElementById('loginErrorMsg');
+        const username = (userEl ? userEl.value : '').trim();
+        const password = passEl ? passEl.value : '';
+
+        function showLoginErr(msg) {
+            if (errBox) {
+                errBox.innerText = msg;
+                errBox.classList.remove('hidden');
+            }
+            notify(msg);
+        }
+
+        if (errBox) errBox.classList.add('hidden');
+
+        if (!username && !password) {
+            showLoginErr('Please enter your email or username and password.');
             return;
         }
+        if (!username) {
+            showLoginErr('Please enter your email or username.');
+            return;
+        }
+        if (!password) {
+            showLoginErr('Please enter your password.');
+            return;
+        }
+
         const res = await fetch('/api/login/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
@@ -899,7 +924,7 @@
             notify('Logged in!');
             window.location.reload();
         } else {
-            notify(data.error || 'Invalid login credentials.');
+            showLoginErr(data.error || 'Incorrect email/username or password. Please try again.');
         }
     }
 

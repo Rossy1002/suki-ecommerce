@@ -22,15 +22,22 @@ from .serializers import (
 def api_login_view(request):
     login_id = request.data.get('username', '').strip()
     password = request.data.get('password', '')
+    if not login_id and not password:
+        return Response({'error': 'Please enter your email or username and password.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not login_id:
+        return Response({'error': 'Please enter your email or username.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not password:
+        return Response({'error': 'Please enter your password.'}, status=status.HTTP_400_BAD_REQUEST)
+
     user = authenticate(request, username=login_id, password=password)
-    if user is None and '@' in login_id:
-        matched = User.objects.filter(email__iexact=login_id).first()
+    if user is None:
+        matched = User.objects.filter(email__iexact=login_id).first() or User.objects.filter(username__iexact=login_id).first()
         if matched:
             user = authenticate(request, username=matched.username, password=password)
     if user is not None:
         login(request, user)
         return Response({'message': 'Logged in successfully!', 'role': user.role})
-    return Response({'error': 'Invalid email/username or password.'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': 'Incorrect email/username or password. Please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
