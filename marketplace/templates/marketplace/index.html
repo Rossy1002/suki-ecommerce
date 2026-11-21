@@ -152,7 +152,7 @@
             <option value="Canva Templates">Canva Templates</option>
             <option value="Digital Books">Digital Books</option>
         </select>
-        <input type="text" id="landingSearchInput" placeholder="Search e-books, Canva templates, and services..." onkeyup="filterLandingProducts()">
+        <input type="text" id="landingSearchInput" name="suki_catalog_filter" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search e-books, Canva templates, and services..." onkeyup="filterLandingProducts()">
     </div>
 
     <div style="display:flex; gap:0.75rem; align-items:center;" id="landingNavActions">
@@ -1049,7 +1049,7 @@
         const effectiveCat = activeCatPill !== 'All' ? activeCatPill : dropCat;
         const filtered = allProducts.filter(p => {
             const matchCat = effectiveCat === 'All' || p.category.toLowerCase().includes(effectiveCat.toLowerCase());
-            const matchQ = !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+            const matchQ = !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || (p.seller_name && p.seller_name.toLowerCase().includes(q));
             return matchCat && matchQ;
         });
         renderDiscoverProducts(filtered);
@@ -1313,7 +1313,7 @@
                     <div>
                         <span class="cat-pill">${p.category} &bull; ${p.shop_display_name}</span>
                         <h3 style="font-size:1rem; margin-bottom:4px;">${p.title}</h3>
-                        <p style="font-size:0.84rem; color:var(--muted); margin-bottom:8px;">${p.description}</p>
+                        <p style="font-size:0.84rem; color:var(--muted); margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis;">${p.description}</p>
                         <div style="font-size:0.75rem; color:var(--blue); margin-bottom:8px;">Photos: ${p.gallery.length} &bull; Stock: ${p.stock_licenses}</div>
                         ${userRole === 'customer' ? `
                             <select id="sizeSel-${p.id}" style="margin-bottom:10px; font-size:0.82rem;">
