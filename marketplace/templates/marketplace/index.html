@@ -383,19 +383,39 @@
         </div>
 
         <div id="createShopStep1">
-            <div class="form-group"><label>Shop Name</label><input type="text" id="csShopName" placeholder="e.g. Studio Manila Creative"></div>
+            <div class="form-group"><label>Shop Name</label><input type="text" id="csShopName" placeholder="Shop name"></div>
+            <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Name</div>
             <div class="form-grid">
-                <div class="form-group"><label>First Name</label><input type="text" id="csFirstName" placeholder="e.g. Maria"></div>
-                <div class="form-group"><label>Last Name</label><input type="text" id="csLastName" placeholder="e.g. Santos"></div>
+                <div class="form-group"><input type="text" id="csFirstName" placeholder="First name"></div>
+                <div class="form-group"><input type="text" id="csLastName" placeholder="Last name"></div>
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select id="csGender">
+                    <option value="" disabled selected>Select your gender</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                </select>
             </div>
             <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
-                <div><input type="text" id="csCountry" placeholder="Country (e.g. Philippines)"></div>
-                <div><input type="text" id="csRegion" placeholder="Region (e.g. Bicol)"></div>
-                <div><input type="text" id="csCity" placeholder="City (e.g. Naga City)"></div>
+            <div style="display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
+                <div>
+                    <select id="csCountry">
+                        <option value="Philippines" selected>Philippines</option>
+                        <option value="Singapore">Singapore</option>
+                        <option value="United States">United States</option>
+                        <option value="Japan">Japan</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                    </select>
+                </div>
+                <div><input type="text" id="csRegion" placeholder="Region"></div>
+                <div><input type="text" id="csCity" placeholder="City"></div>
             </div>
-            <div class="form-group"><label>Email</label><input type="email" id="csEmail" placeholder="you@example.com"></div>
-            <div class="form-group"><label>Password</label><input type="password" id="csPassword" placeholder="Create a password"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="csEmail" placeholder="Email"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="csPassword" placeholder="Password"></div>
             <button type="button" class="btn" style="width:100%; justify-content:center; padding:12px;" onclick="goCreateShopStep2()">Next Step &rarr;</button>
         </div>
 
