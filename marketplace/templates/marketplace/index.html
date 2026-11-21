@@ -885,9 +885,10 @@
     }
 
     async function submitPopupLogin() {
-        const userEl = document.getElementById('loginUser');
-        const passEl = document.getElementById('loginPass');
-        const errBox = document.getElementById('loginErrorMsg');
+        const modalRoot = document.getElementById('loginModal');
+        const userEl = modalRoot ? modalRoot.querySelector('input[type="text"]') : document.getElementById('loginUser');
+        const passEl = modalRoot ? modalRoot.querySelector('input[type="password"]') : document.getElementById('loginPass');
+        const errBox = modalRoot ? modalRoot.querySelector('#loginErrorMsg') : document.getElementById('loginErrorMsg');
         const username = (userEl ? userEl.value : '').trim();
         const password = passEl ? passEl.value : '';
 
