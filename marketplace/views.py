@@ -41,7 +41,8 @@ def api_register_view(request):
     email = request.data.get('email', '').strip()
     password = request.data.get('password', '')
     shop_name = request.data.get('shop_name', '').strip()
-    country = request.data.get('country', '').strip()
+    gender = request.data.get('gender', '').strip()
+    country = request.data.get('country', 'Philippines').strip()
     region = request.data.get('region', '').strip()
     city = request.data.get('city', '').strip()
     raw_user = request.data.get('username', '').strip()
@@ -74,6 +75,7 @@ def api_register_view(request):
         suki_wallet_balance=0.00 if role == 'seller' else 5000.00,
         shop_name=shop_name if role == 'seller' else '',
         shop_tagline='CREATIVE DIGITAL SHOP' if role == 'seller' else '',
+        gender=gender,
         country=country,
         region=region,
         city=city,
