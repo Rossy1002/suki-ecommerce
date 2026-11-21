@@ -20,43 +20,73 @@ from .serializers import (
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def api_login_view(request):
-    username = request.data.get('username', '').strip()
+    login_id = request.data.get('username', '').strip()
     password = request.data.get('password', '')
-    user = authenticate(request, username=username, password=password)
+    user = authenticate(request, username=login_id, password=password)
+    if user is None and '@' in login_id:
+        matched = User.objects.filter(email__iexact=login_id).first()
+        if matched:
+            user = authenticate(request, username=matched.username, password=password)
     if user is not None:
         login(request, user)
         return Response({'message': 'Logged in successfully!', 'role': user.role})
-    return Response({'error': 'Invalid username or password.'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': 'Invalid email/username or password.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def api_register_view(request):
-    username = request.data.get('username', '').strip()
+    role = request.data.get('role', 'seller')
+    first_name = request.data.get('first_name', '').strip()
+    last_name = request.data.get('last_name', '').strip()
     email = request.data.get('email', '').strip()
     password = request.data.get('password', '')
-    role = request.data.get('role', 'seller')
     shop_name = request.data.get('shop_name', '').strip()
-    shop_tagline = request.data.get('shop_tagline', '').strip() or 'CREATIVE DIGITAL SHOP'
+    country = request.data.get('country', '').strip()
+    region = request.data.get('region', '').strip()
+    city = request.data.get('city', '').strip()
+    raw_user = request.data.get('username', '').strip()
 
-    if not username or not password:
-        return Response({'error': 'Username and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username is already taken.'}, status=status.HTTP_400_BAD_REQUEST)
-    if role == 'seller' and not shop_name:
-        return Response({'error': 'Please enter your Shop Name.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not email or not password:
+        return Response({'error': 'Email and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+    if User.objects.filter(email__iexact=email).exists():
+        return Response({'error': 'An account with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if role == 'seller':
+        if not shop_name or not first_name or not last_name:
+            return Response({'error': 'Shop Name, First Name, and Last Name are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        base_handle = ''.join(c for c in shop_name.lower() if c.isalnum())[:16] or email.split('@')[0]
+    else:
+        base_handle = raw_user or email.split('@')[0]
+
+    username = base_handle
+    counter = 1
+    while User.objects.filter(username=username).exists():
+        username = f"{base_handle}{counter}"
+        counter += 1
 
     user = User.objects.create_user(
         username=username,
-        email=email or f'{username}@suki.ph',
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
         password=password,
         role=role,
         suki_wallet_balance=0.00 if role == 'seller' else 5000.00,
         shop_name=shop_name if role == 'seller' else '',
-        shop_tagline=shop_tagline if role == 'seller' else '',
-        shop_or_bio=f'Welcome to {shop_name}!' if role == 'seller' else 'Verified Suki Buyer'
+        shop_tagline='CREATIVE DIGITAL SHOP' if role == 'seller' else '',
+        country=country,
+        region=region,
+        city=city,
+        shop_or_bio=''
     )
+    if 'shop_logo' in request.FILES:
+        user.shop_logo = request.FILES['shop_logo']
+    if 'shop_banner' in request.FILES:
+        user.shop_banner = request.FILES['shop_banner']
+    user.save()
+
     login(request, user)
-    return Response({'message': 'Account created!', 'role': user.role}, status=status.HTTP_201_CREATED)
+    return Response({'message': 'Shop created!', 'role': user.role, 'username': user.username}, status=status.HTTP_201_CREATED)
 
 def storefront_view(request):
     return render(request, 'marketplace/index.html')
@@ -77,6 +107,7 @@ def public_shops_api(request):
             "shop_banner_url": s.shop_banner.url if s.shop_banner else s.shop_banner_url,
             "shop_logo_url": s.shop_logo.url if s.shop_logo else "",
             "bio": s.shop_or_bio,
+            "location": ", ".join([x for x in [s.city, s.region, s.country] if x]),
             "sales_count": s.sales_count,
             "followers_count": s.followers_count,
             "products": ProductSerializer(prods, many=True).data

@@ -14,7 +14,10 @@ class User(AbstractUser):
     shop_logo = models.ImageField(upload_to="shops/", blank=True, null=True)
     shop_banner = models.ImageField(upload_to="shops/", blank=True, null=True)
     shop_banner_url = models.URLField(blank=True, default="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&q=80")
-    shop_or_bio = models.TextField(blank=True, default="Verified Suki Digital Member")
+    country = models.CharField(max_length=80, blank=True, default="Philippines")
+    region = models.CharField(max_length=80, blank=True)
+    city = models.CharField(max_length=80, blank=True)
+    shop_or_bio = models.TextField(blank=True, default="")
     sales_count = models.PositiveIntegerField(default=0)
     followers_count = models.PositiveIntegerField(default=120)
 

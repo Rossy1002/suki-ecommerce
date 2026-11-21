@@ -577,6 +577,9 @@
                         {% if user.role == 'seller' %}
                         <div class="form-group"><label>Shop Name</label><input type="text" id="profShopName"></div>
                         <div class="form-group"><label>Shop Tagline</label><input type="text" id="profShopTagline"></div>
+                        <div class="form-group"><label>Country</label><input type="text" id="profCountry"></div>
+                        <div class="form-group"><label>Region</label><input type="text" id="profRegion"></div>
+                        <div class="form-group"><label>City</label><input type="text" id="profCity"></div>
                         <div class="form-group">
                             <label>Shop Logo</label>
                             <input type="file" id="profShopLogoFile" accept="image/*" onchange="previewShopImage(this, 'logoPreviewImg')">
@@ -683,47 +686,51 @@
 
 <div id="toast"></div>
 <script>
-    let currentSignupRole = 'seller';
+    function closeAllAuthModals() {
+        ['loginModal', 'createShopModal', 'buyerSignupModal'].forEach(id => {
+            document.getElementById(id)?.classList.add('hidden');
+        });
+    }
 
     function openAuthModal(mode) {
-        const modal = document.getElementById('authModal');
-        if (!modal) return;
-        modal.classList.remove('hidden');
-        switchAuthMode(mode || 'login');
-    }
-
-    function closeAuthModal() {
-        document.getElementById('authModal')?.classList.add('hidden');
-    }
-
-    function switchAuthMode(mode) {
-        ['authTabLogin', 'authTabShop', 'authTabCustomer'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-        if (mode === 'login') {
-            document.getElementById('authTabLogin').classList.add('active');
-            document.getElementById('authFormLogin').classList.remove('hidden');
-            document.getElementById('authFormSignup').classList.add('hidden');
+        closeAllAuthModals();
+        if (mode === 'shop') {
+            backCreateShopStep1();
+            document.getElementById('createShopModal')?.classList.remove('hidden');
+        } else if (mode === 'buyer') {
+            document.getElementById('buyerSignupModal')?.classList.remove('hidden');
         } else {
-            document.getElementById('authFormLogin').classList.add('hidden');
-            document.getElementById('authFormSignup').classList.remove('hidden');
-            if (mode === 'shop') {
-                currentSignupRole = 'seller';
-                document.getElementById('authTabShop').classList.add('active');
-                document.getElementById('shopOnlyFields').classList.remove('hidden');
-                document.getElementById('regSubmitBtn').innerText = 'Create Shop & Open Dashboard';
-            } else {
-                currentSignupRole = 'customer';
-                document.getElementById('authTabCustomer').classList.add('active');
-                document.getElementById('shopOnlyFields').classList.add('hidden');
-                document.getElementById('regSubmitBtn').innerText = 'Create Buyer Account';
-            }
+            document.getElementById('loginModal')?.classList.remove('hidden');
         }
+    }
+
+    function goCreateShopStep2() {
+        const shopName = document.getElementById('csShopName').value.trim();
+        const firstName = document.getElementById('csFirstName').value.trim();
+        const lastName = document.getElementById('csLastName').value.trim();
+        const email = document.getElementById('csEmail').value.trim();
+        const password = document.getElementById('csPassword').value;
+        if (!shopName || !firstName || !lastName || !email || !password) {
+            notify('Please fill in Shop Name, First Name, Last Name, Email, and Password.');
+            return;
+        }
+        document.getElementById('createShopStep1').classList.add('hidden');
+        document.getElementById('createShopStep2').classList.remove('hidden');
+        document.getElementById('shopStepIndicator').innerText = 'Step 2 of 2';
+    }
+
+    function backCreateShopStep1() {
+        document.getElementById('createShopStep2')?.classList.add('hidden');
+        document.getElementById('createShopStep1')?.classList.remove('hidden');
+        const ind = document.getElementById('shopStepIndicator');
+        if (ind) ind.innerText = 'Step 1 of 2';
     }
 
     async function submitPopupLogin() {
         const username = document.getElementById('loginUser').value.trim();
         const password = document.getElementById('loginPass').value;
         if (!username || !password) {
-            notify('Please enter your username and password.');
+            notify('Please enter your email/username and password.');
             return;
         }
         const res = await fetch('/api/login/', {
@@ -733,30 +740,59 @@
         });
         const data = await res.json();
         if (res.ok) {
-            notify('Welcome back!');
+            notify('Logged in!');
             window.location.reload();
         } else {
             notify(data.error || 'Invalid login credentials.');
         }
     }
 
-    async function submitPopupRegister() {
-        const payload = {
-            role: currentSignupRole,
-            shop_name: document.getElementById('regShopName').value.trim(),
-            shop_tagline: document.getElementById('regShopTagline').value.trim(),
-            username: document.getElementById('regUser').value.trim(),
-            email: document.getElementById('regEmail').value.trim(),
-            password: document.getElementById('regPass').value
-        };
+    async function submitCreateShop() {
+        const fd = new FormData();
+        fd.append('role', 'seller');
+        fd.append('shop_name', document.getElementById('csShopName').value.trim());
+        fd.append('first_name', document.getElementById('csFirstName').value.trim());
+        fd.append('last_name', document.getElementById('csLastName').value.trim());
+        fd.append('country', document.getElementById('csCountry').value.trim());
+        fd.append('region', document.getElementById('csRegion').value.trim());
+        fd.append('city', document.getElementById('csCity').value.trim());
+        fd.append('email', document.getElementById('csEmail').value.trim());
+        fd.append('password', document.getElementById('csPassword').value);
+
+        const logoInput = document.getElementById('csLogoFile');
+        const bannerInput = document.getElementById('csBannerFile');
+        if (logoInput && logoInput.files.length > 0) fd.append('shop_logo', logoInput.files[0]);
+        if (bannerInput && bannerInput.files.length > 0) fd.append('shop_banner', bannerInput.files[0]);
+
         const res = await fetch('/api/register/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-            body: JSON.stringify(payload)
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: fd
         });
         const data = await res.json();
         if (res.ok) {
-            notify('Account created! Opening your dashboard...');
+            notify('Shop created! Opening your Seller Dashboard...');
+            window.location.reload();
+        } else {
+            notify(data.error || 'Could not create shop.');
+        }
+    }
+
+    async function submitBuyerSignup() {
+        const res = await fetch('/api/register/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({
+                role: 'customer',
+                first_name: document.getElementById('bFirstName').value.trim(),
+                last_name: document.getElementById('bLastName').value.trim(),
+                email: document.getElementById('bEmail').value.trim(),
+                password: document.getElementById('bPassword').value
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            notify('Account created!');
             window.location.reload();
         } else {
             notify(data.error || 'Could not create account.');
@@ -833,7 +869,7 @@
                             </div>
                             <button class="btn btn-sm" onclick="openPublicShop(${s.id})">Visit shop</button>
                         </div>
-                        <p style="font-size:0.86rem; color:var(--muted);">${s.bio}</p>
+                        ${s.bio ? `<p style="font-size:0.86rem; color:var(--muted);">${s.bio}</p>` : ""}
                         <div class="shop-thumbs">${thumbs}</div>
                     </div>
                 </div>`;
@@ -915,7 +951,7 @@
         document.getElementById('pubShopName').innerHTML = `${shop.shop_name} <span style="color:var(--blue);">✓</span>`;
         document.getElementById('pubShopHandle').innerText = `@${shop.username}`;
         document.getElementById('pubShopSales').innerText = `${shop.sales_count.toLocaleString()} Sales`;
-        document.getElementById('pubShopBio').innerText = shop.bio;
+        const bioEl = document.getElementById('pubShopBio'); bioEl.innerText = shop.bio || ''; bioEl.classList.toggle('hidden', !shop.bio);
         document.getElementById('pubShopItemCount').innerText = `All Items (${shop.products.length})`;
 
         document.getElementById('pubShopProductsGrid').innerHTML = shop.products.map(p => `
@@ -1050,6 +1086,9 @@
                 if (document.getElementById('profShopName')) {
                     document.getElementById('profShopName').value = u.shop_name || '';
                     document.getElementById('profShopTagline').value = u.shop_tagline || '';
+                    if (document.getElementById('profCountry')) document.getElementById('profCountry').value = u.country || '';
+                    if (document.getElementById('profRegion')) document.getElementById('profRegion').value = u.region || '';
+                    if (document.getElementById('profCity')) document.getElementById('profCity').value = u.city || '';
                     if (u.effective_logo) {
                         const lImg = document.getElementById('logoPreviewImg');
                         if (lImg) { lImg.src = u.effective_logo; lImg.classList.remove('hidden'); }
@@ -1072,6 +1111,9 @@
         if (document.getElementById('profShopName')) {
             fd.append('shop_name', document.getElementById('profShopName').value);
             fd.append('shop_tagline', document.getElementById('profShopTagline').value);
+            if (document.getElementById('profCountry')) fd.append('country', document.getElementById('profCountry').value);
+            if (document.getElementById('profRegion')) fd.append('region', document.getElementById('profRegion').value);
+            if (document.getElementById('profCity')) fd.append('city', document.getElementById('profCity').value);
             const logoInput = document.getElementById('profShopLogoFile');
             const bannerInput = document.getElementById('profShopBannerFile');
             if (logoInput && logoInput.files.length > 0) fd.append('shop_logo', logoInput.files[0]);
@@ -1380,4 +1422,444 @@
     }
 </script>
 </body>
-</html>
+</html><!-- 1. FACEBOOK-STYLE LOG IN MODAL (ONLY LOG IN + CREATE NEW ACCOUNT BUTTON) -->
+<div id="loginModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAllAuthModals()">
+    <div class="modal-card" style="max-width:410px; position:relative; padding:2rem;">
+        <button type="button" onclick="closeAllAuthModals()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:1.25rem;">
+            <div class="logo-icon" style="width:30px; height:30px; font-size:0.9rem;">S</div>
+            <h2 style="font-size:1.25rem; font-weight:800;">Log in to Suki</h2>
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="loginUser" placeholder="Email or username" style="padding:12px 14px; border-radius:12px;">
+        </div>
+        <div class="form-group">
+            <input type="password" id="loginPass" placeholder="Password" style="padding:12px 14px; border-radius:12px;" onkeydown="if(event.key==='Enter') submitPopupLogin()">
+        </div>
+
+        <button type="button" class="btn" style="width:100%; justify-content:center; padding:12px; border-radius:99px; font-size:0.95rem;" onclick="submitPopupLogin()">Log in</button>
+
+        <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
+            <button type="button" class="btn btn-outline" style="width:100%; justify-content:center; padding:11px; border-radius:99px; color:var(--blue); border-color:var(--blue);" onclick="openAuthModal('buyer')">Create new account</button>
+        </div>
+
+        <div style="margin-top:12px; font-size:0.75rem; color:var(--muted); background:#f8fafc; padding:9px 12px; border-radius:10px; border:1px solid var(--border);">
+            <strong>Demo Logins:</strong><br>
+            Sellers: <code>maya@suki.ph</code> / <code>aklat@suki.ph</code> (<code>sell1234</code>)<br>
+            Buyers: <code>customer1@suki.ph</code> / <code>customer2@suki.ph</code> (<code>pass1234</code>)
+        </div>
+    </div>
+</div>
+
+<div id="createShopModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAllAuthModals()">
+    <div class="modal-card" style="max-width:500px; position:relative; padding:2rem; max-height:92vh; overflow-y:auto;">
+        <button type="button" onclick="closeAllAuthModals()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-right:1.5rem;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div class="logo-icon" style="width:28px; height:28px; font-size:0.85rem;">S</div>
+                <strong style="font-size:1.15rem;">Create a Shop</strong>
+            </div>
+            <span class="cat-pill" id="shopStepIndicator" style="margin:0;">Step 1 of 2</span>
+        </div>
+
+        <div id="createShopStep1">
+            <div class="form-group"><label>Shop Name</label><input type="text" id="csShopName" placeholder="e.g. Studio Manila Creative"></div>
+            <div class="form-grid">
+                <div class="form-group"><label>First Name</label><input type="text" id="csFirstName" placeholder="e.g. Maria"></div>
+                <div class="form-group"><label>Last Name</label><input type="text" id="csLastName" placeholder="e.g. Santos"></div>
+            </div>
+            <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
+                <div><input type="text" id="csCountry" placeholder="Country (e.g. Philippines)"></div>
+                <div><input type="text" id="csRegion" placeholder="Region (e.g. Bicol)"></div>
+                <div><input type="text" id="csCity" placeholder="City (e.g. Naga City)"></div>
+            </div>
+            <div class="form-group"><label>Email</label><input type="email" id="csEmail" placeholder="you@example.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="csPassword" placeholder="Create a password"></div>
+            <button type="button" class="btn" style="width:100%; justify-content:center; padding:12px;" onclick="goCreateShopStep2()">Next Step &rarr;</button>
+        </div>
+
+        <div id="createShopStep2" class="hidden">
+            <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1rem;">Add your Shop Logo and Cover Banner to personalize your storefront (optional—you can skip this and add them later in Shop Profile).</p>
+            <div class="form-group">
+                <label>Shop Logo (Optional)</label>
+                <input type="file" id="csLogoFile" accept="image/*" onchange="previewShopImage(this, 'csLogoPrev')">
+                <img id="csLogoPrev" src="" class="hidden" style="width:68px; height:68px; object-fit:cover; border-radius:14px; border:1px solid var(--border); margin-top:8px;">
+            </div>
+            <div class="form-group">
+                <label>Cover Banner (Optional)</label>
+                <input type="file" id="csBannerFile" accept="image/*" onchange="previewShopImage(this, 'csBannerPrev')">
+                <img id="csBannerPrev" src="" class="hidden" style="width:100%; height:90px; object-fit:cover; border-radius:10px; border:1px solid var(--border); margin-top:8px;">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:1.25rem;">
+                <button type="button" class="btn btn-outline" onclick="backCreateShopStep1()">&larr; Back</button>
+                <button type="button" class="btn" style="flex:1; justify-content:center; padding:12px;" onclick="submitCreateShop()">CREATE SHOP</button>
+            </div>
+            <div style="text-align:center; margin-top:10px;">
+                <button type="button" onclick="submitCreateShop()" style="background:none; border:none; color:var(--muted); font-size:0.83rem; font-weight:600; cursor:pointer; text-decoration:underline;">Skip for now & Create Shop</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="buyerSignupModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAllAuthModals()">
+    <div class="modal-card" style="max-width:420px; position:relative; padding:2rem;">
+        <button type="button" onclick="closeAllAuthModals()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1rem;">Create Buyer Account</h2>
+        <div class="form-grid">
+            <div class="form-group"><label>First Name</label><input type="text" id="bFirstName" placeholder="First name"></div>
+            <div class="form-group"><label>Last Name</label><input type="text" id="bLastName" placeholder="Last name"></div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" id="bEmail" placeholder="you@example.com"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="bPassword" placeholder="Create a password"></div>
+        <button type="button" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitBuyerSignup()">Sign Up</button>
+        <div style="text-align:center; margin-top:10px;">
+            <button type="button" onclick="openAuthModal('login')" style="background:none; border:none; color:var(--blue); font-size:0.84rem; font-weight:600; cursor:pointer;">Already have an account? Log in</button>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- ==================== LOGGED-IN WORKSPACE (CUSTOMER & SELLER DASHBOARDS) ==================== -->
+<div class="app-shell">
+    <aside class="sidebar">
+        <div>
+            <div class="logo-wrap" style="margin-bottom:1.5rem;">
+                <div class="logo-icon">S</div>
+                <span class="logo-text">Suki</span>
+                <span class="cat-pill" style="margin:0;">{{ user.role }}</span>
+            </div>
+
+            {% if user.role == 'customer' %}
+                <button class="side-btn active" onclick="showTab('overview', this)">Catalog & Shop</button>
+                <button class="side-btn" onclick="showTab('cart', this)">Shopping Cart <span class="count-pill" id="cartCount">0</span></button>
+                <button class="side-btn" onclick="showTab('wishlist', this)">My Wishlist</button>
+                <button class="side-btn" onclick="showTab('orders', this)">Orders & Reviews</button>
+                <button class="side-btn" onclick="showTab('support', this)">Customer Support</button>
+                <button class="side-btn" onclick="showTab('profile', this)">My Profile & Wallet</button>
+            
+<div id="authModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAuthModal()">
+    <div class="modal-card" style="max-width:440px; position:relative;">
+        <button type="button" onclick="closeAuthModal()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem;">
+            <div class="logo-icon" style="width:28px; height:28px; font-size:0.85rem;">S</div>
+            <strong style="font-size:1.1rem;">Suki Marketplace</strong>
+        </div>
+
+        <div style="display:flex; background:#f1f5f9; padding:4px; border-radius:10px; gap:4px; margin-bottom:1.25rem;">
+            <button type="button" id="authTabLogin" class="filter-pill active" style="flex:1;" onclick="switchAuthMode('login')">Log In</button>
+            <button type="button" id="authTabShop" class="filter-pill" style="flex:1;" onclick="switchAuthMode('shop')">Create a Shop</button>
+            <button type="button" id="authTabCustomer" class="filter-pill" style="flex:1;" onclick="switchAuthMode('customer')">Sign Up Buyer</button>
+        </div>
+
+        <div id="authFormLogin">
+            <div class="form-group"><label>Username</label><input type="text" id="loginUser" placeholder="e.g. mayadesigns or customer1"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" onkeydown="if(event.key==='Enter') submitPopupLogin()"></div>
+            <button type="button" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupLogin()">Log In to Suki</button>
+            <div style="margin-top:12px; font-size:0.78rem; color:var(--muted); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--border);">
+                <strong>Demo Accounts:</strong><br>
+                Sellers: <code>mayadesigns</code> / <code>aklatdigital</code> (pass: <code>sell1234</code>)<br>
+                Buyers: <code>customer1</code> / <code>customer2</code> (pass: <code>pass1234</code>)
+            </div>
+        </div>
+
+        <div id="authFormSignup" class="hidden">
+            <div id="shopOnlyFields">
+                <div class="form-group"><label>Shop Name</label><input type="text" id="regShopName" placeholder="e.g. Studio Manila Creative"></div>
+                <div class="form-group"><label>Shop Specialty / Tagline</label><input type="text" id="regShopTagline" placeholder="e.g. CANVA & NOTION TEMPLATES"></div>
+            </div>
+            <div class="form-group"><label>Username</label><input type="text" id="regUser" placeholder="Choose a unique username"></div>
+            <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Create a password"></div>
+            <button type="button" id="regSubmitBtn" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupRegister()">Launch My Shop</button>
+        </div>
+    </div>
+</div>
+
+{% else %}
+                <button class="side-btn active" onclick="showTab('overview', this)">Overview & Analytics</button>
+                <button class="side-btn" onclick="showTab('seller-listings', this)">My Shop Listings</button>
+                <button class="side-btn" onclick="showTab('seller-orders', this)">Orders & Email Delivery <span class="count-pill" id="orderCount">0</span></button>
+                <button class="side-btn" onclick="showTab('seller-add', this)">+ Create Listing</button>
+                <button class="side-btn" onclick="showTab('profile', this)">Shop Profile</button>
+            {% endif %}
+        </div>
+        <a href="/api/" style="font-size:0.8rem; color:var(--muted); text-decoration:none;">↗ View REST API Endpoints</a>
+    </aside>
+
+    <div class="main-area">
+        <header class="topbar">
+            <div>
+                <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">{{ user.role }} Workspace</small>
+                <h2 id="pageHeading" style="font-size:1.15rem;">{% if user.role == 'seller' %}{{ user.shop_name|default:user.username }}
+<div id="authModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAuthModal()">
+    <div class="modal-card" style="max-width:440px; position:relative;">
+        <button type="button" onclick="closeAuthModal()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem;">
+            <div class="logo-icon" style="width:28px; height:28px; font-size:0.85rem;">S</div>
+            <strong style="font-size:1.1rem;">Suki Marketplace</strong>
+        </div>
+
+        <div style="display:flex; background:#f1f5f9; padding:4px; border-radius:10px; gap:4px; margin-bottom:1.25rem;">
+            <button type="button" id="authTabLogin" class="filter-pill active" style="flex:1;" onclick="switchAuthMode('login')">Log In</button>
+            <button type="button" id="authTabShop" class="filter-pill" style="flex:1;" onclick="switchAuthMode('shop')">Create a Shop</button>
+            <button type="button" id="authTabCustomer" class="filter-pill" style="flex:1;" onclick="switchAuthMode('customer')">Sign Up Buyer</button>
+        </div>
+
+        <div id="authFormLogin">
+            <div class="form-group"><label>Username</label><input type="text" id="loginUser" placeholder="e.g. mayadesigns or customer1"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" onkeydown="if(event.key==='Enter') submitPopupLogin()"></div>
+            <button type="button" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupLogin()">Log In to Suki</button>
+            <div style="margin-top:12px; font-size:0.78rem; color:var(--muted); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--border);">
+                <strong>Demo Accounts:</strong><br>
+                Sellers: <code>mayadesigns</code> / <code>aklatdigital</code> (pass: <code>sell1234</code>)<br>
+                Buyers: <code>customer1</code> / <code>customer2</code> (pass: <code>pass1234</code>)
+            </div>
+        </div>
+
+        <div id="authFormSignup" class="hidden">
+            <div id="shopOnlyFields">
+                <div class="form-group"><label>Shop Name</label><input type="text" id="regShopName" placeholder="e.g. Studio Manila Creative"></div>
+                <div class="form-group"><label>Shop Specialty / Tagline</label><input type="text" id="regShopTagline" placeholder="e.g. CANVA & NOTION TEMPLATES"></div>
+            </div>
+            <div class="form-group"><label>Username</label><input type="text" id="regUser" placeholder="Choose a unique username"></div>
+            <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Create a password"></div>
+            <button type="button" id="regSubmitBtn" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupRegister()">Launch My Shop</button>
+        </div>
+    </div>
+</div>
+
+{% else %}Discover Digital Products{% endif %}</h2>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span class="wallet-chip" id="walletDisplay">Suki Wallet: ₱{{ user.suki_wallet_balance }}</span>
+                <strong style="font-size:0.88rem;">{{ user.username }}</strong>
+                <form method="post" action="/api-auth/logout/?next=/">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline btn-sm">Log out</button>
+                </form>
+            </div>
+        </header>
+
+        <div class="content-pad">
+            <!-- OVERVIEW TAB -->
+            <div id="tab-overview" class="tab-section">
+                {% if user.role == 'seller' %}
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                        <div class="panel"><h3>Total Earnings</h3><h2 id="statRevenue" style="color:var(--blue); margin-top:6px;">₱0.00</h2></div>
+                        <div class="panel"><h3>Available Wallet</h3><h2 id="statWallet" style="color:var(--success); margin-top:6px;">₱{{ user.suki_wallet_balance }}</h2></div>
+                        <div class="panel"><h3>Total Orders</h3><h2 id="statOrders" style="margin-top:6px;">0</h2></div>
+                        <div class="panel"><h3>Active Listings</h3><h2 id="statProducts" style="margin-top:6px;">0</h2></div>
+                    </div>
+                    <div class="panel">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <h3>Recent Orders to Send via Email</h3>
+                            <button class="btn btn-sm" onclick="showTab('seller-add', null)">+ Add New Template / E-Book</button>
+                        </div>
+                        <table><thead><tr><th>Order</th><th>Product</th><th>Selected Size</th><th>Status</th><th>Payout</th><th>Action</th></tr></thead><tbody id="overviewSellerOrders"></tbody></table>
+                    </div>
+                
+<div id="authModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAuthModal()">
+    <div class="modal-card" style="max-width:440px; position:relative;">
+        <button type="button" onclick="closeAuthModal()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem;">
+            <div class="logo-icon" style="width:28px; height:28px; font-size:0.85rem;">S</div>
+            <strong style="font-size:1.1rem;">Suki Marketplace</strong>
+        </div>
+
+        <div style="display:flex; background:#f1f5f9; padding:4px; border-radius:10px; gap:4px; margin-bottom:1.25rem;">
+            <button type="button" id="authTabLogin" class="filter-pill active" style="flex:1;" onclick="switchAuthMode('login')">Log In</button>
+            <button type="button" id="authTabShop" class="filter-pill" style="flex:1;" onclick="switchAuthMode('shop')">Create a Shop</button>
+            <button type="button" id="authTabCustomer" class="filter-pill" style="flex:1;" onclick="switchAuthMode('customer')">Sign Up Buyer</button>
+        </div>
+
+        <div id="authFormLogin">
+            <div class="form-group"><label>Username</label><input type="text" id="loginUser" placeholder="e.g. mayadesigns or customer1"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" onkeydown="if(event.key==='Enter') submitPopupLogin()"></div>
+            <button type="button" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupLogin()">Log In to Suki</button>
+            <div style="margin-top:12px; font-size:0.78rem; color:var(--muted); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--border);">
+                <strong>Demo Accounts:</strong><br>
+                Sellers: <code>mayadesigns</code> / <code>aklatdigital</code> (pass: <code>sell1234</code>)<br>
+                Buyers: <code>customer1</code> / <code>customer2</code> (pass: <code>pass1234</code>)
+            </div>
+        </div>
+
+        <div id="authFormSignup" class="hidden">
+            <div id="shopOnlyFields">
+                <div class="form-group"><label>Shop Name</label><input type="text" id="regShopName" placeholder="e.g. Studio Manila Creative"></div>
+                <div class="form-group"><label>Shop Specialty / Tagline</label><input type="text" id="regShopTagline" placeholder="e.g. CANVA & NOTION TEMPLATES"></div>
+            </div>
+            <div class="form-group"><label>Username</label><input type="text" id="regUser" placeholder="Choose a unique username"></div>
+            <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Create a password"></div>
+            <button type="button" id="regSubmitBtn" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupRegister()">Launch My Shop</button>
+        </div>
+    </div>
+</div>
+
+{% else %}
+                    <div style="display:flex; gap:10px; margin-bottom:1.25rem;">
+                        <input type="text" id="searchInput" placeholder="Search Canva templates, booklets, or e-books..." onkeyup="loadLoggedProducts()">
+                    </div>
+                    <div class="products-grid" id="customerProductGrid"></div>
+                {% endif %}
+            </div>
+
+            <!-- CUSTOMER CART -->
+            <div id="tab-cart" class="tab-section hidden">
+                <div class="panel">
+                    <h3 style="margin-bottom:1rem;">Shopping Cart</h3>
+                    <table><thead><tr><th>Product</th><th>Selected Size</th><th>Price</th><th>Qty</th><th>Subtotal</th><th>Action</th></tr></thead><tbody id="cartBody"></tbody></table>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem;">
+                        <strong id="cartTotal" style="font-size:1.15rem;">Total: ₱0.00</strong>
+                        <button class="btn btn-success" onclick="checkoutCart()">Pay with Suki Wallet</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CUSTOMER WISHLIST -->
+            <div id="tab-wishlist" class="tab-section hidden">
+                <div class="panel"><h3>Saved Wishlist</h3><table><thead><tr><th>Product</th><th>Saved On</th><th>Action</th></tr></thead><tbody id="wishlistBody"></tbody></table></div>
+            </div>
+
+            <!-- CUSTOMER ORDERS & REVIEWS -->
+            <div id="tab-orders" class="tab-section hidden">
+                <div class="panel">
+                    <h3 style="margin-bottom:0.75rem;">Pending Orders (Awaiting Email Delivery)</h3>
+                    <table><thead><tr><th>Tracking Code</th><th>Product & Size</th><th>Paid</th><th>Status</th><th>Actions</th></tr></thead><tbody id="customerPendingBody"></tbody></table>
+                </div>
+                <div class="panel">
+                    <h3 style="margin-bottom:0.75rem;">Completed Orders (Sent via Email)</h3>
+                    <table><thead><tr><th>Tracking Code</th><th>Product & Size</th><th>Paid</th><th>Status</th><th>Actions</th></tr></thead><tbody id="customerCompletedBody"></tbody></table>
+                </div>
+            </div>
+
+            <!-- CUSTOMER SUPPORT -->
+            <div id="tab-support" class="tab-section hidden">
+                <div class="panel">
+                    <h3 style="margin-bottom:1rem;">Contact Suki Support</h3>
+                    <div class="form-group"><label>Subject</label><input type="text" id="supSubject"></div>
+                    <div class="form-group"><label>Message</label><textarea id="supMessage" rows="3"></textarea></div>
+                    <button class="btn" onclick="submitSupport()">Send Ticket</button>
+                </div>
+            </div>
+
+            <!-- PROFILE TAB (CUSTOMER & SELLER) -->
+            <div id="tab-profile" class="tab-section hidden">
+                <div class="panel">
+                    <h3 style="margin-bottom:1rem;">{{ user.role|title }} Profile Settings</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
+                        <div class="form-group"><label>Email (Where digital links are sent)</label><input type="email" id="profEmail"></div>
+                        {% if user.role == 'seller' %}
+                        <div class="form-group"><label>Shop Name</label><input type="text" id="profShopName"></div>
+                        <div class="form-group"><label>Shop Tagline</label><input type="text" id="profShopTagline"></div>
+                        <div class="form-group"><label>Country</label><input type="text" id="profCountry"></div>
+                        <div class="form-group"><label>Region</label><input type="text" id="profRegion"></div>
+                        <div class="form-group"><label>City</label><input type="text" id="profCity"></div>
+                        <div class="form-group">
+                            <label>Shop Logo</label>
+                            <input type="file" id="profShopLogoFile" accept="image/*" onchange="previewShopImage(this, 'logoPreviewImg')">
+                            <img id="logoPreviewImg" src="" alt="Logo Preview" class="hidden" style="width:64px; height:64px; object-fit:cover; border-radius:12px; border:1px solid var(--border); margin-top:8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Shop Cover Banner</label>
+                            <input type="file" id="profShopBannerFile" accept="image/*" onchange="previewShopImage(this, 'bannerPreviewImg')">
+                            <img id="bannerPreviewImg" src="" alt="Banner Preview" class="hidden" style="width:100%; max-width:240px; height:64px; object-fit:cover; border-radius:10px; border:1px solid var(--border); margin-top:8px;">
+                        </div>
+                        {% endif %}
+                        <div class="form-group"><label>Payment / Payout Method</label><input type="text" id="profPayment"></div>
+                    </div>
+                    <div class="form-group"><label>Bio / Shop Description</label><textarea id="profBio" rows="2"></textarea></div>
+                    <button class="btn" onclick="saveProfile()">Save Profile</button>
+                </div>
+            </div>
+
+            <!-- SELLER LISTINGS -->
+            <div id="tab-seller-listings" class="tab-section hidden">
+                <div class="products-grid" id="sellerProductGrid"></div>
+            </div>
+
+            <!-- SELLER ORDERS -->
+            <div id="tab-seller-orders" class="tab-section hidden">
+                <div class="panel"><h3>Orders & Refunds</h3><table><thead><tr><th>Order</th><th>Product</th><th>Size</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody id="sellerOrdersBody"></tbody></table></div>
+            </div>
+
+            <!-- SELLER CREATE LISTING -->
+            <div id="tab-seller-add" class="tab-section hidden">
+                <div class="panel">
+                    <h3 style="margin-bottom:1.25rem;">Create Listing</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Product Title</label><input type="text" id="prodTitle" placeholder="e.g. Burgundy Birthday Flipbook Template"></div>
+                        <div class="form-group">
+                            <label>Select Category</label>
+                            <input list="catOptions" id="prodCat" placeholder="Select or type a new category..." autocomplete="off">
+                            <datalist id="catOptions">
+                                <option value="Canva Templates">
+                                <option value="Digital Books">
+                                <option value="Notion Templates">
+                                <option value="Printable Planners">
+                            </datalist>
+                        </div>
+                        <div class="form-group"><label>Price (₱)</label><input type="number" id="prodPrice" placeholder="e.g. 199"></div>
+                        <div class="form-group"><label>Stock</label><input type="number" id="prodStock" placeholder="e.g. 50"></div>
+                        <div class="form-group"><label>Available Sizes (Comma-separated)</label><input type="text" id="prodSizes" placeholder="e.g. A5 Booklet, A4 Magazine, US Letter"></div>
+                        <div class="form-group"><label>Delivery Link</label><input type="url" id="prodLink" placeholder="e.g. https://www.canva.com/templates/..."></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Photos (Max 10 pictures)</label>
+                        <input type="file" id="prodPhotosInput" accept="image/*" multiple onchange="previewSelectedPhotos(this)">
+                        <div id="uploadPreviewStrip" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"></div>
+                    </div>
+                    <div class="form-group"><label>Product Description</label><textarea id="prodDesc" rows="3" placeholder="Describe what is included in your template or e-book..."></textarea></div>
+                    <button class="btn" onclick="createProduct()">Publish Listing</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- REVIEW POPUP MODAL -->
+<div id="reviewModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+        <h3 id="revModalTitle" style="margin-bottom:1rem;">Leave a Review</h3>
+        <input type="hidden" id="revProductId">
+        <div class="form-group"><label>Rating</label><select id="revRating"><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option></select></div>
+        <div class="form-group"><label>Comment</label><textarea id="revComment" rows="3"></textarea></div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn btn-outline" onclick="document.getElementById('reviewModal').classList.add('hidden')">Cancel</button>
+            <button class="btn" onclick="submitReview()">Submit Review</button>
+        </div>
+    </div>
+</div>
+
+<div id="editListingModal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:640px; max-height:90vh; overflow-y:auto;">
+        <h3 style="margin-bottom:1rem;">Edit Listing</h3>
+        <input type="hidden" id="editProdId">
+        <div class="form-grid">
+            <div class="form-group"><label>Product Title</label><input type="text" id="editProdTitle"></div>
+            <div class="form-group">
+                <label>Select Category</label>
+                <input list="catOptions" id="editProdCat" autocomplete="off">
+            </div>
+            <div class="form-group"><label>Price (₱)</label><input type="number" id="editProdPrice"></div>
+            <div class="form-group"><label>Stock</label><input type="number" id="editProdStock"></div>
+            <div class="form-group"><label>Available Sizes (Comma-separated)</label><input type="text" id="editProdSizes"></div>
+            <div class="form-group"><label>Delivery Link</label><input type="url" id="editProdLink"></div>
+        </div>
+        <div class="form-group">
+            <label>Replace Photos (Optional, Max 10 pictures)</label>
+            <input type="file" id="editProdPhotos" accept="image/*" multiple>
+        </div>
+        <div class="form-group"><label>Product Description</label><textarea id="editProdDesc" rows="3"></textarea></div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn btn-outline" onclick="document.getElementById('editListingModal').classList.add('hidden')">Cancel</button>
+            <button class="btn" onclick="saveEditedProduct()">Save Changes</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div id="toast"></div>
