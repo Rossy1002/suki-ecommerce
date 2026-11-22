@@ -136,6 +136,7 @@ def currency_rates_api(request):
         return Response({"source": "Offline VM Fallback Rate", "USD": 0.0172})
 
 class UserProfileViewSet(viewsets.ModelViewSet):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
