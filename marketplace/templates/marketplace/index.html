@@ -1497,6 +1497,101 @@
         loadProfile();
     }
 
+
+
+    let currentProfileId = null;
+
+    async function loadProfile() {
+        try {
+            const res = await fetch('/api/profile/');
+            if (!res.ok) return;
+            const data = await res.json();
+            const u = Array.isArray(data) ? (data[0] || {}) : (data.results ? (data.results[0] || {}) : data);
+            if (!u || !u.username) return;
+            currentProfileId = u.id;
+
+            const setAll = (id, val) => {
+                document.querySelectorAll('#' + id).forEach(el => {
+                    el.value = val || '';
+                });
+            };
+            setAll('profUsername', u.username);
+            setAll('profEmail', u.email);
+            setAll('profFirstName', u.first_name);
+            setAll('profLastName', u.last_name);
+            setAll('profPhone', u.phone_number);
+            setAll('profCountry', u.country || 'Philippines');
+            setAll('profRegion', u.region);
+            setAll('profCity', u.city);
+            setAll('profPayment', u.saved_payment_method);
+            setAll('profBio', u.shop_or_bio);
+            setAll('profShopName', u.shop_name);
+            setAll('profShopTagline', u.shop_tagline);
+
+            document.querySelectorAll('#logoPreview').forEach(lp => {
+                if (u.shop_logo) {
+                    lp.src = u.shop_logo;
+                    lp.style.display = 'block';
+                }
+            });
+            document.querySelectorAll('#bannerPreview').forEach(bp => {
+                if (u.shop_banner) {
+                    bp.src = u.shop_banner;
+                    bp.style.display = 'block';
+                }
+            });
+        } catch (e) {
+            console.error('loadProfile error:', e);
+        }
+    }
+
+    async function saveProfile() {
+        if (!currentProfileId) await loadProfile();
+        const fd = new FormData();
+        const getVisibleVal = (id) => {
+            const els = Array.from(document.querySelectorAll('#' + id));
+            const vis = els.find(el => el.offsetParent !== null) || els[0];
+            return vis ? vis.value : '';
+        };
+        fd.append('email', getVisibleVal('profEmail'));
+        fd.append('first_name', getVisibleVal('profFirstName'));
+        fd.append('last_name', getVisibleVal('profLastName'));
+        fd.append('phone_number', getVisibleVal('profPhone'));
+        fd.append('country', getVisibleVal('profCountry'));
+        fd.append('region', getVisibleVal('profRegion'));
+        fd.append('city', getVisibleVal('profCity'));
+        fd.append('saved_payment_method', getVisibleVal('profPayment'));
+        fd.append('shop_or_bio', getVisibleVal('profBio'));
+        if (document.querySelector('#profShopName')) fd.append('shop_name', getVisibleVal('profShopName'));
+        if (document.querySelector('#profShopTagline')) fd.append('shop_tagline', getVisibleVal('profShopTagline'));
+
+        const logoInput = document.getElementById('profLogo');
+        if (logoInput && logoInput.files && logoInput.files[0]) {
+            fd.append('shop_logo', logoInput.files[0]);
+        }
+        const bannerInput = document.getElementById('profBanner');
+        if (bannerInput && bannerInput.files && bannerInput.files[0]) {
+            fd.append('shop_banner', bannerInput.files[0]);
+        }
+
+        const targetUrl = currentProfileId ? `/api/profile/${currentProfileId}/` : '/api/profile/';
+        const res = await fetch(targetUrl, {
+            method: 'PATCH',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: fd
+        });
+        if (res.ok) {
+            showToast(userRole === 'seller' ? 'Shop profile saved!' : 'Profile saved!');
+            await loadProfile();
+        } else {
+            showToast('Failed to save profile');
+        }
+    }
+
+    if (typeof isAuth !== 'undefined' && isAuth) {
+        loadProfile();
+    }
+
 </script>
 </body>
 </html>
