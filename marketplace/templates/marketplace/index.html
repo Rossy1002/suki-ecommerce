@@ -132,6 +132,7 @@
         .modal-card { background: #fff; border-radius: 16px; padding: 1.75rem; width: 100%; max-width: 440px; }
         #toast { position: fixed; bottom: 20px; right: 20px; background: var(--blue-dark); color: white; padding: 12px 20px; border-radius: 10px; font-size: 0.9rem; display: none; z-index: 999; }
         .hidden { display: none !important; }
+    .modal-backdrop.hidden { display: none !important; pointer-events: none !important; }
     </style>
 </head>
 <body>
@@ -1311,3 +1312,19 @@
     }
 
     
+
+    function switchTab(tabId, btnEl) {
+        document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
+        const target = document.getElementById(tabId);
+        if (target) target.classList.remove('hidden');
+        if (btnEl) {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+        }
+    }
+
+    function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    }
+
