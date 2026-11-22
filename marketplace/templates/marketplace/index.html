@@ -500,350 +500,9 @@
                 <button class="side-btn" onclick="showTab('support', this)">Customer Support</button>
                 <button class="side-btn" onclick="showTab('profile', this)">My Profile & Wallet</button>
             
-<div id="authModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAuthModal()">
-    <div class="modal-card" style="max-width:440px; position:relative;">
-        <button type="button" onclick="closeAuthModal()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--muted);">&times;</button>
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem;">
-            <div class="logo-icon" style="width:28px; height:28px; font-size:0.85rem;">S</div>
-            <strong style="font-size:1.1rem;">Suki Marketplace</strong>
-        </div>
 
-        <div style="display:flex; background:#f1f5f9; padding:4px; border-radius:10px; gap:4px; margin-bottom:1.25rem;">
-            <button type="button" id="authTabLogin" class="filter-pill active" style="flex:1;" onclick="switchAuthMode('login')">Log In</button>
-            <button type="button" id="authTabShop" class="filter-pill" style="flex:1;" onclick="switchAuthMode('shop')">Create a Shop</button>
-            <button type="button" id="authTabCustomer" class="filter-pill" style="flex:1;" onclick="switchAuthMode('customer')">Sign Up Buyer</button>
-        </div>
-
-        <div id="authFormLogin">
-            <div class="form-group"><label>Username</label><input type="text" id="loginUser" placeholder="e.g. mayadesigns or customer1"></div>
-            <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" onkeydown="if(event.key==='Enter') submitPopupLogin()"></div>
-            <button type="button" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupLogin()">Log In to Suki</button>
-            <div style="margin-top:12px; font-size:0.78rem; color:var(--muted); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--border);">
-                <strong>Demo Accounts:</strong><br>
-                Sellers: <code>mayadesigns</code> / <code>aklatdigital</code> (pass: <code>sell1234</code>)<br>
-                Buyers: <code>customer1</code> / <code>customer2</code> (pass: <code>pass1234</code>)
-            </div>
-        </div>
-
-        <div id="authFormSignup" class="hidden">
-            <div id="shopOnlyFields">
-                <div class="form-group"><label>Shop Name</label><input type="text" id="regShopName" placeholder="e.g. Studio Manila Creative"></div>
-                <div class="form-group"><label>Shop Specialty / Tagline</label><input type="text" id="regShopTagline" placeholder="e.g. CANVA & NOTION TEMPLATES"></div>
-            </div>
-            <div class="form-group"><label>Username</label><input type="text" id="regUser" placeholder="Choose a unique username"></div>
-            <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
-            <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Create a password"></div>
-            <button type="button" id="regSubmitBtn" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupRegister()">Launch My Shop</button>
-        </div>
-    </div>
-</div>
-
-{% else %}
-                <button class="side-btn active" onclick="showTab('overview', this)">Overview & Analytics</button>
-                <button class="side-btn" onclick="showTab('seller-listings', this)">My Shop Listings</button>
-                <button class="side-btn" onclick="showTab('seller-orders', this)">Orders & Email Delivery <span class="count-pill" id="orderCount">0</span></button>
-                <button class="side-btn" onclick="showTab('seller-add', this)">+ Create Listing</button>
-                <button class="side-btn" onclick="showTab('profile', this)">Shop Profile</button>
-            {% endif %}
-        </div>
-        <a href="/api/" style="font-size:0.8rem; color:var(--muted); text-decoration:none;">↗ View REST API Endpoints</a>
-    </aside>
-
-    <div class="main-area">
-        <header class="topbar">
-            <div>
-                <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">{{ user.role }} Workspace</small>
-                <h2 id="pageHeading" style="font-size:1.15rem;">{% if user.role == 'seller' %}{{ user.shop_name|default:user.username }}
-<div id="authModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAuthModal()">
-    <div class="modal-card" style="max-width:440px; position:relative;">
-        <button type="button" onclick="closeAuthModal()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--muted);">&times;</button>
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem;">
-            <div class="logo-icon" style="width:28px; height:28px; font-size:0.85rem;">S</div>
-            <strong style="font-size:1.1rem;">Suki Marketplace</strong>
-        </div>
-
-        <div style="display:flex; background:#f1f5f9; padding:4px; border-radius:10px; gap:4px; margin-bottom:1.25rem;">
-            <button type="button" id="authTabLogin" class="filter-pill active" style="flex:1;" onclick="switchAuthMode('login')">Log In</button>
-            <button type="button" id="authTabShop" class="filter-pill" style="flex:1;" onclick="switchAuthMode('shop')">Create a Shop</button>
-            <button type="button" id="authTabCustomer" class="filter-pill" style="flex:1;" onclick="switchAuthMode('customer')">Sign Up Buyer</button>
-        </div>
-
-        <div id="authFormLogin">
-            <div class="form-group"><label>Username</label><input type="text" id="loginUser" placeholder="e.g. mayadesigns or customer1"></div>
-            <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" onkeydown="if(event.key==='Enter') submitPopupLogin()"></div>
-            <button type="button" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupLogin()">Log In to Suki</button>
-            <div style="margin-top:12px; font-size:0.78rem; color:var(--muted); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--border);">
-                <strong>Demo Accounts:</strong><br>
-                Sellers: <code>mayadesigns</code> / <code>aklatdigital</code> (pass: <code>sell1234</code>)<br>
-                Buyers: <code>customer1</code> / <code>customer2</code> (pass: <code>pass1234</code>)
-            </div>
-        </div>
-
-        <div id="authFormSignup" class="hidden">
-            <div id="shopOnlyFields">
-                <div class="form-group"><label>Shop Name</label><input type="text" id="regShopName" placeholder="e.g. Studio Manila Creative"></div>
-                <div class="form-group"><label>Shop Specialty / Tagline</label><input type="text" id="regShopTagline" placeholder="e.g. CANVA & NOTION TEMPLATES"></div>
-            </div>
-            <div class="form-group"><label>Username</label><input type="text" id="regUser" placeholder="Choose a unique username"></div>
-            <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
-            <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Create a password"></div>
-            <button type="button" id="regSubmitBtn" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupRegister()">Launch My Shop</button>
-        </div>
-    </div>
-</div>
-
-{% else %}Discover Digital Products{% endif %}</h2>
-            </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <span class="wallet-chip" id="walletDisplay">Suki Wallet: ₱{{ user.suki_wallet_balance }}</span>
-                <strong style="font-size:0.88rem;">{{ user.username }}</strong>
-                <form method="post" action="/api-auth/logout/?next=/">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline btn-sm">Log out</button>
-                </form>
-            </div>
-        </header>
-
-        <div class="content-pad">
-            <!-- OVERVIEW TAB -->
-            <div id="tab-overview" class="tab-section">
-                {% if user.role == 'seller' %}
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-                        <div class="panel"><h3>Total Earnings</h3><h2 id="statRevenue" style="color:var(--blue); margin-top:6px;">₱0.00</h2></div>
-                        <div class="panel"><h3>Available Wallet</h3><h2 id="statWallet" style="color:var(--success); margin-top:6px;">₱{{ user.suki_wallet_balance }}</h2></div>
-                        <div class="panel"><h3>Total Orders</h3><h2 id="statOrders" style="margin-top:6px;">0</h2></div>
-                        <div class="panel"><h3>Active Listings</h3><h2 id="statProducts" style="margin-top:6px;">0</h2></div>
-                    </div>
-                    <div class="panel">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                            <h3>Recent Orders to Send via Email</h3>
-                            <button class="btn btn-sm" onclick="showTab('seller-add', null)">+ Add New Template / E-Book</button>
-                        </div>
-                        <table><thead><tr><th>Order</th><th>Product</th><th>Selected Size</th><th>Status</th><th>Payout</th><th>Action</th></tr></thead><tbody id="overviewSellerOrders"></tbody></table>
-                    </div>
-                
-<div id="authModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAuthModal()">
-    <div class="modal-card" style="max-width:440px; position:relative;">
-        <button type="button" onclick="closeAuthModal()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--muted);">&times;</button>
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem;">
-            <div class="logo-icon" style="width:28px; height:28px; font-size:0.85rem;">S</div>
-            <strong style="font-size:1.1rem;">Suki Marketplace</strong>
-        </div>
-
-        <div style="display:flex; background:#f1f5f9; padding:4px; border-radius:10px; gap:4px; margin-bottom:1.25rem;">
-            <button type="button" id="authTabLogin" class="filter-pill active" style="flex:1;" onclick="switchAuthMode('login')">Log In</button>
-            <button type="button" id="authTabShop" class="filter-pill" style="flex:1;" onclick="switchAuthMode('shop')">Create a Shop</button>
-            <button type="button" id="authTabCustomer" class="filter-pill" style="flex:1;" onclick="switchAuthMode('customer')">Sign Up Buyer</button>
-        </div>
-
-        <div id="authFormLogin">
-            <div class="form-group"><label>Username</label><input type="text" id="loginUser" placeholder="e.g. mayadesigns or customer1"></div>
-            <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" onkeydown="if(event.key==='Enter') submitPopupLogin()"></div>
-            <button type="button" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupLogin()">Log In to Suki</button>
-            <div style="margin-top:12px; font-size:0.78rem; color:var(--muted); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--border);">
-                <strong>Demo Accounts:</strong><br>
-                Sellers: <code>mayadesigns</code> / <code>aklatdigital</code> (pass: <code>sell1234</code>)<br>
-                Buyers: <code>customer1</code> / <code>customer2</code> (pass: <code>pass1234</code>)
-            </div>
-        </div>
-
-        <div id="authFormSignup" class="hidden">
-            <div id="shopOnlyFields">
-                <div class="form-group"><label>Shop Name</label><input type="text" id="regShopName" placeholder="e.g. Studio Manila Creative"></div>
-                <div class="form-group"><label>Shop Specialty / Tagline</label><input type="text" id="regShopTagline" placeholder="e.g. CANVA & NOTION TEMPLATES"></div>
-            </div>
-            <div class="form-group"><label>Username</label><input type="text" id="regUser" placeholder="Choose a unique username"></div>
-            <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
-            <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Create a password"></div>
-            <button type="button" id="regSubmitBtn" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitPopupRegister()">Launch My Shop</button>
-        </div>
-    </div>
-</div>
-
-{% else %}
-                    <div style="display:flex; gap:10px; margin-bottom:1.25rem;">
-                        <input type="text" id="searchInput" placeholder="Search Canva templates, booklets, or e-books..." onkeyup="loadLoggedProducts()">
-                    </div>
-                    <div class="products-grid" id="customerProductGrid"></div>
-                {% endif %}
-            </div>
-
-            <!-- CUSTOMER CART -->
-            <div id="tab-cart" class="tab-section hidden">
-                <div class="panel">
-                    <h3 style="margin-bottom:1rem;">Shopping Cart</h3>
-                    <table><thead><tr><th>Product</th><th>Selected Size</th><th>Price</th><th>Qty</th><th>Subtotal</th><th>Action</th></tr></thead><tbody id="cartBody"></tbody></table>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem;">
-                        <strong id="cartTotal" style="font-size:1.15rem;">Total: ₱0.00</strong>
-                        <button class="btn btn-success" onclick="checkoutCart()">Pay with Suki Wallet</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CUSTOMER WISHLIST -->
-            <div id="tab-wishlist" class="tab-section hidden">
-                <div class="panel"><h3>Saved Wishlist</h3><table><thead><tr><th>Product</th><th>Saved On</th><th>Action</th></tr></thead><tbody id="wishlistBody"></tbody></table></div>
-            </div>
-
-            <!-- CUSTOMER ORDERS & REVIEWS -->
-            <div id="tab-orders" class="tab-section hidden">
-                <div class="panel">
-                    <h3 style="margin-bottom:0.75rem;">Pending Orders (Awaiting Email Delivery)</h3>
-                    <table><thead><tr><th>Tracking Code</th><th>Product & Size</th><th>Paid</th><th>Status</th><th>Actions</th></tr></thead><tbody id="customerPendingBody"></tbody></table>
-                </div>
-                <div class="panel">
-                    <h3 style="margin-bottom:0.75rem;">Completed Orders (Sent via Email)</h3>
-                    <table><thead><tr><th>Tracking Code</th><th>Product & Size</th><th>Paid</th><th>Status</th><th>Actions</th></tr></thead><tbody id="customerCompletedBody"></tbody></table>
-                </div>
-            </div>
-
-            <!-- CUSTOMER SUPPORT -->
-            <div id="tab-support" class="tab-section hidden">
-                <div class="panel">
-                    <h3 style="margin-bottom:1rem;">Contact Suki Support</h3>
-                    <div class="form-group"><label>Subject</label><input type="text" id="supSubject"></div>
-                    <div class="form-group"><label>Message</label><textarea id="supMessage" rows="3"></textarea></div>
-                    <button class="btn" onclick="submitSupport()">Send Ticket</button>
-                </div>
-            </div>
-
-            <!-- PROFILE TAB (CUSTOMER & SELLER) -->
-            <div id="tab-profile" class="tab-section hidden">
-                <div class="panel-box" style="max-width:860px;">
-                    {% if user.role == 'customer' %}
-                    <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem;">Customer Profile Settings</h2>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
-                        <div class="form-group"><label>Email (Where digital links are sent)</label><input type="email" id="profEmail"></div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>First Name</label><input type="text" id="profFirstName" placeholder="First name"></div>
-                        <div class="form-group"><label>Last Name</label><input type="text" id="profLastName" placeholder="Last name"></div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="profPhone" placeholder="e.g. 0917 123 4567"></div>
-                        <div class="form-group"><label>Payment / Payout Method</label><input type="text" id="profPayment"></div>
-                    </div>
-                    <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
-                        <div>
-                            <select id="profCountry">
-                                <option value="Philippines">Philippines</option>
-                                <option value="Singapore">Singapore</option>
-                                <option value="United States">United States</option>
-                                <option value="Japan">Japan</option>
-                                <option value="Canada">Canada</option>
-                                <option value="Australia">Australia</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                            </select>
-                        </div>
-                        <div><input type="text" id="profRegion" placeholder="Region"></div>
-                        <div><input type="text" id="profCity" placeholder="City"></div>
-                    </div>
-                    <div class="form-group"><label>Bio / Description</label><textarea id="profBio" rows="3" placeholder="Tell sellers a bit about yourself..."></textarea></div>
-                    <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn" style="width:auto; padding:10px 24px;" onclick="saveProfile()">Save Profile</button>
-                    </div>
-                    {% else %}
-                    <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem;">Shop & Seller Profile Settings</h2>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
-                        <div class="form-group"><label>Email</label><input type="email" id="profEmail"></div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Owner First Name</label><input type="text" id="profFirstName" placeholder="First name"></div>
-                        <div class="form-group"><label>Owner Last Name</label><input type="text" id="profLastName" placeholder="Last name"></div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="profPhone" placeholder="e.g. 0917 123 4567"></div>
-                        <div class="form-group"><label>Payment / Payout Method</label><input type="text" id="profPayment"></div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Shop Name</label><input type="text" id="profShopName"></div>
-                        <div class="form-group"><label>Shop Tagline</label><input type="text" id="profShopTagline"></div>
-                    </div>
-                    <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Shop Address</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
-                        <div>
-                            <select id="profCountry">
-                                <option value="Philippines">Philippines</option>
-                                <option value="Singapore">Singapore</option>
-                                <option value="United States">United States</option>
-                                <option value="Japan">Japan</option>
-                                <option value="Canada">Canada</option>
-                                <option value="Australia">Australia</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                            </select>
-                        </div>
-                        <div><input type="text" id="profRegion" placeholder="Region"></div>
-                        <div><input type="text" id="profCity" placeholder="City"></div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Shop Logo</label>
-                            <input type="file" id="profLogo" accept="image/*">
-                            <img id="logoPreview" src="" style="width:64px; height:64px; object-fit:cover; border-radius:12px; margin-top:8px; border:1px solid var(--border); display:none;">
-                        </div>
-                        <div class="form-group">
-                            <label>Shop Cover Banner</label>
-                            <input type="file" id="profBanner" accept="image/*">
-                            <img id="bannerPreview" src="" style="width:100%; max-width:240px; height:64px; object-fit:cover; border-radius:10px; margin-top:8px; border:1px solid var(--border); display:none;">
-                        </div>
-                    </div>
-                    <div class="form-group"><label>Shop Description / Bio</label><textarea id="profBio" rows="3"></textarea></div>
-                    <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn" style="width:auto; padding:10px 24px;" onclick="saveProfile()">Save Profile</button>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-    </div>
-</div>
-
-<!-- REVIEW POPUP MODAL -->
-<div id="reviewModal" class="modal-backdrop hidden">
-    <div class="modal-card">
-        <h3 id="revModalTitle" style="margin-bottom:1rem;">Leave a Review</h3>
-        <input type="hidden" id="revProductId">
-        <div class="form-group"><label>Rating</label><select id="revRating"><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option></select></div>
-        <div class="form-group"><label>Comment</label><textarea id="revComment" rows="3"></textarea></div>
-        <div style="display:flex; gap:8px; justify-content:flex-end;">
-            <button class="btn btn-outline" onclick="document.getElementById('reviewModal').classList.add('hidden')">Cancel</button>
-            <button class="btn" onclick="submitReview()">Submit Review</button>
-        </div>
-    </div>
-</div>
-
-<div id="editListingModal" class="modal-backdrop hidden">
-    <div class="modal-card" style="max-width:640px; max-height:90vh; overflow-y:auto;">
-        <h3 style="margin-bottom:1rem;">Edit Listing</h3>
-        <input type="hidden" id="editProdId">
-        <div class="form-grid">
-            <div class="form-group"><label>Product Title</label><input type="text" id="editProdTitle"></div>
-            <div class="form-group">
-                <label>Select Category</label>
-                <input list="catOptions" id="editProdCat" autocomplete="off">
-            </div>
-            <div class="form-group"><label>Price (₱)</label><input type="number" id="editProdPrice"></div>
-            <div class="form-group"><label>Stock</label><input type="number" id="editProdStock"></div>
-            <div class="form-group"><label>Available Sizes (Comma-separated)</label><input type="text" id="editProdSizes"></div>
-            <div class="form-group"><label>Delivery Link</label><input type="url" id="editProdLink"></div>
-        </div>
-        <div class="form-group">
-            <label>Replace Photos (Optional, Max 10 pictures)</label>
-            <input type="file" id="editProdPhotos" accept="image/*" multiple>
-        </div>
-        <div class="form-group"><label>Product Description</label><textarea id="editProdDesc" rows="3"></textarea></div>
-        <div style="display:flex; gap:8px; justify-content:flex-end;">
-            <button class="btn btn-outline" onclick="document.getElementById('editListingModal').classList.add('hidden')">Cancel</button>
-            <button class="btn" onclick="saveEditedProduct()">Save Changes</button>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<div id="toast"></div>
 <script>
+
     const isAuth = {{ user.is_authenticated|yesno:"true,false" }};
     const userRole = "{{ user.role }}";
     const currentUsername = "{{ user.username }}";
@@ -1252,79 +911,421 @@
     }
 
     async function loadProfile() {
-        const res = await fetch('/api/auth/profile/');
-        if (res.ok) {
-            const u = await res.json();
-            if (document.getElementById('profUsername')) document.getElementById('profUsername').value = u.username || '';
-            if (document.getElementById('profEmail')) document.getElementById('profEmail').value = u.email || '';
-            if (document.getElementById('profFirstName')) document.getElementById('profFirstName').value = u.first_name || '';
-            if (document.getElementById('profLastName')) document.getElementById('profLastName').value = u.last_name || '';
-            if (document.getElementById('profPhone')) document.getElementById('profPhone').value = u.phone_number || '';
-            if (document.getElementById('profCountry')) document.getElementById('profCountry').value = u.country || 'Philippines';
-            if (document.getElementById('profRegion')) document.getElementById('profRegion').value = u.region || '';
-            if (document.getElementById('profCity')) document.getElementById('profCity').value = u.city || '';
-            if (document.getElementById('profPayment')) document.getElementById('profPayment').value = u.saved_payment_method || '';
-            if (document.getElementById('profBio')) document.getElementById('profBio').value = u.shop_or_bio || '';
-            if (document.getElementById('profShopName')) document.getElementById('profShopName').value = u.shop_name || '';
-            if (document.getElementById('profShopTagline')) document.getElementById('profShopTagline').value = u.shop_tagline || '';
-            if (document.getElementById('logoPreview') && u.shop_logo) {
-                const lp = document.getElementById('logoPreview');
-                lp.src = u.shop_logo;
-                lp.style.display = 'block';
-            }
-            if (document.getElementById('bannerPreview') && u.shop_banner) {
-                const bp = document.getElementById('bannerPreview');
-                bp.src = u.shop_banner;
-                bp.style.display = 'block';
+        const res = await fetch('/api/profile/');
+        const data = await res.json();
+        if (data.length) {
+            const u = data[0];
+            currentUserId = u.id;
+            document.getElementById('walletDisplay').innerText = `Suki Wallet: ₱${u.suki_wallet_balance}`;
+            if (document.getElementById('statWallet')) document.getElementById('statWallet').innerText = `₱${u.suki_wallet_balance}`;
+            if (document.getElementById('profUsername')) {
+                document.getElementById('profUsername').value = u.username;
+                document.getElementById('profEmail').value = u.email || '';
+                if (document.getElementById('profFirstName')) document.getElementById('profFirstName').value = u.first_name || '';
+                if (document.getElementById('profLastName')) document.getElementById('profLastName').value = u.last_name || '';
+                if (document.getElementById('profPhone')) document.getElementById('profPhone').value = u.phone_number || '';
+                document.getElementById('profPayment').value = u.saved_payment_method || '';
+                document.getElementById('profBio').value = u.shop_or_bio || '';
+                if (document.getElementById('profShopName')) {
+                    document.getElementById('profShopName').value = u.shop_name || '';
+                    document.getElementById('profShopTagline').value = u.shop_tagline || '';
+                    if (document.getElementById('profCountry')) document.getElementById('profCountry').value = u.country || '';
+                    if (document.getElementById('profRegion')) document.getElementById('profRegion').value = u.region || '';
+                    if (document.getElementById('profCity')) document.getElementById('profCity').value = u.city || '';
+                    if (u.effective_logo) {
+                        const lImg = document.getElementById('logoPreviewImg');
+                        if (lImg) { lImg.src = u.effective_logo; lImg.classList.remove('hidden'); }
+                    }
+                    if (u.effective_banner) {
+                        const bImg = document.getElementById('bannerPreviewImg');
+                        if (bImg) { bImg.src = u.effective_banner; bImg.classList.remove('hidden'); }
+                    }
+                }
             }
         }
     }
 
     async function saveProfile() {
+        if (!currentUserId) await loadProfile();
         const fd = new FormData();
-        if (document.getElementById('profEmail')) fd.append('email', document.getElementById('profEmail').value);
+        fd.append('email', document.getElementById('profEmail').value);
         if (document.getElementById('profFirstName')) fd.append('first_name', document.getElementById('profFirstName').value);
         if (document.getElementById('profLastName')) fd.append('last_name', document.getElementById('profLastName').value);
         if (document.getElementById('profPhone')) fd.append('phone_number', document.getElementById('profPhone').value);
-        if (document.getElementById('profCountry')) fd.append('country', document.getElementById('profCountry').value);
-        if (document.getElementById('profRegion')) fd.append('region', document.getElementById('profRegion').value);
-        if (document.getElementById('profCity')) fd.append('city', document.getElementById('profCity').value);
-        if (document.getElementById('profPayment')) fd.append('saved_payment_method', document.getElementById('profPayment').value);
-        if (document.getElementById('profBio')) fd.append('shop_or_bio', document.getElementById('profBio').value);
-        if (document.getElementById('profShopName')) fd.append('shop_name', document.getElementById('profShopName').value);
-        if (document.getElementById('profShopTagline')) fd.append('shop_tagline', document.getElementById('profShopTagline').value);
-        const logoInput = document.getElementById('profLogo');
-        if (logoInput && logoInput.files[0]) fd.append('shop_logo', logoInput.files[0]);
-        const bannerInput = document.getElementById('profBanner');
-        if (bannerInput && bannerInput.files[0]) fd.append('shop_banner', bannerInput.files[0]);
-
-        const res = await fetch('/api/auth/profile/', {
+        fd.append('saved_payment_method', document.getElementById('profPayment').value);
+        fd.append('shop_or_bio', document.getElementById('profBio').value);
+        if (document.getElementById('profShopName')) {
+            fd.append('shop_name', document.getElementById('profShopName').value);
+            fd.append('shop_tagline', document.getElementById('profShopTagline').value);
+            if (document.getElementById('profCountry')) fd.append('country', document.getElementById('profCountry').value);
+            if (document.getElementById('profRegion')) fd.append('region', document.getElementById('profRegion').value);
+            if (document.getElementById('profCity')) fd.append('city', document.getElementById('profCity').value);
+            const logoInput = document.getElementById('profShopLogoFile');
+            const bannerInput = document.getElementById('profShopBannerFile');
+            if (logoInput && logoInput.files.length > 0) fd.append('shop_logo', logoInput.files[0]);
+            if (bannerInput && bannerInput.files.length > 0) fd.append('shop_banner', bannerInput.files[0]);
+        }
+        const r = await fetch(`/api/profile/${currentUserId}/`, {
             method: 'PATCH',
             headers: { 'X-CSRFToken': getCookie('csrftoken') },
             body: fd
         });
-        if (res.ok) {
-            showToast(userRole === 'seller' ? 'Shop profile saved!' : 'Profile saved!');
-            await loadProfile();
+        if (r.ok) {
+            notify('Shop profile saved!');
+            loadProfile();
         } else {
-            showToast('Failed to save profile');
+            notify('Error saving profile.');
         }
     }
 
-    
+    async function loadLoggedProducts() {
+        const q = document.getElementById('searchInput')?.value || '';
+        const res = await fetch(`/api/products/?search=${encodeURIComponent(q)}`);
+        const products = await res.json();
+        loggedProductsCache = products;
 
-    function switchTab(tabId, btnEl) {
-        document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
-        const target = document.getElementById(tabId);
-        if (target) target.classList.remove('hidden');
-        if (btnEl) {
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            btnEl.classList.add('active');
+        const visibleList = userRole === 'seller'
+            ? products.filter(p => p.seller_name === currentUsername)
+            : products;
+
+        if (document.getElementById('statProducts')) document.getElementById('statProducts').innerText = visibleList.length;
+
+        const html = visibleList.map(p => `
+            <div class="prod-card">
+                <img src="${p.gallery[0]}" alt="${p.title}">
+                <div class="prod-card-body">
+                    <div>
+                        <span class="cat-pill">${p.category} &bull; ${p.shop_display_name}</span>
+                        <h3 style="font-size:1rem; margin-bottom:4px;">${p.title}</h3>
+                        <p style="font-size:0.84rem; color:var(--muted); margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis;">${p.description}</p>
+                        <div style="font-size:0.75rem; color:var(--blue); margin-bottom:8px;">Photos: ${p.gallery.length} &bull; Stock: ${p.stock_licenses}</div>
+                        ${userRole === 'customer' ? `
+                            <select id="sizeSel-${p.id}" style="margin-bottom:10px; font-size:0.82rem;">
+                                ${p.sizes_list.map(sz => `<option value="${sz}">${sz}</option>`).join('')}
+                            </select>
+                        ` : ''}
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px; border-top:1px solid var(--border);">
+                            <strong>₱${p.price}</strong>
+                            ${userRole === 'customer' ? (p.stock_licenses > 0 ? `
+                                <div style="display:flex; gap:6px;">
+                                    <button class="btn btn-sm" onclick="addToCart(${p.id})">+ Cart</button>
+                                    <button class="btn btn-outline btn-sm" onclick="addToWishlist(${p.id})">♥</button>
+                                </div>
+                            ` : `<button class="btn btn-outline btn-sm" disabled>Sold Out</button>`) : `
+                                <div style="display:flex; gap:6px;">
+                                    <button class="btn btn-outline btn-sm" onclick="openEditListing(${p.id})">Edit</button>
+                                    <button class="btn btn-outline btn-sm" style="color:#dc2626; border-color:#fecaca;" onclick="deleteListing(${p.id})">Delete</button>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        if (document.getElementById('customerProductGrid')) document.getElementById('customerProductGrid').innerHTML = html;
+        if (document.getElementById('sellerProductGrid')) document.getElementById('sellerProductGrid').innerHTML = html;
+    }
+
+    function openEditListing(id) {
+        const p = loggedProductsCache.find(item => item.id === id);
+        if (!p) return;
+        document.getElementById('editProdId').value = p.id;
+        document.getElementById('editProdTitle').value = p.title;
+        document.getElementById('editProdCat').value = p.category;
+        document.getElementById('editProdPrice').value = p.price;
+        document.getElementById('editProdStock').value = p.stock_licenses;
+        document.getElementById('editProdSizes').value = p.available_sizes || '';
+        document.getElementById('editProdLink').value = p.download_link || '';
+        document.getElementById('editProdDesc').value = p.description || '';
+        document.getElementById('editProdPhotos').value = '';
+        document.getElementById('editListingModal').classList.remove('hidden');
+    }
+
+    async function saveEditedProduct() {
+        const id = document.getElementById('editProdId').value;
+        const fd = new FormData();
+        fd.append('title', document.getElementById('editProdTitle').value.trim());
+        fd.append('category', document.getElementById('editProdCat').value.trim());
+        fd.append('price', document.getElementById('editProdPrice').value);
+        fd.append('stock_licenses', document.getElementById('editProdStock').value);
+        fd.append('available_sizes', document.getElementById('editProdSizes').value || 'Standard Digital');
+        fd.append('download_link', document.getElementById('editProdLink').value.trim());
+        fd.append('description', document.getElementById('editProdDesc').value);
+        const files = Array.from(document.getElementById('editProdPhotos').files).slice(0, 10);
+        files.forEach(f => fd.append('images', f));
+
+        const r = await fetch(`/api/products/${id}/`, {
+            method: 'PATCH',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: fd
+        });
+        if (r.ok) {
+            notify('Listing updated!');
+            document.getElementById('editListingModal').classList.add('hidden');
+            loadLoggedProducts();
+        } else {
+            notify('Error updating listing.');
         }
     }
 
-    function closeModal(id) {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
+    async function deleteListing(id) {
+        if (!confirm('Delete this listing from your shop?')) return;
+        const r = await fetch(`/api/products/${id}/`, {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        if (r.ok) {
+            notify('Listing deleted.');
+            loadLoggedProducts();
+        }
     }
 
+    async function addToCart(id) {
+        const sz = document.getElementById(`sizeSel-${id}`)?.value || 'Standard Digital';
+        const r = await fetch('/api/cart/', { method: 'POST', headers, body: JSON.stringify({ product: id, selected_size: sz, quantity: 1 }) });
+        if (r.ok) { notify(`Added (${sz}) to cart!`); loadCart(); }
+    }
+
+    async function addToWishlist(id) {
+        const r = await fetch('/api/wishlist/', { method: 'POST', headers, body: JSON.stringify({ product: id }) });
+        if (r.ok) notify('Saved to Wishlist!');
+    }
+
+    async function loadCart() {
+        const res = await fetch('/api/cart/');
+        const items = await res.json();
+        if (document.getElementById('cartCount')) document.getElementById('cartCount').innerText = items.length;
+        const tbody = document.getElementById('cartBody');
+        if (!tbody) return;
+        let total = 0;
+        tbody.innerHTML = items.map(i => {
+            const sub = parseFloat(i.product_price) * i.quantity;
+            total += sub;
+            return `<tr><td><strong>${i.product_title}</strong></td><td>${i.selected_size}</td><td>₱${i.product_price}</td><td>${i.quantity}</td><td>₱${sub.toFixed(2)}</td><td><button class="btn btn-outline btn-sm" onclick="removeCart(${i.id})">Remove</button></td></tr>`;
+        }).join('');
+        document.getElementById('cartTotal').innerText = `Total: ₱${total.toFixed(2)}`;
+    }
+
+    async function removeCart(id) {
+        await fetch(`/api/cart/${id}/`, { method: 'DELETE', headers });
+        loadCart();
+    }
+
+    async function checkoutCart() {
+        const res = await fetch('/api/cart/checkout/', { method: 'POST', headers });
+        const data = await res.json();
+        if (res.ok) {
+            notify(`Paid ₱${data.amount_deducted}! Remaining Wallet: ₱${data.remaining_suki_wallet_balance}`);
+            loadProfile();
+            loadCart();
+            loadLoggedProducts();
+        } else {
+            notify(data.error || 'Checkout failed');
+        }
+    }
+
+    async function loadWishlist() {
+        const res = await fetch('/api/wishlist/');
+        const items = await res.json();
+        document.getElementById('wishlistBody').innerHTML = items.map(w => `<tr><td><strong>${w.product_title}</strong></td><td>${new Date(w.added_at).toLocaleDateString()}</td><td><button class="btn btn-sm" onclick="addToCart(${w.product})">Move to Cart</button></td></tr>`).join('');
+    }
+
+    let sellerOrdersCache = [];
+
+    function openSellerOrderDetails(orderId) {
+        const o = sellerOrdersCache.find(item => item.id === orderId);
+        if (!o) return;
+        document.getElementById('sodOrderRef').innerText = `Order #SK-${1000 + o.id} • Tracking: ${o.delivery_tracking_code} • Status: ${o.status}`;
+        document.getElementById('sodCustName').innerText = o.customer_full_name || o.customer_name;
+        document.getElementById('sodCustUser').innerText = o.customer_name ? `(@${o.customer_name})` : '';
+        if (document.getElementById('sodCustPhone')) document.getElementById('sodCustPhone').innerText = o.customer_phone || 'Not provided';
+        document.getElementById('sodCustEmail').innerText = o.customer_email || `${o.customer_name}@suki.ph`;
+        document.getElementById('sodCustLoc').innerText = o.customer_location || 'Philippines';
+        document.getElementById('sodProdTitle').innerText = o.product_title;
+        document.getElementById('sodProdSize').innerText = o.selected_size;
+        document.getElementById('sodProdAmount').innerText = `₱${o.total_amount}`;
+        const linkEl = document.getElementById('sodProdLink');
+        linkEl.href = o.download_link;
+        linkEl.innerText = o.download_link;
+
+        const sendBtn = document.getElementById('sodSendEmailBtn');
+        if (o.status === 'PENDING') {
+            sendBtn.classList.remove('hidden');
+            sendBtn.onclick = () => {
+                document.getElementById('sellerOrderDetailsModal').classList.add('hidden');
+                openConfirmEmailDelivery(o.id);
+            };
+        } else {
+            sendBtn.classList.add('hidden');
+        }
+        document.getElementById('sellerOrderDetailsModal').classList.remove('hidden');
+    }
+
+    function openConfirmEmailDelivery(orderId) {
+        const o = sellerOrdersCache.find(item => item.id === orderId);
+        if (!o) return;
+        const email = o.customer_email || `${o.customer_name}@suki.ph`;
+        document.getElementById('cedCustomerEmail').innerText = email;
+        document.getElementById('cedOrderCode').innerText = `#SK-${1000 + o.id}`;
+        document.getElementById('cedTemplateLink').innerText = o.download_link;
+        document.getElementById('cedConfirmBtn').onclick = async () => {
+            document.getElementById('confirmEmailDeliveryModal').classList.add('hidden');
+            await orderAction(o.id, 'fulfill');
+        };
+        document.getElementById('confirmEmailDeliveryModal').classList.remove('hidden');
+    }
+
+    async function loadOrders() {
+        const res = await fetch('/api/orders/');
+        const orders = await res.json();
+        sellerOrdersCache = orders;
+        if (userRole === 'customer') {
+            const pBody = document.getElementById('customerPendingBody');
+            const cBody = document.getElementById('customerCompletedBody');
+            if (!pBody || !cBody) return;
+            const pending = orders.filter(o => o.status === 'PENDING' || o.status === 'RETURN_REQUESTED');
+            const completed = orders.filter(o => o.status === 'DELIVERED' || o.status === 'REFUNDED');
+
+            pBody.innerHTML = pending.length ? pending.map(o => `<tr>
+                <td><code>${o.delivery_tracking_code}</code></td>
+                <td><strong>${o.product_title}</strong><br><small style="color:var(--muted);">Size: ${o.selected_size}</small></td>
+                <td>₱${o.total_amount}</td>
+                <td><span class="badge badge-pending">${o.status}</span></td>
+                <td>${o.status === 'PENDING' ? `<button class="btn btn-outline btn-sm" onclick="orderAction(${o.id}, 'request_return')">Request Return</button>` : 'Processing'}</td>
+            </tr>`).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No pending orders.</td></tr>`;
+
+            cBody.innerHTML = completed.length ? completed.map(o => `<tr>
+                <td><code>${o.delivery_tracking_code}</code></td>
+                <td>
+                    <strong>${o.product_title}</strong><br>
+                    <small style="color:var(--muted);">Size: ${o.selected_size}</small>
+                    ${o.status === 'DELIVERED' ? `<div style="margin-top:4px; font-size:0.78rem; word-break:break-all;"><span style="color:var(--success); font-weight:700;">&#10003; Sent to email & saved:</span> <a href="${o.download_link}" target="_blank" style="color:var(--blue); text-decoration:underline;">${o.download_link}</a></div>` : ''}
+                </td>
+                <td>₱${o.total_amount}</td>
+                <td><span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : ''}">${o.status === 'DELIVERED' ? 'COMPLETED' : o.status}</span></td>
+                <td style="display:flex; gap:6px; flex-wrap:wrap;">
+                    ${o.status === 'DELIVERED' ? `
+                        <a href="${o.download_link}" target="_blank" class="btn btn-success btn-sm">Open Template Link</a>
+                        <button class="btn btn-sm" onclick="openReviewModal(${o.product})">Leave Review</button>
+                        <button class="btn btn-outline btn-sm" onclick="orderAction(${o.id}, 'request_return')">Request Return</button>
+                    ` : 'Refunded'}
+                </td>
+            </tr>`).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No completed orders yet.</td></tr>`;
+        } else {
+            if (document.getElementById('orderCount')) document.getElementById('orderCount').innerText = orders.length;
+            const rows = orders.map(o => `<tr>
+                <td><strong>#SK-${1000 + o.id}</strong></td>
+                <td>
+                    <strong>${o.product_title}</strong><br>
+                    <small style="color:var(--muted);">Buyer: ${o.customer_full_name || o.customer_email || o.customer_name || 'Customer'}</small>
+                </td>
+                <td>${o.selected_size}</td>
+                <td><strong>₱${o.total_amount}</strong></td>
+                <td><span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : 'badge-pending'}">${o.status === 'DELIVERED' ? 'COMPLETED' : o.status}</span></td>
+                <td style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button class="btn btn-outline btn-sm" onclick="openSellerOrderDetails(${o.id})">Details</button>
+                    ${o.status === 'PENDING' ? `<button class="btn btn-success btn-sm" onclick="openConfirmEmailDelivery(${o.id})">Send via Email</button>` : ''}
+                    ${o.status === 'RETURN_REQUESTED' ? `<button class="btn btn-orange btn-sm" onclick="orderAction(${o.id}, 'process_refund')">Approve Refund</button>` : ''}
+                </td>
+            </tr>`).join('');
+            if (document.getElementById('sellerOrdersBody')) document.getElementById('sellerOrdersBody').innerHTML = rows;
+            if (document.getElementById('overviewSellerOrders')) document.getElementById('overviewSellerOrders').innerHTML = rows;
+            const aRes = await fetch('/api/orders/sales_analytics/');
+            if (aRes.ok) {
+                const a = await aRes.json();
+                if (document.getElementById('statRevenue')) document.getElementById('statRevenue').innerText = `₱${a.total_revenue}`;
+                if (document.getElementById('statOrders')) document.getElementById('statOrders').innerText = a.total_orders;
+            }
+        }
+    }
+
+    async function orderAction(id, act) {
+        const r = await fetch(`/api/orders/${id}/${act}/`, { method: 'POST', headers });
+        const d = await r.json();
+        notify(d.message || 'Updated!');
+        loadOrders();
+        loadProfile();
+    }
+
+    function previewSelectedPhotos(input) {
+        const strip = document.getElementById('uploadPreviewStrip');
+        strip.innerHTML = '';
+        const files = Array.from(input.files);
+        if (files.length > 10) {
+            notify('Maximum of 10 photos allowed. Only the first 10 will be uploaded.');
+        }
+        files.slice(0, 10).forEach(file => {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.style.cssText = 'width:68px; height:52px; object-fit:cover; border-radius:8px; border:1px solid var(--border);';
+            strip.appendChild(img);
+        });
+    }
+
+    async function createProduct() {
+        const title = document.getElementById('prodTitle').value.trim();
+        const cat = document.getElementById('prodCat').value.trim();
+        const price = document.getElementById('prodPrice').value;
+        const stock = document.getElementById('prodStock').value;
+        const link = document.getElementById('prodLink').value.trim();
+        if (!title || !cat || !price || !stock || !link) {
+            notify('Please fill in Title, Category, Price, Stock, and Delivery Link.');
+            return;
+        }
+        const fd = new FormData();
+        fd.append('title', title);
+        fd.append('category', cat);
+        fd.append('price', price);
+        fd.append('stock_licenses', stock);
+        fd.append('available_sizes', document.getElementById('prodSizes').value || 'Standard Digital');
+        fd.append('download_link', link);
+        fd.append('description', document.getElementById('prodDesc').value);
+        const files = Array.from(document.getElementById('prodPhotosInput').files).slice(0, 10);
+        files.forEach(f => fd.append('images', f));
+
+        const r = await fetch('/api/products/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: fd });
+        if (r.ok) {
+            notify('Listing published!');
+            ['prodTitle', 'prodCat', 'prodPrice', 'prodStock', 'prodSizes', 'prodLink', 'prodDesc', 'prodPhotosInput'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('uploadPreviewStrip').innerHTML = '';
+            loadLoggedProducts();
+            showTab('seller-listings', null);
+        } else {
+            notify('Error creating product.');
+        }
+    }
+
+    function openReviewModal(pid) {
+        document.getElementById('revProductId').value = pid;
+        document.getElementById('revModalTitle').innerText = 'Leave a Review';
+        document.getElementById('reviewModal').classList.remove('hidden');
+    }
+
+    async function submitReview() {
+        const r = await fetch('/api/reviews/', { method: 'POST', headers, body: JSON.stringify({ product: document.getElementById('revProductId').value, rating: document.getElementById('revRating').value, comment: document.getElementById('revComment').value }) });
+        if (r.ok) {
+            notify('Review submitted!');
+            document.getElementById('reviewModal').classList.add('hidden');
+        }
+    }
+
+    async function submitSupport() {
+        const r = await fetch('/api/support/', { method: 'POST', headers, body: JSON.stringify({ subject: document.getElementById('supSubject').value, message: document.getElementById('supMessage').value }) });
+        if (r.ok) notify('Support ticket sent!');
+    }
+
+    if (!isAuth) {
+        initGuestStorefront();
+    } else {
+        loadProfile();
+        loadLoggedProducts();
+        if (userRole === 'customer') loadCart();
+        else loadOrders();
+    }
+
+</script>
+</body>
+</html>
