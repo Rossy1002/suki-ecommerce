@@ -1021,7 +1021,7 @@
     async function initGuestStorefront() {
         try {
             const [sRes, pRes] = await Promise.all([
-                fetch('/api/auth/shops/'),
+                fetch('/api/shops/'),
                 fetch('/api/products/')
             ]);
             allShops = sRes.ok ? await sRes.json() : [];
@@ -1251,471 +1251,63 @@
     }
 
     async function loadProfile() {
-        const res = await fetch('/api/profile/');
-        const data = await res.json();
-        if (data.length) {
-            const u = data[0];
-            currentUserId = u.id;
-            document.getElementById('walletDisplay').innerText = `Suki Wallet: ₱${u.suki_wallet_balance}`;
-            if (document.getElementById('statWallet')) document.getElementById('statWallet').innerText = `₱${u.suki_wallet_balance}`;
-            if (document.getElementById('profUsername')) {
-                document.getElementById('profUsername').value = u.username;
-                document.getElementById('profEmail').value = u.email || '';
-                if (document.getElementById('profFirstName')) document.getElementById('profFirstName').value = u.first_name || '';
-                if (document.getElementById('profLastName')) document.getElementById('profLastName').value = u.last_name || '';
-                if (document.getElementById('profPhone')) document.getElementById('profPhone').value = u.phone_number || '';
-                document.getElementById('profPayment').value = u.saved_payment_method || '';
-                document.getElementById('profBio').value = u.shop_or_bio || '';
-                if (document.getElementById('profShopName')) {
-                    document.getElementById('profShopName').value = u.shop_name || '';
-                    document.getElementById('profShopTagline').value = u.shop_tagline || '';
-                    if (document.getElementById('profCountry')) document.getElementById('profCountry').value = u.country || '';
-                    if (document.getElementById('profRegion')) document.getElementById('profRegion').value = u.region || '';
-                    if (document.getElementById('profCity')) document.getElementById('profCity').value = u.city || '';
-                    if (u.effective_logo) {
-                        const lImg = document.getElementById('logoPreviewImg');
-                        if (lImg) { lImg.src = u.effective_logo; lImg.classList.remove('hidden'); }
-                    }
-                    if (u.effective_banner) {
-                        const bImg = document.getElementById('bannerPreviewImg');
-                        if (bImg) { bImg.src = u.effective_banner; bImg.classList.remove('hidden'); }
-                    }
-                }
+        const res = await fetch('/api/auth/profile/');
+        if (res.ok) {
+            const u = await res.json();
+            if (document.getElementById('profUsername')) document.getElementById('profUsername').value = u.username || '';
+            if (document.getElementById('profEmail')) document.getElementById('profEmail').value = u.email || '';
+            if (document.getElementById('profFirstName')) document.getElementById('profFirstName').value = u.first_name || '';
+            if (document.getElementById('profLastName')) document.getElementById('profLastName').value = u.last_name || '';
+            if (document.getElementById('profPhone')) document.getElementById('profPhone').value = u.phone_number || '';
+            if (document.getElementById('profCountry')) document.getElementById('profCountry').value = u.country || 'Philippines';
+            if (document.getElementById('profRegion')) document.getElementById('profRegion').value = u.region || '';
+            if (document.getElementById('profCity')) document.getElementById('profCity').value = u.city || '';
+            if (document.getElementById('profPayment')) document.getElementById('profPayment').value = u.saved_payment_method || '';
+            if (document.getElementById('profBio')) document.getElementById('profBio').value = u.shop_or_bio || '';
+            if (document.getElementById('profShopName')) document.getElementById('profShopName').value = u.shop_name || '';
+            if (document.getElementById('profShopTagline')) document.getElementById('profShopTagline').value = u.shop_tagline || '';
+            if (document.getElementById('logoPreview') && u.shop_logo) {
+                const lp = document.getElementById('logoPreview');
+                lp.src = u.shop_logo;
+                lp.style.display = 'block';
+            }
+            if (document.getElementById('bannerPreview') && u.shop_banner) {
+                const bp = document.getElementById('bannerPreview');
+                bp.src = u.shop_banner;
+                bp.style.display = 'block';
             }
         }
     }
 
     async function saveProfile() {
-        if (!currentUserId) await loadProfile();
         const fd = new FormData();
-        fd.append('email', document.getElementById('profEmail').value);
+        if (document.getElementById('profEmail')) fd.append('email', document.getElementById('profEmail').value);
         if (document.getElementById('profFirstName')) fd.append('first_name', document.getElementById('profFirstName').value);
         if (document.getElementById('profLastName')) fd.append('last_name', document.getElementById('profLastName').value);
         if (document.getElementById('profPhone')) fd.append('phone_number', document.getElementById('profPhone').value);
-        fd.append('saved_payment_method', document.getElementById('profPayment').value);
-        fd.append('shop_or_bio', document.getElementById('profBio').value);
-        if (document.getElementById('profShopName')) {
-            fd.append('shop_name', document.getElementById('profShopName').value);
-            fd.append('shop_tagline', document.getElementById('profShopTagline').value);
-            if (document.getElementById('profCountry')) fd.append('country', document.getElementById('profCountry').value);
-            if (document.getElementById('profRegion')) fd.append('region', document.getElementById('profRegion').value);
-            if (document.getElementById('profCity')) fd.append('city', document.getElementById('profCity').value);
-            const logoInput = document.getElementById('profShopLogoFile');
-            const bannerInput = document.getElementById('profShopBannerFile');
-            if (logoInput && logoInput.files.length > 0) fd.append('shop_logo', logoInput.files[0]);
-            if (bannerInput && bannerInput.files.length > 0) fd.append('shop_banner', bannerInput.files[0]);
-        }
-        const r = await fetch(`/api/profile/${currentUserId}/`, {
+        if (document.getElementById('profCountry')) fd.append('country', document.getElementById('profCountry').value);
+        if (document.getElementById('profRegion')) fd.append('region', document.getElementById('profRegion').value);
+        if (document.getElementById('profCity')) fd.append('city', document.getElementById('profCity').value);
+        if (document.getElementById('profPayment')) fd.append('saved_payment_method', document.getElementById('profPayment').value);
+        if (document.getElementById('profBio')) fd.append('shop_or_bio', document.getElementById('profBio').value);
+        if (document.getElementById('profShopName')) fd.append('shop_name', document.getElementById('profShopName').value);
+        if (document.getElementById('profShopTagline')) fd.append('shop_tagline', document.getElementById('profShopTagline').value);
+        const logoInput = document.getElementById('profLogo');
+        if (logoInput && logoInput.files[0]) fd.append('shop_logo', logoInput.files[0]);
+        const bannerInput = document.getElementById('profBanner');
+        if (bannerInput && bannerInput.files[0]) fd.append('shop_banner', bannerInput.files[0]);
+
+        const res = await fetch('/api/auth/profile/', {
             method: 'PATCH',
             headers: { 'X-CSRFToken': getCookie('csrftoken') },
             body: fd
         });
-        if (r.ok) {
-            notify('Shop profile saved!');
-            loadProfile();
-        } else {
-            notify('Error saving profile.');
-        }
-    }
-
-    async function loadLoggedProducts() {
-        const q = document.getElementById('searchInput')?.value || '';
-        const res = await fetch(`/api/products/?search=${encodeURIComponent(q)}`);
-        const products = await res.json();
-        loggedProductsCache = products;
-
-        const visibleList = userRole === 'seller'
-            ? products.filter(p => p.seller_name === currentUsername)
-            : products;
-
-        if (document.getElementById('statProducts')) document.getElementById('statProducts').innerText = visibleList.length;
-
-        const html = visibleList.map(p => `
-            <div class="prod-card">
-                <img src="${p.gallery[0]}" alt="${p.title}">
-                <div class="prod-card-body">
-                    <div>
-                        <span class="cat-pill">${p.category} &bull; ${p.shop_display_name}</span>
-                        <h3 style="font-size:1rem; margin-bottom:4px;">${p.title}</h3>
-                        <p style="font-size:0.84rem; color:var(--muted); margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis;">${p.description}</p>
-                        <div style="font-size:0.75rem; color:var(--blue); margin-bottom:8px;">Photos: ${p.gallery.length} &bull; Stock: ${p.stock_licenses}</div>
-                        ${userRole === 'customer' ? `
-                            <select id="sizeSel-${p.id}" style="margin-bottom:10px; font-size:0.82rem;">
-                                ${p.sizes_list.map(sz => `<option value="${sz}">${sz}</option>`).join('')}
-                            </select>
-                        ` : ''}
-                    </div>
-                    <div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px; border-top:1px solid var(--border);">
-                            <strong>₱${p.price}</strong>
-                            ${userRole === 'customer' ? (p.stock_licenses > 0 ? `
-                                <div style="display:flex; gap:6px;">
-                                    <button class="btn btn-sm" onclick="addToCart(${p.id})">+ Cart</button>
-                                    <button class="btn btn-outline btn-sm" onclick="addToWishlist(${p.id})">♥</button>
-                                </div>
-                            ` : `<button class="btn btn-outline btn-sm" disabled>Sold Out</button>`) : `
-                                <div style="display:flex; gap:6px;">
-                                    <button class="btn btn-outline btn-sm" onclick="openEditListing(${p.id})">Edit</button>
-                                    <button class="btn btn-outline btn-sm" style="color:#dc2626; border-color:#fecaca;" onclick="deleteListing(${p.id})">Delete</button>
-                                </div>
-                            `}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-
-        if (document.getElementById('customerProductGrid')) document.getElementById('customerProductGrid').innerHTML = html;
-        if (document.getElementById('sellerProductGrid')) document.getElementById('sellerProductGrid').innerHTML = html;
-    }
-
-    function openEditListing(id) {
-        const p = loggedProductsCache.find(item => item.id === id);
-        if (!p) return;
-        document.getElementById('editProdId').value = p.id;
-        document.getElementById('editProdTitle').value = p.title;
-        document.getElementById('editProdCat').value = p.category;
-        document.getElementById('editProdPrice').value = p.price;
-        document.getElementById('editProdStock').value = p.stock_licenses;
-        document.getElementById('editProdSizes').value = p.available_sizes || '';
-        document.getElementById('editProdLink').value = p.download_link || '';
-        document.getElementById('editProdDesc').value = p.description || '';
-        document.getElementById('editProdPhotos').value = '';
-        document.getElementById('editListingModal').classList.remove('hidden');
-    }
-
-    async function saveEditedProduct() {
-        const id = document.getElementById('editProdId').value;
-        const fd = new FormData();
-        fd.append('title', document.getElementById('editProdTitle').value.trim());
-        fd.append('category', document.getElementById('editProdCat').value.trim());
-        fd.append('price', document.getElementById('editProdPrice').value);
-        fd.append('stock_licenses', document.getElementById('editProdStock').value);
-        fd.append('available_sizes', document.getElementById('editProdSizes').value || 'Standard Digital');
-        fd.append('download_link', document.getElementById('editProdLink').value.trim());
-        fd.append('description', document.getElementById('editProdDesc').value);
-        const files = Array.from(document.getElementById('editProdPhotos').files).slice(0, 10);
-        files.forEach(f => fd.append('images', f));
-
-        const r = await fetch(`/api/products/${id}/`, {
-            method: 'PATCH',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') },
-            body: fd
-        });
-        if (r.ok) {
-            notify('Listing updated!');
-            document.getElementById('editListingModal').classList.add('hidden');
-            loadLoggedProducts();
-        } else {
-            notify('Error updating listing.');
-        }
-    }
-
-    async function deleteListing(id) {
-        if (!confirm('Delete this listing from your shop?')) return;
-        const r = await fetch(`/api/products/${id}/`, {
-            method: 'DELETE',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') }
-        });
-        if (r.ok) {
-            notify('Listing deleted.');
-            loadLoggedProducts();
-        }
-    }
-
-    async function addToCart(id) {
-        const sz = document.getElementById(`sizeSel-${id}`)?.value || 'Standard Digital';
-        const r = await fetch('/api/cart/', { method: 'POST', headers, body: JSON.stringify({ product: id, selected_size: sz, quantity: 1 }) });
-        if (r.ok) { notify(`Added (${sz}) to cart!`); loadCart(); }
-    }
-
-    async function addToWishlist(id) {
-        const r = await fetch('/api/wishlist/', { method: 'POST', headers, body: JSON.stringify({ product: id }) });
-        if (r.ok) notify('Saved to Wishlist!');
-    }
-
-    async function loadCart() {
-        const res = await fetch('/api/cart/');
-        const items = await res.json();
-        if (document.getElementById('cartCount')) document.getElementById('cartCount').innerText = items.length;
-        const tbody = document.getElementById('cartBody');
-        if (!tbody) return;
-        let total = 0;
-        tbody.innerHTML = items.map(i => {
-            const sub = parseFloat(i.product_price) * i.quantity;
-            total += sub;
-            return `<tr><td><strong>${i.product_title}</strong></td><td>${i.selected_size}</td><td>₱${i.product_price}</td><td>${i.quantity}</td><td>₱${sub.toFixed(2)}</td><td><button class="btn btn-outline btn-sm" onclick="removeCart(${i.id})">Remove</button></td></tr>`;
-        }).join('');
-        document.getElementById('cartTotal').innerText = `Total: ₱${total.toFixed(2)}`;
-    }
-
-    async function removeCart(id) {
-        await fetch(`/api/cart/${id}/`, { method: 'DELETE', headers });
-        loadCart();
-    }
-
-    async function checkoutCart() {
-        const res = await fetch('/api/cart/checkout/', { method: 'POST', headers });
-        const data = await res.json();
         if (res.ok) {
-            notify(`Paid ₱${data.amount_deducted}! Remaining Wallet: ₱${data.remaining_suki_wallet_balance}`);
-            loadProfile();
-            loadCart();
-            loadLoggedProducts();
+            showToast(userRole === 'seller' ? 'Shop profile saved!' : 'Profile saved!');
+            await loadProfile();
         } else {
-            notify(data.error || 'Checkout failed');
+            showToast('Failed to save profile');
         }
     }
 
-    async function loadWishlist() {
-        const res = await fetch('/api/wishlist/');
-        const items = await res.json();
-        document.getElementById('wishlistBody').innerHTML = items.map(w => `<tr><td><strong>${w.product_title}</strong></td><td>${new Date(w.added_at).toLocaleDateString()}</td><td><button class="btn btn-sm" onclick="addToCart(${w.product})">Move to Cart</button></td></tr>`).join('');
-    }
-
-    let sellerOrdersCache = [];
-
-    function openSellerOrderDetails(orderId) {
-        const o = sellerOrdersCache.find(item => item.id === orderId);
-        if (!o) return;
-        document.getElementById('sodOrderRef').innerText = `Order #SK-${1000 + o.id} • Tracking: ${o.delivery_tracking_code} • Status: ${o.status}`;
-        document.getElementById('sodCustName').innerText = o.customer_full_name || o.customer_name;
-        document.getElementById('sodCustUser').innerText = o.customer_name ? `(@${o.customer_name})` : '';
-        if (document.getElementById('sodCustPhone')) document.getElementById('sodCustPhone').innerText = o.customer_phone || 'Not provided';
-        document.getElementById('sodCustEmail').innerText = o.customer_email || `${o.customer_name}@suki.ph`;
-        document.getElementById('sodCustLoc').innerText = o.customer_location || 'Philippines';
-        document.getElementById('sodProdTitle').innerText = o.product_title;
-        document.getElementById('sodProdSize').innerText = o.selected_size;
-        document.getElementById('sodProdAmount').innerText = `₱${o.total_amount}`;
-        const linkEl = document.getElementById('sodProdLink');
-        linkEl.href = o.download_link;
-        linkEl.innerText = o.download_link;
-
-        const sendBtn = document.getElementById('sodSendEmailBtn');
-        if (o.status === 'PENDING') {
-            sendBtn.classList.remove('hidden');
-            sendBtn.onclick = () => {
-                document.getElementById('sellerOrderDetailsModal').classList.add('hidden');
-                openConfirmEmailDelivery(o.id);
-            };
-        } else {
-            sendBtn.classList.add('hidden');
-        }
-        document.getElementById('sellerOrderDetailsModal').classList.remove('hidden');
-    }
-
-    function openConfirmEmailDelivery(orderId) {
-        const o = sellerOrdersCache.find(item => item.id === orderId);
-        if (!o) return;
-        const email = o.customer_email || `${o.customer_name}@suki.ph`;
-        document.getElementById('cedCustomerEmail').innerText = email;
-        document.getElementById('cedOrderCode').innerText = `#SK-${1000 + o.id}`;
-        document.getElementById('cedTemplateLink').innerText = o.download_link;
-        document.getElementById('cedConfirmBtn').onclick = async () => {
-            document.getElementById('confirmEmailDeliveryModal').classList.add('hidden');
-            await orderAction(o.id, 'fulfill');
-        };
-        document.getElementById('confirmEmailDeliveryModal').classList.remove('hidden');
-    }
-
-    async function loadOrders() {
-        const res = await fetch('/api/orders/');
-        const orders = await res.json();
-        sellerOrdersCache = orders;
-        if (userRole === 'customer') {
-            const pBody = document.getElementById('customerPendingBody');
-            const cBody = document.getElementById('customerCompletedBody');
-            if (!pBody || !cBody) return;
-            const pending = orders.filter(o => o.status === 'PENDING' || o.status === 'RETURN_REQUESTED');
-            const completed = orders.filter(o => o.status === 'DELIVERED' || o.status === 'REFUNDED');
-
-            pBody.innerHTML = pending.length ? pending.map(o => `<tr>
-                <td><code>${o.delivery_tracking_code}</code></td>
-                <td><strong>${o.product_title}</strong><br><small style="color:var(--muted);">Size: ${o.selected_size}</small></td>
-                <td>₱${o.total_amount}</td>
-                <td><span class="badge badge-pending">${o.status}</span></td>
-                <td>${o.status === 'PENDING' ? `<button class="btn btn-outline btn-sm" onclick="orderAction(${o.id}, 'request_return')">Request Return</button>` : 'Processing'}</td>
-            </tr>`).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No pending orders.</td></tr>`;
-
-            cBody.innerHTML = completed.length ? completed.map(o => `<tr>
-                <td><code>${o.delivery_tracking_code}</code></td>
-                <td>
-                    <strong>${o.product_title}</strong><br>
-                    <small style="color:var(--muted);">Size: ${o.selected_size}</small>
-                    ${o.status === 'DELIVERED' ? `<div style="margin-top:4px; font-size:0.78rem; word-break:break-all;"><span style="color:var(--success); font-weight:700;">&#10003; Sent to email & saved:</span> <a href="${o.download_link}" target="_blank" style="color:var(--blue); text-decoration:underline;">${o.download_link}</a></div>` : ''}
-                </td>
-                <td>₱${o.total_amount}</td>
-                <td><span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : ''}">${o.status === 'DELIVERED' ? 'COMPLETED' : o.status}</span></td>
-                <td style="display:flex; gap:6px; flex-wrap:wrap;">
-                    ${o.status === 'DELIVERED' ? `
-                        <a href="${o.download_link}" target="_blank" class="btn btn-success btn-sm">Open Template Link</a>
-                        <button class="btn btn-sm" onclick="openReviewModal(${o.product})">Leave Review</button>
-                        <button class="btn btn-outline btn-sm" onclick="orderAction(${o.id}, 'request_return')">Request Return</button>
-                    ` : 'Refunded'}
-                </td>
-            </tr>`).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No completed orders yet.</td></tr>`;
-        } else {
-            if (document.getElementById('orderCount')) document.getElementById('orderCount').innerText = orders.length;
-            const rows = orders.map(o => `<tr>
-                <td><strong>#SK-${1000 + o.id}</strong></td>
-                <td>
-                    <strong>${o.product_title}</strong><br>
-                    <small style="color:var(--muted);">Buyer: ${o.customer_full_name || o.customer_email || o.customer_name || 'Customer'}</small>
-                </td>
-                <td>${o.selected_size}</td>
-                <td><strong>₱${o.total_amount}</strong></td>
-                <td><span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : 'badge-pending'}">${o.status === 'DELIVERED' ? 'COMPLETED' : o.status}</span></td>
-                <td style="display:flex; gap:6px; flex-wrap:wrap;">
-                    <button class="btn btn-outline btn-sm" onclick="openSellerOrderDetails(${o.id})">Details</button>
-                    ${o.status === 'PENDING' ? `<button class="btn btn-success btn-sm" onclick="openConfirmEmailDelivery(${o.id})">Send via Email</button>` : ''}
-                    ${o.status === 'RETURN_REQUESTED' ? `<button class="btn btn-orange btn-sm" onclick="orderAction(${o.id}, 'process_refund')">Approve Refund</button>` : ''}
-                </td>
-            </tr>`).join('');
-            if (document.getElementById('sellerOrdersBody')) document.getElementById('sellerOrdersBody').innerHTML = rows;
-            if (document.getElementById('overviewSellerOrders')) document.getElementById('overviewSellerOrders').innerHTML = rows;
-            const aRes = await fetch('/api/orders/sales_analytics/');
-            if (aRes.ok) {
-                const a = await aRes.json();
-                if (document.getElementById('statRevenue')) document.getElementById('statRevenue').innerText = `₱${a.total_revenue}`;
-                if (document.getElementById('statOrders')) document.getElementById('statOrders').innerText = a.total_orders;
-            }
-        }
-    }
-
-    async function orderAction(id, act) {
-        const r = await fetch(`/api/orders/${id}/${act}/`, { method: 'POST', headers });
-        const d = await r.json();
-        notify(d.message || 'Updated!');
-        loadOrders();
-        loadProfile();
-    }
-
-    function previewSelectedPhotos(input) {
-        const strip = document.getElementById('uploadPreviewStrip');
-        strip.innerHTML = '';
-        const files = Array.from(input.files);
-        if (files.length > 10) {
-            notify('Maximum of 10 photos allowed. Only the first 10 will be uploaded.');
-        }
-        files.slice(0, 10).forEach(file => {
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(file);
-            img.style.cssText = 'width:68px; height:52px; object-fit:cover; border-radius:8px; border:1px solid var(--border);';
-            strip.appendChild(img);
-        });
-    }
-
-    async function createProduct() {
-        const title = document.getElementById('prodTitle').value.trim();
-        const cat = document.getElementById('prodCat').value.trim();
-        const price = document.getElementById('prodPrice').value;
-        const stock = document.getElementById('prodStock').value;
-        const link = document.getElementById('prodLink').value.trim();
-        if (!title || !cat || !price || !stock || !link) {
-            notify('Please fill in Title, Category, Price, Stock, and Delivery Link.');
-            return;
-        }
-        const fd = new FormData();
-        fd.append('title', title);
-        fd.append('category', cat);
-        fd.append('price', price);
-        fd.append('stock_licenses', stock);
-        fd.append('available_sizes', document.getElementById('prodSizes').value || 'Standard Digital');
-        fd.append('download_link', link);
-        fd.append('description', document.getElementById('prodDesc').value);
-        const files = Array.from(document.getElementById('prodPhotosInput').files).slice(0, 10);
-        files.forEach(f => fd.append('images', f));
-
-        const r = await fetch('/api/products/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: fd });
-        if (r.ok) {
-            notify('Listing published!');
-            ['prodTitle', 'prodCat', 'prodPrice', 'prodStock', 'prodSizes', 'prodLink', 'prodDesc', 'prodPhotosInput'].forEach(id => document.getElementById(id).value = '');
-            document.getElementById('uploadPreviewStrip').innerHTML = '';
-            loadLoggedProducts();
-            showTab('seller-listings', null);
-        } else {
-            notify('Error creating product.');
-        }
-    }
-
-    function openReviewModal(pid) {
-        document.getElementById('revProductId').value = pid;
-        document.getElementById('revModalTitle').innerText = 'Leave a Review';
-        document.getElementById('reviewModal').classList.remove('hidden');
-    }
-
-    async function submitReview() {
-        const r = await fetch('/api/reviews/', { method: 'POST', headers, body: JSON.stringify({ product: document.getElementById('revProductId').value, rating: document.getElementById('revRating').value, comment: document.getElementById('revComment').value }) });
-        if (r.ok) {
-            notify('Review submitted!');
-            document.getElementById('reviewModal').classList.add('hidden');
-        }
-    }
-
-    async function submitSupport() {
-        const r = await fetch('/api/support/', { method: 'POST', headers, body: JSON.stringify({ subject: document.getElementById('supSubject').value, message: document.getElementById('supMessage').value }) });
-        if (r.ok) notify('Support ticket sent!');
-    }
-
-    if (!isAuth) {
-        initGuestStorefront();
-    } else {
-        loadProfile();
-        loadLoggedProducts();
-        if (userRole === 'customer') loadCart();
-        else loadOrders();
-    }
-</script>
-
-<!-- SELLER ORDER & CUSTOMER DETAILS MODAL -->
-<div id="sellerOrderDetailsModal" class="modal-backdrop hidden" onclick="if(event.target===this) this.classList.add('hidden')">
-    <div class="modal-card" style="max-width:480px; position:relative; padding:1.75rem;">
-        <button type="button" onclick="document.getElementById('sellerOrderDetailsModal').classList.add('hidden')" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
-        <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:0.25rem;">Order & Customer Details</h3>
-        <p id="sodOrderRef" style="font-size:0.8rem; color:var(--muted); margin-bottom:1rem;"></p>
-
-        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:1rem;">
-            <div style="font-size:0.75rem; font-weight:700; color:var(--blue); text-transform:uppercase; margin-bottom:6px;">Customer Information</div>
-            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Full Name:</strong> <span id="sodCustName"></span> <span id="sodCustUser" style="color:var(--muted);"></span></div>
-            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Email Address:</strong> <code id="sodCustEmail" style="background:#eff6ff; color:var(--blue); padding:2px 6px; border-radius:6px; font-weight:700;"></code></div>
-            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Contact Number:</strong> <span id="sodCustPhone"></span></div>
-            <div style="font-size:0.85rem; color:var(--muted);"><strong>Location:</strong> <span id="sodCustLoc"></span></div>
-        </div>
-
-        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:1.25rem;">
-            <div style="font-size:0.75rem; font-weight:700; color:var(--blue); text-transform:uppercase; margin-bottom:6px;">Product & Delivery Link</div>
-            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Item:</strong> <span id="sodProdTitle"></span></div>
-            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Selected Format / Size:</strong> <span id="sodProdSize"></span></div>
-            <div style="font-size:0.88rem; margin-bottom:6px;"><strong>Amount Paid:</strong> <span id="sodProdAmount" style="font-weight:700;"></span></div>
-            <div style="font-size:0.84rem; word-break:break-all;"><strong>Template Link:</strong> <a id="sodProdLink" href="#" target="_blank" style="color:var(--blue); text-decoration:underline;"></a></div>
-        </div>
-
-        <div style="display:flex; justify-content:flex-end; gap:8px;">
-            <button type="button" class="btn btn-outline" onclick="document.getElementById('sellerOrderDetailsModal').classList.add('hidden')">Close</button>
-            <button type="button" id="sodSendEmailBtn" class="btn btn-success">Send via Email</button>
-        </div>
-    </div>
-</div>
-
-<!-- CONFIRM SEND VIA EMAIL & COMPLETE ORDER MODAL -->
-<div id="confirmEmailDeliveryModal" class="modal-backdrop hidden" onclick="if(event.target===this) this.classList.add('hidden')">
-    <div class="modal-card" style="max-width:440px; position:relative; padding:1.75rem;">
-        <button type="button" onclick="document.getElementById('confirmEmailDeliveryModal').classList.add('hidden')" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
-        <div style="display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:12px; background:#dcfce7; color:#15803d; font-size:1.2rem; margin-bottom:10px;">&#9993;</div>
-        <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:6px;">Confirm Email Delivery & Complete Order</h3>
-        <p style="font-size:0.86rem; color:var(--muted); line-height:1.5; margin-bottom:1rem;">
-            Are you sure you want to send the template link to <strong id="cedCustomerEmail" style="color:var(--text);"></strong> and mark order <strong id="cedOrderCode"></strong> as <strong>Completed</strong>?
-        </p>
-        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:0.8rem; margin-bottom:1.25rem; word-break:break-all;">
-            <div style="color:var(--muted); margin-bottom:2px;">Template link to be sent & unlocked in customer's Completed Orders:</div>
-            <strong id="cedTemplateLink" style="color:var(--blue);"></strong>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:8px;">
-            <button type="button" class="btn btn-outline" onclick="document.getElementById('confirmEmailDeliveryModal').classList.add('hidden')">Cancel</button>
-            <button type="button" id="cedConfirmBtn" class="btn btn-success">Confirm & Complete Order</button>
-        </div>
-    </div>
-</div>
-
-</body>
-</html>
+    

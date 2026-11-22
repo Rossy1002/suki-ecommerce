@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'first_name', 'last_name', 'email', 'role',
+            'id', 'username', 'first_name', 'last_name', 'phone_number', 'email', 'role',
             'suki_wallet_balance', 'saved_payment_method', 'shop_name',
             'shop_tagline', 'gender', 'country', 'region', 'city', 'shop_logo', 'shop_banner', 'shop_banner_url',
             'effective_banner', 'effective_logo', 'shop_or_bio', 'sales_count', 'followers_count'
