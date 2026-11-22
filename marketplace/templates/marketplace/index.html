@@ -708,82 +708,94 @@
 
             <!-- PROFILE TAB (CUSTOMER & SELLER) -->
             <div id="tab-profile" class="tab-section hidden">
-                <div class="panel">
-                    <h3 style="margin-bottom:1rem;">{{ user.role|title }} Profile Settings</h3>
+                <div class="panel-box" style="max-width:860px;">
+                    {% if user.role == 'customer' %}
+                    <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem;">Customer Profile Settings</h2>
                     <div class="form-grid">
                         <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
                         <div class="form-group"><label>Email (Where digital links are sent)</label><input type="email" id="profEmail"></div>
-                        {% if user.role == 'seller' %}
-                        <div class="form-group"><label>Shop Name</label><input type="text" id="profShopName"></div>
-                        <div class="form-group"><label>Shop Tagline</label><input type="text" id="profShopTagline"></div>
-                        <div class="form-group"><label>Country</label><input type="text" id="profCountry"></div>
-                        <div class="form-group"><label>Region</label><input type="text" id="profRegion"></div>
-                        <div class="form-group"><label>City</label><input type="text" id="profCity"></div>
-                        <div class="form-group">
-                            <label>Shop Logo</label>
-                            <input type="file" id="profShopLogoFile" accept="image/*" onchange="previewShopImage(this, 'logoPreviewImg')">
-                            <img id="logoPreviewImg" src="" alt="Logo Preview" class="hidden" style="width:64px; height:64px; object-fit:cover; border-radius:12px; border:1px solid var(--border); margin-top:8px;">
-                        </div>
-                        <div class="form-group">
-                            <label>Shop Cover Banner</label>
-                            <input type="file" id="profShopBannerFile" accept="image/*" onchange="previewShopImage(this, 'bannerPreviewImg')">
-                            <img id="bannerPreviewImg" src="" alt="Banner Preview" class="hidden" style="width:100%; max-width:240px; height:64px; object-fit:cover; border-radius:10px; border:1px solid var(--border); margin-top:8px;">
-                        </div>
-                        {% endif %}
-                        <div class="form-grid">
+                    </div>
+                    <div class="form-grid">
                         <div class="form-group"><label>First Name</label><input type="text" id="profFirstName" placeholder="First name"></div>
                         <div class="form-group"><label>Last Name</label><input type="text" id="profLastName" placeholder="Last name"></div>
                     </div>
                     <div class="form-grid">
-                        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="profPhone" placeholder="Mobile number"></div>
+                        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="profPhone" placeholder="e.g. 0917 123 4567"></div>
                         <div class="form-group"><label>Payment / Payout Method</label><input type="text" id="profPayment"></div>
                     </div>
-                    <div class="form-group"><label>Bio / Shop Description</label><textarea id="profBio" rows="2"></textarea></div>
-                    <button class="btn" onclick="saveProfile()">Save Profile</button>
-                </div>
-            </div>
-
-            <!-- SELLER LISTINGS -->
-            <div id="tab-seller-listings" class="tab-section hidden">
-                <div class="products-grid" id="sellerProductGrid"></div>
-            </div>
-
-            <!-- SELLER ORDERS -->
-            <div id="tab-seller-orders" class="tab-section hidden">
-                <div class="panel"><h3>Orders & Refunds</h3><table><thead><tr><th>Order</th><th>Product</th><th>Size</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody id="sellerOrdersBody"></tbody></table></div>
-            </div>
-
-            <!-- SELLER CREATE LISTING -->
-            <div id="tab-seller-add" class="tab-section hidden">
-                <div class="panel">
-                    <h3 style="margin-bottom:1.25rem;">Create Listing</h3>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Product Title</label><input type="text" id="prodTitle" placeholder="e.g. Burgundy Birthday Flipbook Template"></div>
-                        <div class="form-group">
-                            <label>Select Category</label>
-                            <input list="catOptions" id="prodCat" placeholder="Select or type a new category..." autocomplete="off">
-                            <datalist id="catOptions">
-                                <option value="Canva Templates">
-                                <option value="Digital Books">
-                                <option value="Notion Templates">
-                                <option value="Printable Planners">
-                            </datalist>
+                    <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
+                        <div>
+                            <select id="profCountry">
+                                <option value="Philippines">Philippines</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="United States">United States</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Australia">Australia</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                            </select>
                         </div>
-                        <div class="form-group"><label>Price (₱)</label><input type="number" id="prodPrice" placeholder="e.g. 199"></div>
-                        <div class="form-group"><label>Stock</label><input type="number" id="prodStock" placeholder="e.g. 50"></div>
-                        <div class="form-group"><label>Available Sizes (Comma-separated)</label><input type="text" id="prodSizes" placeholder="e.g. A5 Booklet, A4 Magazine, US Letter"></div>
-                        <div class="form-group"><label>Delivery Link</label><input type="url" id="prodLink" placeholder="e.g. https://www.canva.com/templates/..."></div>
+                        <div><input type="text" id="profRegion" placeholder="Region"></div>
+                        <div><input type="text" id="profCity" placeholder="City"></div>
                     </div>
-                    <div class="form-group">
-                        <label>Upload Photos (Max 10 pictures)</label>
-                        <input type="file" id="prodPhotosInput" accept="image/*" multiple onchange="previewSelectedPhotos(this)">
-                        <div id="uploadPreviewStrip" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"></div>
+                    <div class="form-group"><label>Bio / Description</label><textarea id="profBio" rows="3" placeholder="Tell sellers a bit about yourself..."></textarea></div>
+                    <div style="margin-top:0.5rem;">
+                        <button type="button" class="btn" style="width:auto; padding:10px 24px;" onclick="saveProfile()">Save Profile</button>
                     </div>
-                    <div class="form-group"><label>Product Description</label><textarea id="prodDesc" rows="3" placeholder="Describe what is included in your template or e-book..."></textarea></div>
-                    <button class="btn" onclick="createProduct()">Publish Listing</button>
+                    {% else %}
+                    <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem;">Shop & Seller Profile Settings</h2>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
+                        <div class="form-group"><label>Email</label><input type="email" id="profEmail"></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Owner First Name</label><input type="text" id="profFirstName" placeholder="First name"></div>
+                        <div class="form-group"><label>Owner Last Name</label><input type="text" id="profLastName" placeholder="Last name"></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="profPhone" placeholder="e.g. 0917 123 4567"></div>
+                        <div class="form-group"><label>Payment / Payout Method</label><input type="text" id="profPayment"></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Shop Name</label><input type="text" id="profShopName"></div>
+                        <div class="form-group"><label>Shop Tagline</label><input type="text" id="profShopTagline"></div>
+                    </div>
+                    <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Shop Address</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
+                        <div>
+                            <select id="profCountry">
+                                <option value="Philippines">Philippines</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="United States">United States</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Australia">Australia</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                            </select>
+                        </div>
+                        <div><input type="text" id="profRegion" placeholder="Region"></div>
+                        <div><input type="text" id="profCity" placeholder="City"></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Shop Logo</label>
+                            <input type="file" id="profLogo" accept="image/*">
+                            <img id="profLogoPreview" src="" style="width:64px; height:64px; object-fit:cover; border-radius:12px; margin-top:8px; border:1px solid var(--border); display:none;">
+                        </div>
+                        <div class="form-group">
+                            <label>Shop Cover Banner</label>
+                            <input type="file" id="profBanner" accept="image/*">
+                            <img id="profBannerPreview" src="" style="width:100%; max-width:240px; height:64px; object-fit:cover; border-radius:10px; margin-top:8px; border:1px solid var(--border); display:none;">
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Shop Description / Bio</label><textarea id="profBio" rows="3"></textarea></div>
+                    <div style="margin-top:0.5rem;">
+                        <button type="button" class="btn" style="width:auto; padding:10px 24px;" onclick="saveProfile()">Save Profile</button>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-        </div>
     </div>
 </div>
 
