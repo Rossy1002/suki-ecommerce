@@ -137,6 +137,7 @@ def currency_rates_api(request):
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
@@ -144,10 +145,10 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         return User.objects.filter(id=self.request.user.id)
 
 class ProductViewSet(viewsets.ModelViewSet):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     queryset = DigitalProduct.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         qs = DigitalProduct.objects.all().order_by('-id')
