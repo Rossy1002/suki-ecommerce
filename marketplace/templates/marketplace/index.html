@@ -1237,7 +1237,7 @@
         document.getElementById('detailTitle').innerText = p.title;
         document.getElementById('detailSellerLink').innerText = `@${p.seller_name} ✓`;
         document.getElementById('detailSellerLink').onclick = () => openPublicShop(p.seller);
-        document.getElementById('detailStockText').innerText = `${p.stock_licenses} licenses available`;
+        document.getElementById('detailStockText').innerText = `${p.stock_licenses_licenses} licenses available`;
         document.getElementById('detailPrice').innerHTML = `₱${p.price} <small style="font-size:0.85rem; color:var(--muted); font-weight:600;">(~$${(p.price * usdRate).toFixed(2)} USD)</small>`;
 
         document.getElementById('detailMainImg').src = p.gallery[0];
@@ -1710,12 +1710,12 @@
         fd.append('title', document.getElementById('newProdTitle').value);
         fd.append('category', document.getElementById('newProdCategory').value);
         fd.append('price', document.getElementById('newProdPrice').value || '0');
-        fd.append('stock', document.getElementById('newProdStock').value || '99');
-        fd.append('digital_file_url', document.getElementById('newProdLink').value || '');
+        fd.append('stock_licenses', document.getElementById('newProdStock').value || '99');
+        fd.append('download_link', document.getElementById('newProdLink').value || '');
         fd.append('description', document.getElementById('newProdDesc').value || '');
         var cov = document.getElementById('newProdCover');
         if (cov && cov.files && cov.files[0]) {
-            fd.append('cover_image', cov.files[0]);
+            fd.append('image', cov.files[0]);
         }
         var res = await fetch('/api/products/', {
             method: 'POST',
@@ -1806,8 +1806,8 @@
         var prodsGrid = document.getElementById('discoverProductsGrid');
         if (prodsGrid) {
             prodsGrid.innerHTML = prods.map(function(p) {
-                var imgHtml = p.cover_image
-                    ? '<img src="' + normalizeMediaUrl(p.cover_image) + '" style="width:100%;height:175px;object-fit:cover;">'
+                var imgHtml = (p.image || p.image_url)
+                    ? '<img src="' + normalizeMediaUrl((p.image || p.image_url)) + '" style="width:100%;height:175px;object-fit:cover;">'
                     : '<div style="height:175px;background:linear-gradient(135deg,#eff6ff,#dbeafe);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1e40af;padding:1rem;text-align:center;">' + (p.category || 'Digital Product') + '</div>';
                 return '<div class="card" style="overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #e2e8f0;border-radius:16px;background:#fff;">'
                     + '<div>' + imgHtml + '<div style="padding:1.1rem;"><span style="font-size:0.72rem;font-weight:700;color:#1d4ed8;text-transform:uppercase;">' + (p.category || 'Digital Asset') + '</span>'
@@ -1835,8 +1835,8 @@
             var custGrid = document.getElementById('customerProductGrid');
             if (custGrid) {
                 custGrid.innerHTML = prods.map(function(p) {
-                    var imgHtml = p.cover_image
-                        ? '<img src="' + normalizeMediaUrl(p.cover_image) + '" style="width:100%;height:170px;object-fit:cover;">'
+                    var imgHtml = (p.image || p.image_url)
+                        ? '<img src="' + normalizeMediaUrl((p.image || p.image_url)) + '" style="width:100%;height:170px;object-fit:cover;">'
                         : '<div style="height:170px;background:linear-gradient(135deg,#eff6ff,#dbeafe);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1e40af;padding:1rem;text-align:center;">' + (p.category || 'Digital Product') + '</div>';
                     return '<div class="card" style="overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #e2e8f0;border-radius:16px;background:#fff;">'
                         + '<div>' + imgHtml + '<div style="padding:1.1rem;"><span style="font-size:0.72rem;font-weight:700;color:#1d4ed8;text-transform:uppercase;">' + (p.category || 'Digital Asset') + '</span>'
@@ -1873,13 +1873,13 @@
                 var listEl = document.getElementById('sellerListingsContainer');
                 if (listEl) {
                     listEl.innerHTML = myProds.length ? myProds.map(function(p) {
-                        var thumb = p.cover_image
-                            ? '<img src="' + normalizeMediaUrl(p.cover_image) + '" style="width:56px;height:56px;border-radius:10px;object-fit:cover;">'
+                        var thumb = (p.image || p.image_url)
+                            ? '<img src="' + normalizeMediaUrl((p.image || p.image_url)) + '" style="width:56px;height:56px;border-radius:10px;object-fit:cover;">'
                             : '<div style="width:56px;height:56px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1d4ed8;">S</div>';
                         return '<div class="card" style="padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.75rem;border:1px solid #e2e8f0;border-radius:14px;background:#fff;">'
                             + '<div style="display:flex;align-items:center;gap:1rem;">' + thumb
                             + '<div><div style="font-weight:700;color:#0f172a;font-size:1rem;">' + p.title + '</div>'
-                            + '<div style="font-size:0.84rem;color:#64748b;">' + p.category + ' • Stock: ' + p.stock + ' • ₱' + Number(p.price).toFixed(2) + '</div></div></div>'
+                            + '<div style="font-size:0.84rem;color:#64748b;">' + p.category + ' • Stock: ' + p.stock_licenses + ' • ₱' + Number(p.price).toFixed(2) + '</div></div></div>'
                             + '<span style="font-size:0.78rem;background:#dcfce7;color:#166534;padding:0.3rem 0.75rem;border-radius:999px;font-weight:600;">Active</span></div>';
                     }).join('') : '<div class="card" style="padding:2rem;text-align:center;color:#64748b;background:#fff;border-radius:14px;">No listings yet. Click <strong>+ New Listing</strong> to publish your first product.</div>';
                 }
@@ -2040,12 +2040,12 @@
         fd.append('title', document.getElementById('newProdTitle').value);
         fd.append('category', document.getElementById('newProdCategory').value);
         fd.append('price', document.getElementById('newProdPrice').value || '0');
-        fd.append('stock', document.getElementById('newProdStock').value || '99');
-        fd.append('digital_file_url', document.getElementById('newProdLink').value || '');
+        fd.append('stock_licenses', document.getElementById('newProdStock').value || '99');
+        fd.append('download_link', document.getElementById('newProdLink').value || '');
         fd.append('description', document.getElementById('newProdDesc').value || '');
         var cov = document.getElementById('newProdCover');
         if (cov && cov.files && cov.files[0]) {
-            fd.append('cover_image', cov.files[0]);
+            fd.append('image', cov.files[0]);
         }
         var res = await fetch('/api/products/', {
             method: 'POST',
@@ -2136,8 +2136,8 @@
         var prodsGrid = document.getElementById('discoverProductsGrid');
         if (prodsGrid) {
             prodsGrid.innerHTML = prods.map(function(p) {
-                var imgHtml = p.cover_image
-                    ? '<img src="' + normalizeMediaUrl(p.cover_image) + '" style="width:100%;height:175px;object-fit:cover;">'
+                var imgHtml = (p.image || p.image_url)
+                    ? '<img src="' + normalizeMediaUrl((p.image || p.image_url)) + '" style="width:100%;height:175px;object-fit:cover;">'
                     : '<div style="height:175px;background:linear-gradient(135deg,#eff6ff,#dbeafe);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1e40af;padding:1rem;text-align:center;">' + (p.category || 'Digital Product') + '</div>';
                 return '<div class="card" style="overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #e2e8f0;border-radius:16px;background:#fff;">'
                     + '<div>' + imgHtml + '<div style="padding:1.1rem;"><span style="font-size:0.72rem;font-weight:700;color:#1d4ed8;text-transform:uppercase;">' + (p.category || 'Digital Asset') + '</span>'
@@ -2165,8 +2165,8 @@
             var custGrid = document.getElementById('customerProductGrid');
             if (custGrid) {
                 custGrid.innerHTML = prods.map(function(p) {
-                    var imgHtml = p.cover_image
-                        ? '<img src="' + normalizeMediaUrl(p.cover_image) + '" style="width:100%;height:170px;object-fit:cover;">'
+                    var imgHtml = (p.image || p.image_url)
+                        ? '<img src="' + normalizeMediaUrl((p.image || p.image_url)) + '" style="width:100%;height:170px;object-fit:cover;">'
                         : '<div style="height:170px;background:linear-gradient(135deg,#eff6ff,#dbeafe);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1e40af;padding:1rem;text-align:center;">' + (p.category || 'Digital Product') + '</div>';
                     return '<div class="card" style="overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #e2e8f0;border-radius:16px;background:#fff;">'
                         + '<div>' + imgHtml + '<div style="padding:1.1rem;"><span style="font-size:0.72rem;font-weight:700;color:#1d4ed8;text-transform:uppercase;">' + (p.category || 'Digital Asset') + '</span>'
@@ -2203,13 +2203,13 @@
                 var listEl = document.getElementById('sellerListingsContainer');
                 if (listEl) {
                     listEl.innerHTML = myProds.length ? myProds.map(function(p) {
-                        var thumb = p.cover_image
-                            ? '<img src="' + normalizeMediaUrl(p.cover_image) + '" style="width:56px;height:56px;border-radius:10px;object-fit:cover;">'
+                        var thumb = (p.image || p.image_url)
+                            ? '<img src="' + normalizeMediaUrl((p.image || p.image_url)) + '" style="width:56px;height:56px;border-radius:10px;object-fit:cover;">'
                             : '<div style="width:56px;height:56px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1d4ed8;">S</div>';
                         return '<div class="card" style="padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.75rem;border:1px solid #e2e8f0;border-radius:14px;background:#fff;">'
                             + '<div style="display:flex;align-items:center;gap:1rem;">' + thumb
                             + '<div><div style="font-weight:700;color:#0f172a;font-size:1rem;">' + p.title + '</div>'
-                            + '<div style="font-size:0.84rem;color:#64748b;">' + p.category + ' • Stock: ' + p.stock + ' • ₱' + Number(p.price).toFixed(2) + '</div></div></div>'
+                            + '<div style="font-size:0.84rem;color:#64748b;">' + p.category + ' • Stock: ' + p.stock_licenses + ' • ₱' + Number(p.price).toFixed(2) + '</div></div></div>'
                             + '<span style="font-size:0.78rem;background:#dcfce7;color:#166534;padding:0.3rem 0.75rem;border-radius:999px;font-weight:600;">Active</span></div>';
                     }).join('') : '<div class="card" style="padding:2rem;text-align:center;color:#64748b;background:#fff;border-radius:14px;">No listings yet. Click <strong>+ New Listing</strong> to publish your first product.</div>';
                 }
@@ -2228,6 +2228,30 @@
     }
 
     sukiBootstrapAll();
+
+
+
+    window.switchTab = function(tabName) {
+        var targetId = tabName.startsWith('tab-') ? tabName : ('tab-' + tabName);
+        // Handle aliases between sidebar buttons and panel IDs
+        if (targetId === 'tab-orders' && typeof userRole !== 'undefined' && userRole === 'seller') {
+            if (document.getElementById('tab-seller-orders')) targetId = 'tab-seller-orders';
+        }
+        document.querySelectorAll('.tab-panel, [id^="tab-"]').forEach(function(panel) {
+            if (panel.id && panel.id.startsWith('tab-')) {
+                panel.style.display = (panel.id === targetId) ? 'block' : 'none';
+            }
+        });
+        // Highlight active sidebar item
+        document.querySelectorAll('.sidebar-item, .nav-item, [onclick*="switchTab"]').forEach(function(btn) {
+            var oc = btn.getAttribute('onclick') || '';
+            if (oc.indexOf("'" + tabName + "'") !== -1 || oc.indexOf('"' + tabName + '"') !== -1) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    };
 
 </script>
 </body>
