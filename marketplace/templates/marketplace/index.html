@@ -1448,9 +1448,54 @@
         document.getElementById('wishlistBody').innerHTML = items.map(w => `<tr><td><strong>${w.product_title}</strong></td><td>${new Date(w.added_at).toLocaleDateString()}</td><td><button class="btn btn-sm" onclick="addToCart(${w.product})">Move to Cart</button></td></tr>`).join('');
     }
 
+    let sellerOrdersCache = [];
+
+    function openSellerOrderDetails(orderId) {
+        const o = sellerOrdersCache.find(item => item.id === orderId);
+        if (!o) return;
+        document.getElementById('sodOrderRef').innerText = `Order #SK-${1000 + o.id} • Tracking: ${o.delivery_tracking_code} • Status: ${o.status}`;
+        document.getElementById('sodCustName').innerText = o.customer_full_name || o.customer_name;
+        document.getElementById('sodCustUser').innerText = `@${o.customer_name}`;
+        document.getElementById('sodCustEmail').innerText = o.customer_email || `${o.customer_name}@suki.ph`;
+        document.getElementById('sodCustLoc').innerText = o.customer_location || 'Philippines';
+        document.getElementById('sodProdTitle').innerText = o.product_title;
+        document.getElementById('sodProdSize').innerText = o.selected_size;
+        document.getElementById('sodProdAmount').innerText = `₱${o.total_amount}`;
+        const linkEl = document.getElementById('sodProdLink');
+        linkEl.href = o.download_link;
+        linkEl.innerText = o.download_link;
+
+        const sendBtn = document.getElementById('sodSendEmailBtn');
+        if (o.status === 'PENDING') {
+            sendBtn.classList.remove('hidden');
+            sendBtn.onclick = () => {
+                document.getElementById('sellerOrderDetailsModal').classList.add('hidden');
+                openConfirmEmailDelivery(o.id);
+            };
+        } else {
+            sendBtn.classList.add('hidden');
+        }
+        document.getElementById('sellerOrderDetailsModal').classList.remove('hidden');
+    }
+
+    function openConfirmEmailDelivery(orderId) {
+        const o = sellerOrdersCache.find(item => item.id === orderId);
+        if (!o) return;
+        const email = o.customer_email || `${o.customer_name}@suki.ph`;
+        document.getElementById('cedCustomerEmail').innerText = email;
+        document.getElementById('cedOrderCode').innerText = `#SK-${1000 + o.id}`;
+        document.getElementById('cedTemplateLink').innerText = o.download_link;
+        document.getElementById('cedConfirmBtn').onclick = async () => {
+            document.getElementById('confirmEmailDeliveryModal').classList.add('hidden');
+            await orderAction(o.id, 'fulfill');
+        };
+        document.getElementById('confirmEmailDeliveryModal').classList.remove('hidden');
+    }
+
     async function loadOrders() {
         const res = await fetch('/api/orders/');
         const orders = await res.json();
+        sellerOrdersCache = orders;
         if (userRole === 'customer') {
             const pBody = document.getElementById('customerPendingBody');
             const cBody = document.getElementById('customerCompletedBody');
@@ -1468,12 +1513,16 @@
 
             cBody.innerHTML = completed.length ? completed.map(o => `<tr>
                 <td><code>${o.delivery_tracking_code}</code></td>
-                <td><strong>${o.product_title}</strong><br><small style="color:var(--muted);">Size: ${o.selected_size}</small></td>
+                <td>
+                    <strong>${o.product_title}</strong><br>
+                    <small style="color:var(--muted);">Size: ${o.selected_size}</small>
+                    ${o.status === 'DELIVERED' ? `<div style="margin-top:4px; font-size:0.78rem; word-break:break-all;"><span style="color:var(--success); font-weight:700;">&#10003; Sent to email & saved:</span> <a href="${o.download_link}" target="_blank" style="color:var(--blue); text-decoration:underline;">${o.download_link}</a></div>` : ''}
+                </td>
                 <td>₱${o.total_amount}</td>
-                <td><span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : ''}">${o.status}</span></td>
+                <td><span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : ''}">${o.status === 'DELIVERED' ? 'COMPLETED' : o.status}</span></td>
                 <td style="display:flex; gap:6px; flex-wrap:wrap;">
                     ${o.status === 'DELIVERED' ? `
-                        <a href="${o.download_link}" target="_blank" class="btn btn-success btn-sm">Open Link / Email Copy</a>
+                        <a href="${o.download_link}" target="_blank" class="btn btn-success btn-sm">Open Template Link</a>
                         <button class="btn btn-sm" onclick="openReviewModal(${o.product})">Leave Review</button>
                         <button class="btn btn-outline btn-sm" onclick="orderAction(${o.id}, 'request_return')">Request Return</button>
                     ` : 'Refunded'}
@@ -1482,10 +1531,19 @@
         } else {
             if (document.getElementById('orderCount')) document.getElementById('orderCount').innerText = orders.length;
             const rows = orders.map(o => `<tr>
-                <td><strong>#SK-${1000 + o.id}</strong></td><td>${o.product_title}</td><td>${o.selected_size}</td>
+                <td><strong>#SK-${1000 + o.id}</strong></td>
+                <td>
+                    <strong>${o.product_title}</strong><br>
+                    <small style="color:var(--muted);">Buyer: ${o.customer_email || o.customer_name}</small>
+                </td>
+                <td>${o.selected_size}</td>
                 <td><strong>₱${o.total_amount}</strong></td>
-                <td><span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : 'badge-pending'}">${o.status}</span></td>
-                <td>${o.status === 'PENDING' ? `<button class="btn btn-success btn-sm" onclick="orderAction(${o.id}, 'fulfill')">Send via Email</button>` : ''} ${o.status === 'RETURN_REQUESTED' ? `<button class="btn btn-orange btn-sm" onclick="orderAction(${o.id}, 'process_refund')">Approve Refund</button>` : ''}</td>
+                <td><span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : 'badge-pending'}">${o.status === 'DELIVERED' ? 'COMPLETED' : o.status}</span></td>
+                <td style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button class="btn btn-outline btn-sm" onclick="openSellerOrderDetails(${o.id})">Details</button>
+                    ${o.status === 'PENDING' ? `<button class="btn btn-success btn-sm" onclick="openConfirmEmailDelivery(${o.id})">Send via Email</button>` : ''}
+                    ${o.status === 'RETURN_REQUESTED' ? `<button class="btn btn-orange btn-sm" onclick="orderAction(${o.id}, 'process_refund')">Approve Refund</button>` : ''}
+                </td>
             </tr>`).join('');
             if (document.getElementById('sellerOrdersBody')) document.getElementById('sellerOrdersBody').innerHTML = rows;
             if (document.getElementById('overviewSellerOrders')) document.getElementById('overviewSellerOrders').innerHTML = rows;

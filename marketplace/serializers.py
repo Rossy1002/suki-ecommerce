@@ -21,11 +21,23 @@ class UserSerializer(serializers.ModelSerializer):
     def get_effective_logo(self, obj):
         return obj.shop_logo.url if obj.shop_logo else '' 
 
+
+    def get_customer_full_name(self, obj):
+        full = f"{obj.customer.first_name} {obj.customer.last_name}".strip()
+        return full if full else obj.customer.username
+
+    def get_customer_location(self, obj):
+        parts = [x for x in [getattr(obj.customer, 'city', ''), getattr(obj.customer, 'region', ''), getattr(obj.customer, 'country', '')] if x]
+        return ", ".join(parts) if parts else "Philippines"
+
 class ReviewSerializer(serializers.ModelSerializer):
     customer_name = serializers.ReadOnlyField(source='customer.username')
+    customer_email = serializers.ReadOnlyField(source='customer.email')
+    customer_full_name = serializers.SerializerMethodField()
+    customer_location = serializers.SerializerMethodField()
     class Meta:
         model = Review
-        fields = ['id', 'customer', 'customer_name', 'product', 'rating', 'comment', 'created_at']
+        fields = ['id', 'customer', 'customer_name', 'customer_email', 'customer_full_name', 'customer_location', 'product', 'rating', 'comment', 'created_at']
         read_only_fields = ['customer']
 
 class ProductSerializer(serializers.ModelSerializer):

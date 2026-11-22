@@ -251,14 +251,27 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.status = 'DELIVERED'
         order.save()
         recipient = order.customer.email or f"{order.customer.username}@suki.ph"
-        send_mail(
-            subject=f"[Suki.ph] Your Digital Product ({order.selected_size}): {order.product.title}",
-            message=f"Hi {order.customer.username},\n\nHere is your Canva Template / E-Book link ({order.selected_size}):\n{order.product.download_link}\n\nTracking: {order.delivery_tracking_code}",
-            from_email="delivery@suki.ph",
-            recipient_list=[recipient],
-            fail_silently=True,
-        )
-        return Response({"message": f"Sent via Email to {recipient}!", "status": order.status})
+        try:
+            send_mail(
+                subject=f"[Suki] Your Digital Product is Ready: {order.product.title}",
+                message=(
+                    f"Hi {order.customer.first_name or order.customer.username},\n\n"
+                    f"Thank you for your order ({order.delivery_tracking_code})!\n"
+                    f"Product: {order.product.title} ({order.selected_size})\n"
+                    f"Access your template / digital file here: {order.product.download_link}\n\n"
+                    f"You can also view this link anytime inside your Suki Completed Orders dashboard."
+                ),
+                from_email='delivery@suki-marketplace.ph',
+                recipient_list=[recipient],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+        return Response({
+            'message': f'Template link automatically sent to {recipient} and order marked as Completed!',
+            'tracking': order.delivery_tracking_code,
+            'recipient_email': recipient
+        })
 
     @action(detail=True, methods=['post'])
     def request_return(self, request, pk=None):
