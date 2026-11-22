@@ -455,6 +455,7 @@
                 <option value="Prefer not to say">Prefer not to say</option>
             </select>
         </div>
+        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="bPhone" placeholder="Mobile number"></div>
         <div class="form-group"><label>Email</label><input type="email" id="bEmail" placeholder="Email"></div>
         <div class="form-group"><label>Password</label><input type="password" id="bPassword" placeholder="Password"></div>
         <button type="button" class="btn" style="width:100%; justify-content:center; padding:11px;" onclick="submitBuyerSignup()">Sign Up</button>
@@ -965,6 +966,7 @@
                 last_name: document.getElementById('bLastName').value.trim(),
                 gender: document.getElementById('bGender').value,
                 gender: document.getElementById('bGender').value,
+                phone_number: document.getElementById('bPhone')?.value.trim() || '',
                 email: document.getElementById('bEmail').value.trim(),
                 password: document.getElementById('bPassword').value
             })
@@ -1242,6 +1244,9 @@
             if (document.getElementById('profUsername')) {
                 document.getElementById('profUsername').value = u.username;
                 document.getElementById('profEmail').value = u.email || '';
+                if (document.getElementById('profFirstName')) document.getElementById('profFirstName').value = u.first_name || '';
+                if (document.getElementById('profLastName')) document.getElementById('profLastName').value = u.last_name || '';
+                if (document.getElementById('profPhone')) document.getElementById('profPhone').value = u.phone_number || '';
                 document.getElementById('profPayment').value = u.saved_payment_method || '';
                 document.getElementById('profBio').value = u.shop_or_bio || '';
                 if (document.getElementById('profShopName')) {
@@ -1267,6 +1272,9 @@
         if (!currentUserId) await loadProfile();
         const fd = new FormData();
         fd.append('email', document.getElementById('profEmail').value);
+        if (document.getElementById('profFirstName')) fd.append('first_name', document.getElementById('profFirstName').value);
+        if (document.getElementById('profLastName')) fd.append('last_name', document.getElementById('profLastName').value);
+        if (document.getElementById('profPhone')) fd.append('phone_number', document.getElementById('profPhone').value);
         fd.append('saved_payment_method', document.getElementById('profPayment').value);
         fd.append('shop_or_bio', document.getElementById('profBio').value);
         if (document.getElementById('profShopName')) {
@@ -1455,7 +1463,8 @@
         if (!o) return;
         document.getElementById('sodOrderRef').innerText = `Order #SK-${1000 + o.id} • Tracking: ${o.delivery_tracking_code} • Status: ${o.status}`;
         document.getElementById('sodCustName').innerText = o.customer_full_name || o.customer_name;
-        document.getElementById('sodCustUser').innerText = `@${o.customer_name}`;
+        document.getElementById('sodCustUser').innerText = o.customer_name ? `(@${o.customer_name})` : '';
+        if (document.getElementById('sodCustPhone')) document.getElementById('sodCustPhone').innerText = o.customer_phone || 'Not provided';
         document.getElementById('sodCustEmail').innerText = o.customer_email || `${o.customer_name}@suki.ph`;
         document.getElementById('sodCustLoc').innerText = o.customer_location || 'Philippines';
         document.getElementById('sodProdTitle').innerText = o.product_title;
@@ -1534,7 +1543,7 @@
                 <td><strong>#SK-${1000 + o.id}</strong></td>
                 <td>
                     <strong>${o.product_title}</strong><br>
-                    <small style="color:var(--muted);">Buyer: ${o.customer_email || o.customer_name}</small>
+                    <small style="color:var(--muted);">Buyer: ${o.customer_full_name || o.customer_email || o.customer_name || 'Customer'}</small>
                 </td>
                 <td>${o.selected_size}</td>
                 <td><strong>₱${o.total_amount}</strong></td>
@@ -1640,5 +1649,56 @@
         else loadOrders();
     }
 </script>
+
+<!-- SELLER ORDER & CUSTOMER DETAILS MODAL -->
+<div id="sellerOrderDetailsModal" class="modal-backdrop hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+    <div class="modal-card" style="max-width:480px; position:relative; padding:1.75rem;">
+        <button type="button" onclick="document.getElementById('sellerOrderDetailsModal').classList.add('hidden')" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:0.25rem;">Order & Customer Details</h3>
+        <p id="sodOrderRef" style="font-size:0.8rem; color:var(--muted); margin-bottom:1rem;"></p>
+
+        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:1rem;">
+            <div style="font-size:0.75rem; font-weight:700; color:var(--blue); text-transform:uppercase; margin-bottom:6px;">Customer Information</div>
+            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Full Name:</strong> <span id="sodCustName"></span> <span id="sodCustUser" style="color:var(--muted);"></span></div>
+            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Email Address:</strong> <code id="sodCustEmail" style="background:#eff6ff; color:var(--blue); padding:2px 6px; border-radius:6px; font-weight:700;"></code></div>
+            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Contact Number:</strong> <span id="sodCustPhone"></span></div>
+            <div style="font-size:0.85rem; color:var(--muted);"><strong>Location:</strong> <span id="sodCustLoc"></span></div>
+        </div>
+
+        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:1.25rem;">
+            <div style="font-size:0.75rem; font-weight:700; color:var(--blue); text-transform:uppercase; margin-bottom:6px;">Product & Delivery Link</div>
+            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Item:</strong> <span id="sodProdTitle"></span></div>
+            <div style="font-size:0.88rem; margin-bottom:4px;"><strong>Selected Format / Size:</strong> <span id="sodProdSize"></span></div>
+            <div style="font-size:0.88rem; margin-bottom:6px;"><strong>Amount Paid:</strong> <span id="sodProdAmount" style="font-weight:700;"></span></div>
+            <div style="font-size:0.84rem; word-break:break-all;"><strong>Template Link:</strong> <a id="sodProdLink" href="#" target="_blank" style="color:var(--blue); text-decoration:underline;"></a></div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('sellerOrderDetailsModal').classList.add('hidden')">Close</button>
+            <button type="button" id="sodSendEmailBtn" class="btn btn-success">Send via Email</button>
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRM SEND VIA EMAIL & COMPLETE ORDER MODAL -->
+<div id="confirmEmailDeliveryModal" class="modal-backdrop hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+    <div class="modal-card" style="max-width:440px; position:relative; padding:1.75rem;">
+        <button type="button" onclick="document.getElementById('confirmEmailDeliveryModal').classList.add('hidden')" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <div style="display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:12px; background:#dcfce7; color:#15803d; font-size:1.2rem; margin-bottom:10px;">&#9993;</div>
+        <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:6px;">Confirm Email Delivery & Complete Order</h3>
+        <p style="font-size:0.86rem; color:var(--muted); line-height:1.5; margin-bottom:1rem;">
+            Are you sure you want to send the template link to <strong id="cedCustomerEmail" style="color:var(--text);"></strong> and mark order <strong id="cedOrderCode"></strong> as <strong>Completed</strong>?
+        </p>
+        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:0.8rem; margin-bottom:1.25rem; word-break:break-all;">
+            <div style="color:var(--muted); margin-bottom:2px;">Template link to be sent & unlocked in customer's Completed Orders:</div>
+            <strong id="cedTemplateLink" style="color:var(--blue);"></strong>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('confirmEmailDeliveryModal').classList.add('hidden')">Cancel</button>
+            <button type="button" id="cedConfirmBtn" class="btn btn-success">Confirm & Complete Order</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

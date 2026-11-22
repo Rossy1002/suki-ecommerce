@@ -49,6 +49,7 @@ def api_register_view(request):
     password = request.data.get('password', '')
     shop_name = request.data.get('shop_name', '').strip()
     gender = request.data.get('gender', '').strip()
+    phone_number = request.data.get('phone_number', '').strip()
     country = request.data.get('country', 'Philippines').strip()
     region = request.data.get('region', '').strip()
     city = request.data.get('city', '').strip()
@@ -83,6 +84,7 @@ def api_register_view(request):
         shop_name=shop_name if role == 'seller' else '',
         shop_tagline='CREATIVE DIGITAL SHOP' if role == 'seller' else '',
         gender=gender,
+        phone_number=phone_number,
         country=country,
         region=region,
         city=city,

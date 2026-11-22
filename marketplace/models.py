@@ -15,6 +15,7 @@ class User(AbstractUser):
     shop_banner = models.ImageField(upload_to="shops/", blank=True, null=True)
     shop_banner_url = models.URLField(blank=True, default="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&q=80")
     gender = models.CharField(max_length=30, blank=True)
+    phone_number = models.CharField(max_length=30, blank=True)
     country = models.CharField(max_length=80, blank=True, default="Philippines")
     region = models.CharField(max_length=80, blank=True)
     city = models.CharField(max_length=80, blank=True)
