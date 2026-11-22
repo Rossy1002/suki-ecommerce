@@ -742,7 +742,7 @@
                     </div>
                     <div class="form-group"><label>Bio / Description</label><textarea id="profBio" rows="3" placeholder="Tell sellers a bit about yourself..."></textarea></div>
                     <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn-primary" onclick="saveProfile()">Save Profile</button>
+                        <button type="button" onclick="saveProfile()" style="background:#1d4ed8;color:#fff;border:none;padding:0.7rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;">Save Profile</button>
                     </div>
                     {% else %}
                     <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem;">Shop & Seller Profile Settings</h2>
@@ -792,7 +792,7 @@
                     </div>
                     <div class="form-group"><label>Shop Description / Bio</label><textarea id="profBio" rows="3"></textarea></div>
                     <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn-primary" onclick="saveProfile()">Save Profile</button>
+                        <button type="button" onclick="saveProfile()" style="background:#1d4ed8;color:#fff;border:none;padding:0.7rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;">Save Profile</button>
                     </div>
                     {% endif %}
                 </div>
@@ -1731,6 +1731,202 @@
         }
     }
     renderGuestLanding();
+
+
+
+    // Styled Suki Popup Modal (replaces browser alert)
+    function showSukiPopup(title, message) {
+        let overlay = document.getElementById('sukiPopupModal');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'sukiPopupModal';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.55);display:flex;align-items:center;justify-content:center;z-index:99999;';
+            overlay.innerHTML = `
+                <div style="background:#fff;border-radius:16px;padding:1.75rem 2rem;max-width:380px;width:90%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+                    <div style="width:48px;height:48px;border-radius:50%;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;font-weight:700;">✓</div>
+                    <h3 id="sukiPopupTitle" style="margin:0 0 0.5rem;font-size:1.15rem;color:#0f172a;"></h3>
+                    <p id="sukiPopupMsg" style="margin:0 0 1.25rem;font-size:0.92rem;color:#475569;"></p>
+                    <button type="button" onclick="document.getElementById('sukiPopupModal').style.display='none'" style="background:#1d4ed8;color:#fff;border:none;padding:0.6rem 1.75rem;border-radius:10px;font-weight:600;cursor:pointer;">OK</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        document.getElementById('sukiPopupTitle').textContent = title;
+        document.getElementById('sukiPopupMsg').textContent = message;
+        overlay.style.display = 'flex';
+    }
+
+    function normalizeMediaUrl(url) {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:') || url.startsWith('/')) return url;
+        return '/' + url;
+    }
+
+    // Patch loadProfile to normalize /media/ URLs so images never break after refresh
+    const _origLoadProfile = window.loadProfile || loadProfile;
+    window.loadProfile = async function() {
+        await _origLoadProfile();
+        document.querySelectorAll('#logoPreview, #bannerPreview').forEach(img => {
+            const raw = img.getAttribute('src');
+            if (raw) {
+                img.src = normalizeMediaUrl(raw);
+                img.style.display = 'block';
+            }
+        });
+    };
+
+    // Patch saveProfile to show the styled Suki Popup Modal instead of browser alert
+    window.saveProfile = async function() {
+        if (!currentProfileId) await window.loadProfile();
+        const fd = new FormData();
+        const getVisibleVal = (id) => {
+            const els = Array.from(document.querySelectorAll('#' + id));
+            const vis = els.find(el => el.offsetParent !== null) || els[0];
+            return vis ? vis.value : '';
+        };
+        fd.append('email', getVisibleVal('profEmail'));
+        fd.append('first_name', getVisibleVal('profFirstName'));
+        fd.append('last_name', getVisibleVal('profLastName'));
+        fd.append('phone_number', getVisibleVal('profPhone'));
+        fd.append('country', getVisibleVal('profCountry'));
+        fd.append('region', getVisibleVal('profRegion'));
+        fd.append('city', getVisibleVal('profCity'));
+        fd.append('saved_payment_method', getVisibleVal('profPayment'));
+        fd.append('shop_or_bio', getVisibleVal('profBio'));
+        if (document.querySelector('#profShopName')) fd.append('shop_name', getVisibleVal('profShopName'));
+        if (document.querySelector('#profShopTagline')) fd.append('shop_tagline', getVisibleVal('profShopTagline'));
+
+        const logoInput = document.getElementById('profLogo');
+        if (logoInput && logoInput.files && logoInput.files[0]) {
+            fd.append('shop_logo', logoInput.files[0]);
+        }
+        const bannerInput = document.getElementById('profBanner');
+        if (bannerInput && bannerInput.files && bannerInput.files[0]) {
+            fd.append('shop_banner', bannerInput.files[0]);
+        }
+
+        const targetUrl = currentProfileId ? `/api/profile/${currentProfileId}/` : '/api/profile/';
+        const res = await fetch(targetUrl, {
+            method: 'PATCH',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: fd
+        });
+        if (res.ok) {
+            await window.loadProfile();
+            showSukiPopup('Profile Saved', 'Your shop and account profile changes have been saved.');
+        } else {
+            showSukiPopup('Save Failed', 'Unable to save profile changes (' + res.status + ').');
+        }
+    };
+
+
+
+    // Guaranteed loader for Guest Landing Page & Seller/Customer Dashboards
+    async function sukiHydrateAllViews() {
+        const shopsGrid = document.getElementById('featuredShopsGrid');
+        const prodsGrid = document.getElementById('discoverProductsGrid');
+
+        if (shopsGrid) {
+            try {
+                const sRes = await fetch('/api/shops/');
+                if (sRes.ok) {
+                    const raw = await sRes.json();
+                    const shops = Array.isArray(raw) ? raw : (raw.results || raw.shops || []);
+                    if (shops.length > 0) {
+                        shopsGrid.innerHTML = shops.map(s => `
+                            <div class="card" style="padding:1.35rem;cursor:pointer;display:flex;flex-direction:column;gap:0.75rem;border:1px solid #e2e8f0;border-radius:16px;background:#fff;" onclick="if(typeof openShopStorefront==='function') openShopStorefront('${s.username}')">
+                                <div style="display:flex;align-items:center;gap:0.9rem;">
+                                    ${s.shop_logo ? `<img src="${normalizeMediaUrl(s.shop_logo)}" style="width:52px;height:52px;border-radius:12px;object-fit:cover;">` : `<div style="width:52px;height:52px;border-radius:12px;background:#1d4ed8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;">${(s.shop_name || s.username || 'S')[0].toUpperCase()}</div>`}
+                                    <div>
+                                        <div style="font-weight:700;font-size:1.05rem;color:#0f172a;">${s.shop_name || s.username}</div>
+                                        <div style="font-size:0.82rem;color:#64748b;">${s.shop_tagline || 'Verified Suki Creator'}</div>
+                                    </div>
+                                </div>
+                                <p style="font-size:0.88rem;color:#475569;margin:0;line-height:1.5;">${s.shop_or_bio || 'Digital templates, planners, and creative assets.'}</p>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (e) { console.error('Shops render error:', e); }
+        }
+
+        if (prodsGrid) {
+            try {
+                const pRes = await fetch('/api/products/');
+                if (pRes.ok) {
+                    const raw = await pRes.json();
+                    const prods = Array.isArray(raw) ? raw : (raw.results || []);
+                    if (prods.length > 0) {
+                        prodsGrid.innerHTML = prods.map(p => `
+                            <div class="card" style="overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #e2e8f0;border-radius:16px;background:#fff;">
+                                <div>
+                                    ${p.cover_image ? `<img src="${normalizeMediaUrl(p.cover_image)}" style="width:100%;height:175px;object-fit:cover;">` : `<div style="height:175px;background:linear-gradient(135deg,#eff6ff,#dbeafe);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1e40af;padding:1rem;text-align:center;">${p.category || 'Digital Product'}</div>`}
+                                    <div style="padding:1.1rem;">
+                                        <span style="font-size:0.72rem;font-weight:700;color:#1d4ed8;text-transform:uppercase;">${p.category || 'Digital Asset'}</span>
+                                        <h3 style="font-size:1rem;margin:0.35rem 0;color:#0f172a;">${p.title}</h3>
+                                        <p style="font-size:0.82rem;color:#64748b;margin:0;">by ${p.seller_shop_name || p.seller_username || 'Suki Seller'}</p>
+                                    </div>
+                                </div>
+                                <div style="padding:0.9rem 1.1rem;border-top:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+                                    <strong style="font-size:1.05rem;color:#0f172a;">₱${Number(p.price || 0).toFixed(2)}</strong>
+                                    <button type="button" onclick="if(typeof openAuthModal==='function') openAuthModal('login')" style="background:#1d4ed8;color:#fff;border:none;padding:0.45rem 0.9rem;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;">Buy / View</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (e) { console.error('Products render error:', e); }
+        }
+
+        if (typeof isAuth !== 'undefined' && isAuth) {
+            try {
+                const [pRes, oRes, profRes] = await Promise.all([
+                    fetch('/api/products/'),
+                    fetch('/api/orders/'),
+                    fetch('/api/profile/')
+                ]);
+                const prods = pRes.ok ? await pRes.json() : [];
+                const orders = oRes.ok ? await oRes.json() : [];
+                const profArr = profRes.ok ? await profRes.json() : [];
+                const me = Array.isArray(profArr) ? (profArr[0] || {}) : profArr;
+
+                const prodList = Array.isArray(prods) ? prods : (prods.results || []);
+                const orderList = Array.isArray(orders) ? orders : (orders.results || []);
+
+                if (typeof userRole !== 'undefined' && userRole === 'seller') {
+                    const myProds = prodList.filter(p => p.seller === me.id || p.seller_username === me.username);
+                    const totalRev = orderList.reduce((acc, o) => acc + Number(o.total_amount || 0), 0);
+
+                    if (document.getElementById('statRevenue')) document.getElementById('statRevenue').textContent = '₱' + totalRev.toFixed(2);
+                    if (document.getElementById('statWallet')) document.getElementById('statWallet').textContent = '₱' + Number(me.suki_wallet_balance || 0).toFixed(2);
+                    if (document.getElementById('statOrders')) document.getElementById('statOrders').textContent = orderList.length;
+                    if (document.getElementById('statProducts')) document.getElementById('statProducts').textContent = myProds.length;
+
+                    const sellerListingsEl = document.getElementById('sellerProductsList') || document.querySelector('#tab-listings tbody, #tab-listings .grid');
+                    if (sellerListingsEl && myProds.length > 0) {
+                        sellerListingsEl.innerHTML = myProds.map(p => `
+                            <div class="card" style="padding:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:0.75rem;border:1px solid #e2e8f0;border-radius:12px;background:#fff;">
+                                <div style="display:flex;align-items:center;gap:0.9rem;">
+                                    ${p.cover_image ? `<img src="${normalizeMediaUrl(p.cover_image)}" style="width:54px;height:54px;border-radius:10px;object-fit:cover;">` : `<div style="width:54px;height:54px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1d4ed8;">S</div>`}
+                                    <div>
+                                        <div style="font-weight:700;color:#0f172a;">${p.title}</div>
+                                        <div style="font-size:0.82rem;color:#64748b;">${p.category} • Stock: ${p.stock} • ₱${Number(p.price).toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                <span style="font-size:0.78rem;background:#dcfce7;color:#166534;padding:0.25rem 0.65rem;border-radius:999px;font-weight:600;">Active</span>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (e) { console.error('Workspace hydrate error:', e); }
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', sukiHydrateAllViews);
+    } else {
+        sukiHydrateAllViews();
+    }
 
 </script>
 </body>
