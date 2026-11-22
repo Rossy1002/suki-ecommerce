@@ -742,7 +742,7 @@
                     </div>
                     <div class="form-group"><label>Bio / Description</label><textarea id="profBio" rows="3" placeholder="Tell sellers a bit about yourself..."></textarea></div>
                     <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn" style="width:auto; padding:10px 24px;" onclick="saveProfile()">Save Profile</button>
+                        <button type="button" class="btn-primary" onclick="saveProfile()">Save Profile</button>
                     </div>
                     {% else %}
                     <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem;">Shop & Seller Profile Settings</h2>
@@ -792,7 +792,7 @@
                     </div>
                     <div class="form-group"><label>Shop Description / Bio</label><textarea id="profBio" rows="3"></textarea></div>
                     <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn" style="width:auto; padding:10px 24px;" onclick="saveProfile()">Save Profile</button>
+                        <button type="button" class="btn-primary" onclick="saveProfile()">Save Profile</button>
                     </div>
                     {% endif %}
                 </div>
@@ -1591,6 +1591,146 @@
     if (typeof isAuth !== 'undefined' && isAuth) {
         loadProfile();
     }
+
+
+
+    // Live file preview for Shop Logo & Shop Cover Banner
+    function bindMediaPreviews() {
+        const logoIn = document.getElementById('profLogo');
+        if (logoIn && !logoIn.dataset.bound) {
+            logoIn.dataset.bound = '1';
+            logoIn.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                document.querySelectorAll('#logoPreview').forEach(img => {
+                    img.src = url;
+                    img.style.display = 'block';
+                });
+            });
+        }
+        const bannerIn = document.getElementById('profBanner');
+        if (bannerIn && !bannerIn.dataset.bound) {
+            bannerIn.dataset.bound = '1';
+            bannerIn.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                document.querySelectorAll('#bannerPreview').forEach(img => {
+                    img.src = url;
+                    img.style.display = 'block';
+                });
+            });
+        }
+    }
+    bindMediaPreviews();
+
+    // Override saveProfile with clear visual feedback and full multipart upload
+    window.saveProfile = async function() {
+        if (!currentProfileId) await loadProfile();
+        const fd = new FormData();
+        const getVisibleVal = (id) => {
+            const els = Array.from(document.querySelectorAll('#' + id));
+            const vis = els.find(el => el.offsetParent !== null) || els[0];
+            return vis ? vis.value : '';
+        };
+        fd.append('email', getVisibleVal('profEmail'));
+        fd.append('first_name', getVisibleVal('profFirstName'));
+        fd.append('last_name', getVisibleVal('profLastName'));
+        fd.append('phone_number', getVisibleVal('profPhone'));
+        fd.append('country', getVisibleVal('profCountry'));
+        fd.append('region', getVisibleVal('profRegion'));
+        fd.append('city', getVisibleVal('profCity'));
+        fd.append('saved_payment_method', getVisibleVal('profPayment'));
+        fd.append('shop_or_bio', getVisibleVal('profBio'));
+        if (document.querySelector('#profShopName')) fd.append('shop_name', getVisibleVal('profShopName'));
+        if (document.querySelector('#profShopTagline')) fd.append('shop_tagline', getVisibleVal('profShopTagline'));
+
+        const logoInput = document.getElementById('profLogo');
+        if (logoInput && logoInput.files && logoInput.files[0]) {
+            fd.append('shop_logo', logoInput.files[0]);
+        }
+        const bannerInput = document.getElementById('profBanner');
+        if (bannerInput && bannerInput.files && bannerInput.files[0]) {
+            fd.append('shop_banner', bannerInput.files[0]);
+        }
+
+        const targetUrl = currentProfileId ? `/api/profile/${currentProfileId}/` : '/api/profile/';
+        try {
+            const res = await fetch(targetUrl, {
+                method: 'PATCH',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: fd
+            });
+            if (res.ok) {
+                if (typeof showToast === 'function') showToast('Profile saved successfully!');
+                else alert('Profile saved successfully!');
+                await loadProfile();
+            } else {
+                const errText = await res.text();
+                console.error('Save failed:', res.status, errText);
+                if (typeof showToast === 'function') showToast('Error saving profile (' + res.status + ')');
+            }
+        } catch (err) {
+            console.error('Save exception:', err);
+        }
+    };
+
+    // Populate Guest Landing Page: Featured Seller Shops & Discover Something Useful
+    async function renderGuestLanding() {
+        const shopsGrid = document.getElementById('featuredShopsGrid');
+        const prodsGrid = document.getElementById('discoverProductsGrid');
+        if (!shopsGrid && !prodsGrid) return;
+
+        if (shopsGrid) {
+            try {
+                const sRes = await fetch('/api/shops/');
+                if (sRes.ok) {
+                    const shops = await sRes.json();
+                    const list = Array.isArray(shops) ? shops : (shops.results || []);
+                    shopsGrid.innerHTML = list.map(s => `
+                        <div class="card" style="padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; gap:0.75rem;" onclick="if(typeof openShopStorefront==='function') openShopStorefront('${s.username}')">
+                            <div style="display:flex; align-items:center; gap:0.85rem;">
+                                <img src="${s.shop_logo || ''}" onerror="this.style.display='none'" style="width:48px; height:48px; border-radius:12px; object-fit:cover; background:#eef2ff;">
+                                <div>
+                                    <div style="font-weight:700; font-size:1.05rem;">${s.shop_name || s.username}</div>
+                                    <div style="font-size:0.82rem; color:#64748b;">${s.shop_tagline || 'Verified Suki Creator'}</div>
+                                </div>
+                            </div>
+                            <p style="font-size:0.88rem; color:#475569; margin:0;">${s.shop_or_bio || ''}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) { console.error('Shops load error:', e); }
+        }
+
+        if (prodsGrid) {
+            try {
+                const pRes = await fetch('/api/products/');
+                if (pRes.ok) {
+                    const prods = await pRes.json();
+                    const list = Array.isArray(prods) ? prods : (prods.results || []);
+                    prodsGrid.innerHTML = list.map(p => `
+                        <div class="card" style="overflow:hidden; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                ${p.cover_image ? `<img src="${p.cover_image}" style="width:100%; height:170px; object-fit:cover;">` : `<div style="height:170px; background:linear-gradient(135deg,#eef2ff,#e0e7ff); display:flex; align-items:center; justify-content:center; font-weight:700; color:#3730a3;">${p.category || 'Digital Product'}</div>`}
+                                <div style="padding:1rem;">
+                                    <span style="font-size:0.72rem; font-weight:700; color:#1d4ed8; text-transform:uppercase;">${p.category || 'Template'}</span>
+                                    <h3 style="font-size:1rem; margin:0.35rem 0;">${p.title}</h3>
+                                    <p style="font-size:0.83rem; color:#64748b; margin:0;">by ${p.seller_shop_name || p.seller_username || 'Suki Seller'}</p>
+                                </div>
+                            </div>
+                            <div style="padding:0.85rem 1rem; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                                <strong style="font-size:1rem;">₱${Number(p.price).toFixed(2)}</strong>
+                                <button type="button" class="btn-primary" style="padding:0.45rem 0.85rem; font-size:0.82rem;" onclick="if(typeof openAuthModal==='function') openAuthModal('login')">Buy / View</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) { console.error('Products load error:', e); }
+        }
+    }
+    renderGuestLanding();
 
 </script>
 </body>
