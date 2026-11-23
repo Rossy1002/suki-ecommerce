@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User, DigitalProduct, ProductImage, Wishlist, CartItem, Order, Review, SupportTicket
 
+
 class UserSerializer(serializers.ModelSerializer):
     effective_banner = serializers.SerializerMethodField()
     effective_logo = serializers.SerializerMethodField()
@@ -10,7 +11,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'first_name', 'last_name', 'phone_number', 'email', 'role',
             'suki_wallet_balance', 'saved_payment_method', 'shop_name',
-            'shop_tagline', 'gender', 'country', 'region', 'city', 'shop_banner_url',
+            'shop_tagline', 'gender', 'country', 'region', 'city',
+            'shop_logo', 'shop_banner', 'shop_banner_url',
             'effective_banner', 'effective_logo', 'shop_or_bio', 'sales_count', 'followers_count'
         ]
         read_only_fields = ['username', 'role', 'suki_wallet_balance']
@@ -19,26 +21,38 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.shop_banner.url if obj.shop_banner else obj.shop_banner_url
 
     def get_effective_logo(self, obj):
-        return obj.shop_logo.url if obj.shop_logo else '' 
+        return obj.shop_logo.url if obj.shop_logo else ''
 
-
-    def get_customer_full_name(self, obj):
-        full = f"{obj.customer.first_name} {obj.customer.last_name}".strip()
-        return full if full else obj.customer.username
-
-    def get_customer_location(self, obj):
-        parts = [x for x in [getattr(obj.customer, 'city', ''), getattr(obj.customer, 'region', ''), getattr(obj.customer, 'country', '')] if x]
-        return ", ".join(parts) if parts else "Philippines"
 
 class ReviewSerializer(serializers.ModelSerializer):
     customer_name = serializers.ReadOnlyField(source='customer.username')
     customer_email = serializers.ReadOnlyField(source='customer.email')
     customer_full_name = serializers.SerializerMethodField()
     customer_location = serializers.SerializerMethodField()
+
     class Meta:
         model = Review
-        fields = ['id', 'customer', 'customer_name', 'customer_email', 'customer_full_name', 'customer_location', 'product', 'rating', 'comment', 'created_at']
+        fields = [
+            'id', 'customer', 'customer_name', 'customer_email',
+            'customer_full_name', 'customer_location', 'product',
+            'rating', 'comment', 'created_at'
+        ]
         read_only_fields = ['customer']
+
+    def get_customer_full_name(self, obj):
+        full = f"{obj.customer.first_name} {obj.customer.last_name}".strip()
+        return full if full else obj.customer.username
+
+    def get_customer_location(self, obj):
+        parts = [
+            x for x in [
+                getattr(obj.customer, 'city', ''),
+                getattr(obj.customer, 'region', ''),
+                getattr(obj.customer, 'country', '')
+            ] if x
+        ]
+        return ", ".join(parts) if parts else "Philippines"
+
 
 class ProductSerializer(serializers.ModelSerializer):
     seller_name = serializers.ReadOnlyField(source='seller.username')
@@ -81,28 +95,66 @@ class ProductSerializer(serializers.ModelSerializer):
             return ["Standard Digital"]
         return [s.strip() for s in obj.available_sizes.split(',') if s.strip()]
 
+
 class WishlistSerializer(serializers.ModelSerializer):
     product_title = serializers.ReadOnlyField(source='product.title')
+
     class Meta:
         model = Wishlist
         fields = ['id', 'customer', 'product', 'product_title', 'added_at']
         read_only_fields = ['customer']
 
+
 class CartItemSerializer(serializers.ModelSerializer):
     product_title = serializers.ReadOnlyField(source='product.title')
     product_price = serializers.ReadOnlyField(source='product.price')
+
     class Meta:
         model = CartItem
         fields = ['id', 'customer', 'product', 'product_title', 'product_price', 'selected_size', 'quantity']
         read_only_fields = ['customer']
 
+
 class OrderSerializer(serializers.ModelSerializer):
     product_title = serializers.ReadOnlyField(source='product.title')
+    product_category = serializers.ReadOnlyField(source='product.category')
+    customer_username = serializers.ReadOnlyField(source='customer.username')
+    customer_full_name = serializers.SerializerMethodField()
+    customer_email = serializers.ReadOnlyField(source='customer.email')
+    customer_phone = serializers.ReadOnlyField(source='customer.phone_number')
+    customer_address = serializers.SerializerMethodField()
+    seller_shop_name = serializers.SerializerMethodField()
+    seller_username = serializers.ReadOnlyField(source='product.seller.username')
     download_link = serializers.ReadOnlyField(source='product.download_link')
+
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'product', 'product_title', 'selected_size', 'quantity', 'total_amount', 'status', 'delivery_tracking_code', 'download_link', 'created_at']
+        fields = [
+            'id', 'customer', 'customer_username', 'customer_full_name',
+            'customer_email', 'customer_phone', 'customer_address',
+            'seller_shop_name', 'seller_username', 'product', 'product_title',
+            'product_category', 'selected_size', 'quantity', 'total_amount',
+            'status', 'delivery_tracking_code', 'download_link', 'created_at'
+        ]
         read_only_fields = ['customer', 'total_amount', 'status', 'delivery_tracking_code']
+
+    def get_customer_full_name(self, obj):
+        full = f"{obj.customer.first_name} {obj.customer.last_name}".strip()
+        return full if full else obj.customer.username
+
+    def get_customer_address(self, obj):
+        parts = [
+            x for x in [
+                getattr(obj.customer, 'city', ''),
+                getattr(obj.customer, 'region', ''),
+                getattr(obj.customer, 'country', '')
+            ] if x
+        ]
+        return ", ".join(parts) if parts else "Philippines"
+
+    def get_seller_shop_name(self, obj):
+        return obj.product.seller.shop_name or obj.product.seller.username
+
 
 class SupportTicketSerializer(serializers.ModelSerializer):
     class Meta:

@@ -4,7 +4,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-suki-demo-key-change-in-prod'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://*.app.github.dev', 'http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.app.github.dev",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',

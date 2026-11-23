@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.db import transaction
 from django.db.models import Sum, Count
 from django.core.mail import send_mail
+from django.core.files.base import ContentFile
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -38,6 +39,7 @@ def api_login_view(request):
         login(request, user)
         return Response({'message': 'Logged in successfully!', 'role': user.role})
     return Response({'error': 'Incorrect email/username or password. Please try again.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -99,8 +101,10 @@ def api_register_view(request):
     login(request, user)
     return Response({'message': 'Shop created!', 'role': user.role, 'username': user.username}, status=status.HTTP_201_CREATED)
 
+
 def storefront_view(request):
     return render(request, 'marketplace/index.html')
+
 
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
@@ -125,6 +129,7 @@ def public_shops_api(request):
         })
     return Response(result)
 
+
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def currency_rates_api(request):
@@ -135,14 +140,15 @@ def currency_rates_api(request):
     except Exception:
         return Response({"source": "Offline VM Fallback Rate", "USD": 0.0172})
 
+
 class UserProfileViewSet(viewsets.ModelViewSet):
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
@@ -162,34 +168,124 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         files = self.request.FILES.getlist('images')[:10]
-        first_img = files[0] if files else None
+        single_img = self.request.FILES.get('image')
+        first_img = files[0] if files else single_img
         product = serializer.save(seller=self.request.user, image=first_img)
         for f in files[1:]:
             ProductImage.objects.create(product=product, image=f)
 
     def perform_update(self, serializer):
+        photo_order_raw = self.request.data.get('photo_order')
         files = self.request.FILES.getlist('images')[:10]
+        single_img = self.request.FILES.get('image')
+
+        if photo_order_raw:
+            product = serializer.save()
+            try:
+                manifest = json.loads(photo_order_raw)
+
+                existing_file_map = {}
+                if product.image:
+                    try:
+                        product.image.seek(0)
+                        existing_file_map[product.image.url] = (
+                            product.image.name.split('/')[-1],
+                            ContentFile(product.image.read())
+                        )
+                    except Exception:
+                        pass
+
+                for extra in product.extra_images.all():
+                    if extra.image:
+                        try:
+                            extra.image.seek(0)
+                            existing_file_map[extra.image.url] = (
+                                extra.image.name.split('/')[-1],
+                                ContentFile(extra.image.read())
+                            )
+                        except Exception:
+                            pass
+
+                ordered_items = []
+                for entry in manifest[:10]:
+                    etype = entry.get('type')
+                    if etype == 'existing':
+                        raw_url = entry.get('url', '')
+                        norm_url = raw_url if raw_url.startswith(('http://', 'https://', '/')) else f'/{raw_url}'
+                        if norm_url in existing_file_map:
+                            ordered_items.append(('file', existing_file_map[norm_url]))
+                        elif raw_url in existing_file_map:
+                            ordered_items.append(('file', existing_file_map[raw_url]))
+                        elif raw_url.startswith(('http://', 'https://')):
+                            ordered_items.append(('url', raw_url))
+                    elif etype == 'new':
+                        idx = entry.get('index', -1)
+                        if 0 <= idx < len(files):
+                            f = files[idx]
+                            ordered_items.append(('file', (f.name, f)))
+
+                product.extra_images.all().delete()
+                if product.image:
+                    product.image.delete(save=False)
+                    product.image = None
+
+                url_slots = []
+                primary_set = False
+
+                for kind, payload in ordered_items:
+                    if kind == 'file':
+                        fname, fcontent = payload
+                        if not primary_set:
+                            product.image.save(fname, fcontent, save=False)
+                            primary_set = True
+                        else:
+                            extra_obj = ProductImage(product=product)
+                            extra_obj.image.save(fname, fcontent, save=True)
+                    elif kind == 'url':
+                        url_slots.append(payload)
+
+                if not primary_set and url_slots:
+                    product.image_url = url_slots[0]
+                    product.image_url_2 = url_slots[1] if len(url_slots) > 1 else ''
+                    product.image_url_3 = url_slots[2] if len(url_slots) > 2 else ''
+                elif primary_set:
+                    product.image_url_2 = url_slots[0] if len(url_slots) > 0 else ''
+                    product.image_url_3 = url_slots[1] if len(url_slots) > 1 else ''
+
+                product.save()
+                return
+            except Exception:
+                pass
+
         if files:
             product = serializer.save(image=files[0])
             product.extra_images.all().delete()
             for f in files[1:]:
                 ProductImage.objects.create(product=product, image=f)
+        elif single_img:
+            serializer.save(image=single_img)
         else:
             serializer.save()
+
 
 class WishlistViewSet(viewsets.ModelViewSet):
     serializer_class = WishlistSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         return Wishlist.objects.filter(customer=self.request.user)
+
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
+
 
 class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartItemSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         return CartItem.objects.filter(customer=self.request.user)
+
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
 
@@ -240,9 +336,11 @@ class CartViewSet(viewsets.ModelViewSet):
             "order_ids": created_orders
         }, status=status.HTTP_201_CREATED)
 
+
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
         if user.role == 'seller':
@@ -252,29 +350,52 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def fulfill(self, request, pk=None):
         order = self.get_object()
+        if order.product.seller != request.user:
+            return Response({'error': 'Not authorized to fulfill this order.'}, status=status.HTTP_403_FORBIDDEN)
+
+        custom_link = (request.data.get('delivery_link') or '').strip()
+        seller_note = (request.data.get('seller_note') or '').strip()
+        final_link = custom_link or order.product.download_link
+
+        if custom_link and custom_link != order.product.download_link:
+            order.product.download_link = custom_link
+            order.product.save(update_fields=['download_link'])
+
         order.status = 'DELIVERED'
         order.save()
+
         recipient = order.customer.email or f"{order.customer.username}@suki.ph"
+        shop_name = order.product.seller.shop_name or order.product.seller.username
+        email_body = (
+            f"Hi {order.customer.first_name or order.customer.username},\n\n"
+            f"Thank you for your order ({order.delivery_tracking_code}) from {shop_name}!\n\n"
+            f"--- OFFICIAL DIGITAL DELIVERY RECEIPT ---\n"
+            f"Tracking Code: {order.delivery_tracking_code}\n"
+            f"Product: {order.product.title} ({order.selected_size})\n"
+            f"Amount Paid: PHP {order.total_amount}\n"
+            f"Access your template / digital file here: {final_link}\n"
+        )
+        if seller_note:
+            email_body += f"\nSeller Note: {seller_note}\n"
+        email_body += "\nYou can also view this receipt and open your link anytime inside your Suki Completed Orders dashboard."
+
         try:
             send_mail(
-                subject=f"[Suki] Your Digital Product is Ready: {order.product.title}",
-                message=(
-                    f"Hi {order.customer.first_name or order.customer.username},\n\n"
-                    f"Thank you for your order ({order.delivery_tracking_code})!\n"
-                    f"Product: {order.product.title} ({order.selected_size})\n"
-                    f"Access your template / digital file here: {order.product.download_link}\n\n"
-                    f"You can also view this link anytime inside your Suki Completed Orders dashboard."
-                ),
+                subject=f"[Suki Receipt #{order.delivery_tracking_code}] Your Digital Product is Ready: {order.product.title}",
+                message=email_body,
                 from_email='delivery@suki-marketplace.ph',
                 recipient_list=[recipient],
                 fail_silently=True,
             )
         except Exception:
             pass
+
+        serializer = self.get_serializer(order)
         return Response({
             'message': f'Template link automatically sent to {recipient} and order marked as Completed!',
             'tracking': order.delivery_tracking_code,
-            'recipient_email': recipient
+            'recipient_email': recipient,
+            'order': serializer.data
         })
 
     @action(detail=True, methods=['post'])
@@ -315,17 +436,22 @@ class OrderViewSet(viewsets.ModelViewSet):
             "total_revenue": stats['total_revenue'] or 0.00
         })
 
+
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
+
 
 class SupportViewSet(viewsets.ModelViewSet):
     serializer_class = SupportTicketSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         return SupportTicket.objects.filter(customer=self.request.user)
+
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
