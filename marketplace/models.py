@@ -40,6 +40,7 @@ class DigitalProduct(models.Model):
     image_url_2 = models.URLField(blank=True)
     image_url_3 = models.URLField(blank=True)
     download_link = models.URLField(default="https://www.canva.com/templates/")
+    is_draft = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -4,9 +4,10 @@ import urllib.request
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login
 from django.db import transaction
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q
 from django.core.mail import send_mail
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -109,11 +110,11 @@ def storefront_view(request):
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def public_shops_api(request):
-    """Public endpoint so guests can view Featured Seller Shops without logging in."""
+    """Public endpoint so guests can view Featured Seller Shops without logging in (excludes drafts)."""
     sellers = User.objects.filter(role='seller', is_superuser=False).order_by('id')
     result = []
     for s in sellers:
-        prods = DigitalProduct.objects.filter(seller=s).order_by('-id')
+        prods = DigitalProduct.objects.filter(seller=s, is_draft=False).order_by('-id')
         result.append({
             "id": s.id,
             "username": s.username,
@@ -157,7 +158,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        qs = DigitalProduct.objects.all().order_by('-id')
+        user = self.request.user
+        # Only the owning seller can see their own drafts; guests and customers only see published listings
+        if user.is_authenticated and getattr(user, 'role', '') == 'seller':
+            qs = DigitalProduct.objects.filter(Q(is_draft=False) | Q(seller=user)).order_by('-id')
+        else:
+            qs = DigitalProduct.objects.filter(is_draft=False).order_by('-id')
+
         search = self.request.query_params.get('search')
         category = self.request.query_params.get('category')
         if search:
@@ -166,11 +173,28 @@ class ProductViewSet(viewsets.ModelViewSet):
             qs = qs.filter(category__icontains=category)
         return qs
 
+    def _save_direct_delivery_file(self):
+        delivery_file = self.request.FILES.get('delivery_file')
+        if not delivery_file:
+            return None
+        safe_name = f"digital_files/{uuid.uuid4().hex[:10]}_{delivery_file.name.replace(' ', '_')}"
+        saved_path = default_storage.save(safe_name, delivery_file)
+        file_url = default_storage.url(saved_path)
+        if file_url.startswith('/'):
+            return self.request.build_absolute_uri(file_url)
+        return file_url
+
     def perform_create(self, serializer):
         files = self.request.FILES.getlist('images')[:10]
         single_img = self.request.FILES.get('image')
         first_img = files[0] if files else single_img
-        product = serializer.save(seller=self.request.user, image=first_img)
+        uploaded_delivery_url = self._save_direct_delivery_file()
+
+        save_kwargs = {'seller': self.request.user, 'image': first_img}
+        if uploaded_delivery_url:
+            save_kwargs['download_link'] = uploaded_delivery_url
+
+        product = serializer.save(**save_kwargs)
         for f in files[1:]:
             ProductImage.objects.create(product=product, image=f)
 
@@ -178,9 +202,11 @@ class ProductViewSet(viewsets.ModelViewSet):
         photo_order_raw = self.request.data.get('photo_order')
         files = self.request.FILES.getlist('images')[:10]
         single_img = self.request.FILES.get('image')
+        uploaded_delivery_url = self._save_direct_delivery_file()
+        extra_save_kwargs = {'download_link': uploaded_delivery_url} if uploaded_delivery_url else {}
 
         if photo_order_raw:
-            product = serializer.save()
+            product = serializer.save(**extra_save_kwargs)
             try:
                 manifest = json.loads(photo_order_raw)
 
@@ -258,14 +284,14 @@ class ProductViewSet(viewsets.ModelViewSet):
                 pass
 
         if files:
-            product = serializer.save(image=files[0])
+            product = serializer.save(image=files[0], **extra_save_kwargs)
             product.extra_images.all().delete()
             for f in files[1:]:
                 ProductImage.objects.create(product=product, image=f)
         elif single_img:
-            serializer.save(image=single_img)
+            serializer.save(image=single_img, **extra_save_kwargs)
         else:
-            serializer.save()
+            serializer.save(**extra_save_kwargs)
 
 
 class WishlistViewSet(viewsets.ModelViewSet):
@@ -304,10 +330,14 @@ class CartViewSet(viewsets.ModelViewSet):
         created_orders = []
         for item in cart_items:
             product = item.product
-            if product.stock_licenses < item.quantity:
+            if product.is_draft:
+                return Response({"error": f"Product is no longer available: {product.title}"}, status=status.HTTP_400_BAD_REQUEST)
+            is_unlimited = product.stock_licenses >= 999999
+            if not is_unlimited and product.stock_licenses < item.quantity:
                 return Response({"error": f"Out of stock: {product.title}"}, status=status.HTTP_400_BAD_REQUEST)
-            product.stock_licenses -= item.quantity
-            product.save()
+            if not is_unlimited:
+                product.stock_licenses -= item.quantity
+                product.save()
 
             seller = product.seller
             seller.suki_wallet_balance += (product.price * item.quantity)
@@ -417,8 +447,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         customer.save()
         seller.suki_wallet_balance -= order.total_amount
         seller.save()
-        order.product.stock_licenses += order.quantity
-        order.product.save()
+        if order.product.stock_licenses < 999999:
+            order.product.stock_licenses += order.quantity
+            order.product.save()
         order.status = 'REFUNDED'
         order.save()
         return Response({"message": f"Refunded ₱{order.total_amount} to {customer.username}'s Suki Wallet."})

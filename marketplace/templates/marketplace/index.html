@@ -130,6 +130,83 @@
         .badge-delivered { background: #dcfce7; color: #166534; }
         .badge-pending { background: #fef3c7; color: #b45309; }
 
+        /* Create Listing 2-Column Layout, Delivery Toggle, Unlimited Stock Switch & Live Preview */
+        .create-listing-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.85fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 980px) {
+            .create-listing-layout { grid-template-columns: 1fr; }
+        }
+        .delivery-toggle-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+        .delivery-toggle-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .delivery-toggle-btn.active {
+            background: #fff;
+            color: var(--blue);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        }
+        .switch-pill {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 21px;
+            margin: 0;
+        }
+        .switch-pill input { opacity: 0; width: 0; height: 0; }
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #cbd5e1;
+            transition: 0.2s;
+            border-radius: 99px;
+        }
+        .switch-slider::before {
+            position: absolute;
+            content: "";
+            height: 15px;
+            width: 15px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.2s;
+            border-radius: 50%;
+        }
+        .switch-pill input:checked + .switch-slider { background-color: var(--blue); }
+        .switch-pill input:checked + .switch-slider::before { transform: translateX(17px); }
+        .sticky-preview-col {
+            position: sticky;
+            top: 1.5rem;
+        }
+        .preview-card-shell {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        }
+
         /* Receipt & Details Info Rows */
         .info-row-list { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
         .info-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
@@ -218,10 +295,10 @@
 </head>
 <body>
 
-{% if not user.is_authenticated %}
 <div style="display:none;">{% csrf_token %}</div>
 
 <!-- ==================== GUEST / PUBLIC STOREFRONT ==================== -->
+<div id="publicStorefrontWrapper" class="{% if user.is_authenticated %}hidden{% endif %}">
 <div class="top-announcement">Discover trusted Filipino creators. Every purchase is protected by Suki.</div>
 
 <nav class="landing-nav">
@@ -233,16 +310,33 @@
     <div class="nav-search-bar" id="landingSearchWrap">
         <select id="catFilterSelect" onchange="filterLandingProducts()">
             <option value="All">All Categories</option>
+            <option value="Canva Templates">Canva Templates</option>
+            <option value="E-books & Guides">E-books &amp; Guides</option>
+            <option value="Notion Systems">Notion Systems</option>
+            <option value="Spreadsheets & Trackers">Spreadsheets &amp; Trackers</option>
+            <option value="Digital Planners & Journals">Digital Planners &amp; Journals</option>
+            <option value="Printables & Wall Art">Printables &amp; Wall Art</option>
+            <option value="Presets & Filters">Presets &amp; Filters</option>
+            <option value="Graphics, Fonts & Icons">Graphics, Fonts &amp; Icons</option>
+            <option value="Creative Services">Creative Services</option>
+            <option value="Others">Others</option>
         </select>
         <input type="text" id="landingSearchInput" name="suki_catalog_filter" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search e-books, Canva templates, and services..." onkeyup="filterLandingProducts()">
     </div>
 
+    {% if not user.is_authenticated %}
     <div style="display:flex; gap:0.75rem; align-items:center;" id="landingNavActions">
         <a href="#discoverSection" onclick="showGuestView('landing')" style="text-decoration:none; color:var(--text); font-weight:600; font-size:0.88rem;">Explore</a>
         <a href="#" onclick="openAuthModal('login'); return false;" style="text-decoration:none; color:var(--text); font-weight:600; font-size:0.88rem;">🛒 Cart</a>
         <a href="#" onclick="openAuthModal('login'); return false;" class="btn btn-outline btn-sm">Log In</a>
         <a href="#" onclick="openAuthModal('shop'); return false;" class="btn btn-sm">Create a Shop</a>
     </div>
+    {% else %}
+    <div style="display:flex; gap:0.75rem; align-items:center;" id="landingNavActions">
+        <span style="font-size:0.82rem; color:var(--muted); font-weight:600;">Viewing Marketplace as <strong>{{ user.username }}</strong></span>
+        <button type="button" class="btn btn-sm" onclick="toggleMarketplaceMode(false)">&larr; Return to {{ user.role|title }} Workspace</button>
+    </div>
+    {% endif %}
 
     <div class="hidden" id="backMarketWrap">
         <button class="btn btn-outline btn-sm" onclick="showGuestView('landing')">&larr; Back to marketplace</button>
@@ -340,7 +434,7 @@
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:1rem; font-size:0.85rem;">
                     <span style="font-weight:700; color:var(--blue); cursor:pointer;" id="detailSellerLink">@seller ✓</span>
                     <span style="color:var(--orange); font-weight:700;">★ 4.9</span>
-                    <span style="color:var(--muted);" id="detailStockText">100 licenses left</span>
+                    <span style="color:var(--muted);" id="detailStockText">Unlimited digital access</span>
                 </div>
 
                 <div style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">ONE-TIME PURCHASE</div>
@@ -375,9 +469,15 @@
 <footer style="background:var(--blue-dark); color:#cbd5e1; padding:1.5rem 3rem; margin-top:4rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
     <div style="display:flex; align-items:center; gap:8px; color:#fff; font-weight:800;"><span class="logo-icon" style="width:26px; height:26px; font-size:0.8rem;">S</span> Suki Marketplace</div>
     <div>&copy; 2026 Suki Marketplace &bull; Made for Filipino buyers and sellers</div>
+    {% if user.is_superuser %}
     <a href="/api/" style="color:#93c5fd; text-decoration:none;">REST API Endpoints</a>
+    {% else %}
+    <span>Protected by Suki Digital Guarantee</span>
+    {% endif %}
 </footer>
+</div>
 
+{% if not user.is_authenticated %}
 <!-- 1. LOG IN MODAL -->
 <div id="loginModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAllAuthModals()">
     <div class="modal-card" style="max-width:410px; position:relative; padding:2rem;">
@@ -528,31 +628,39 @@
 
 {% else %}
 <!-- ==================== LOGGED-IN WORKSPACE (CUSTOMER & SELLER DASHBOARDS) ==================== -->
-<div class="app-shell">
+<div class="app-shell" id="workspaceAppShell">
     <aside class="sidebar">
         <div>
-            <div class="logo-wrap" style="margin-bottom:1.5rem;">
+            <div class="logo-wrap" style="margin-bottom:1.5rem;" onclick="toggleMarketplaceMode(true)" title="Back to Suki Marketplace">
                 <div class="logo-icon">S</div>
                 <span class="logo-text">Suki</span>
                 <span class="cat-pill" style="margin:0;">{{ user.role }}</span>
             </div>
 
             {% if user.role == 'customer' %}
-                <button class="side-btn active" onclick="showTab('overview', this)">Catalog & Shop</button>
+                <button class="side-btn active" onclick="showTab('overview', this)">Catalog &amp; Shop</button>
                 <button class="side-btn" onclick="showTab('cart', this)">Shopping Cart <span class="count-pill" id="cartCount">0</span></button>
                 <button class="side-btn" onclick="showTab('wishlist', this)">My Wishlist</button>
-                <button class="side-btn" onclick="showTab('orders', this)">Orders & Reviews</button>
+                <button class="side-btn" onclick="showTab('orders', this)">Orders &amp; Reviews</button>
                 <button class="side-btn" onclick="showTab('support', this)">Customer Support</button>
-                <button class="side-btn" onclick="showTab('profile', this)">My Profile & Wallet</button>
+                <button class="side-btn" onclick="showTab('profile', this)">My Profile &amp; Wallet</button>
             {% else %}
-                <button class="side-btn active" onclick="showTab('overview', this)">Overview & Analytics</button>
-                <button class="side-btn" onclick="showTab('seller-listings', this)">My Shop Listings</button>
-                <button class="side-btn" onclick="showTab('seller-orders', this)">Orders & Email Delivery <span class="count-pill" id="orderCount">0</span></button>
-                <button class="side-btn" onclick="showTab('seller-add', this)">+ Create Listing</button>
-                <button class="side-btn" onclick="showTab('profile', this)">Shop Profile</button>
+                <button class="side-btn active" id="navBtn-overview" onclick="showTab('overview', this)">Overview &amp; Analytics</button>
+                <button class="side-btn" id="navBtn-seller-listings" onclick="showTab('seller-listings', this)">My Shop Listings</button>
+                <button class="side-btn" id="navBtn-seller-orders" onclick="showTab('seller-orders', this)">Orders &amp; Email Delivery <span class="count-pill" id="orderCount">0</span></button>
+                <button class="side-btn" id="navBtn-seller-add" onclick="showTab('seller-add', this)">+ Create Listing</button>
+                <button class="side-btn" id="navBtn-seller-payouts" onclick="showTab('seller-payouts', this)">Payouts &amp; Earnings</button>
+                <button class="side-btn" id="navBtn-profile" onclick="showTab('profile', this)">Shop Profile</button>
             {% endif %}
         </div>
-        <a href="/api/" style="font-size:0.8rem; color:var(--muted); text-decoration:none;">↗ View REST API Endpoints</a>
+        <div style="border-top:1px solid var(--border); padding-top:0.85rem; display:flex; flex-direction:column; gap:6px;">
+            <button type="button" class="side-btn" style="color:var(--blue); background:var(--blue-light); margin-bottom:0;" onclick="toggleMarketplaceMode(true)">
+                <span>&larr; Back to Marketplace</span>
+            </button>
+            {% if user.is_superuser %}
+            <a href="/api/" style="font-size:0.78rem; color:var(--muted); text-decoration:none; padding:4px 8px;">↗ View REST API Endpoints</a>
+            {% endif %}
+        </div>
     </aside>
 
     <div class="main-area">
@@ -653,78 +761,244 @@
                 </div>
             </div>
 
-            <!-- SELLER TAB: MY SHOP LISTINGS (CARD GRID BOXES) -->
+            <!-- SELLER TAB: MY SHOP LISTINGS (CARD GRID BOXES + SAVED DRAFTS) -->
             <div id="tab-seller-listings" class="tab-section hidden">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
                     <div>
                         <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">My Shop Listings</h2>
                         <p style="margin:0.25rem 0 0;font-size:0.88rem;color:#64748b;">Manage your published Canva templates, e-books, and digital downloads.</p>
                     </div>
-                    <button type="button" class="btn" onclick="showTab('seller-add', null)">+ New Listing</button>
+                    <button type="button" class="btn" onclick="showTab('seller-add', document.getElementById('navBtn-seller-add'))">+ New Listing</button>
                 </div>
+
+                <!-- Saved Drafts Strip (Only visible to owning seller) -->
+                <div id="sellerDraftsSection" class="panel hidden" style="border-left:4px solid var(--orange); background:#fffbeb;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                        <div>
+                            <span class="cat-pill" style="background:#fef3c7; color:#b45309; margin-bottom:2px;">SAVED DRAFTS</span>
+                            <h3 style="font-size:1rem; font-weight:800;">Unpublished Listing Drafts (Hidden from Customers)</h3>
+                        </div>
+                    </div>
+                    <div id="sellerDraftsList" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+
                 <div id="sellerListingsContainer" class="products-grid"></div>
             </div>
 
             <!-- SELLER TAB: ORDERS & EMAIL DELIVERY -->
             <div id="tab-seller-orders" class="tab-section hidden">
                 <div style="margin-bottom:1.25rem;">
-                    <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">Orders & Email Delivery</h2>
+                    <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">Orders &amp; Email Delivery</h2>
                     <p style="margin:0.25rem 0 0;font-size:0.88rem;color:#64748b;">Track customer purchases, review customer details, and send instant digital download links.</p>
                 </div>
                 <div id="sellerOrdersContainer"></div>
             </div>
 
-            <!-- SELLER TAB: CREATE LISTING -->
+            <!-- SELLER TAB: CREATE LISTING (2-COLUMN WITH LIVE BUYER CARD PREVIEW) -->
             <div id="tab-seller-add" class="tab-section hidden">
                 <div style="margin-bottom:1.25rem;">
                     <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">Create New Digital Listing</h2>
                     <p style="margin:0.25rem 0 0;font-size:0.88rem;color:#64748b;">Publish a new Canva template, Notion system, or e-book to your shop.</p>
                 </div>
+
+                <div class="create-listing-layout">
+                    <!-- LEFT COLUMN: CREATE LISTING FORM -->
+                    <div class="panel" style="margin-bottom:0;">
+                        <!-- Row 1: Product Title & Category -->
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Product Title *</label>
+                                <input id="newProdTitle" type="text" placeholder="e.g. Aesthetic Instagram Brand Kit" oninput="updateLiveListingPreview()">
+                            </div>
+                            <div class="form-group">
+                                <label>Category *</label>
+                                <select id="newProdCategory" onchange="updateLiveListingPreview()">
+                                    <option value="Canva Templates" selected>Canva Templates</option>
+                                    <option value="E-books & Guides">E-books &amp; Guides</option>
+                                    <option value="Notion Systems">Notion Systems</option>
+                                    <option value="Spreadsheets & Trackers">Spreadsheets &amp; Trackers</option>
+                                    <option value="Digital Planners & Journals">Digital Planners &amp; Journals</option>
+                                    <option value="Printables & Wall Art">Printables &amp; Wall Art</option>
+                                    <option value="Presets & Filters">Presets &amp; Filters</option>
+                                    <option value="Graphics, Fonts & Icons">Graphics, Fonts &amp; Icons</option>
+                                    <option value="Creative Services">Creative Services</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Price (PHP) * & Format -->
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Price (PHP) *</label>
+                                <input id="newProdPrice" type="number" step="0.01" placeholder="299.00" oninput="updateLiveListingPreview()">
+                            </div>
+                            <div class="form-group">
+                                <label>Format</label>
+                                <input id="newProdSizes" type="text" placeholder="Standard Digital, A4, US Letter">
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Full-width Stock with right-aligned Unlimited Copies toggle -->
+                        <div class="form-group">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:12px;">
+                                <label style="margin:0;">Stock</label>
+                                <div style="display:flex; align-items:center; gap:8px; white-space:nowrap;">
+                                    <span style="font-size:0.78rem; font-weight:700; color:var(--blue); white-space:nowrap;">Unlimited Copies</span>
+                                    <label class="switch-pill" title="Toggle Unlimited Digital Copies" style="flex-shrink:0;">
+                                        <input type="checkbox" id="newProdUnlimitedStock" checked onchange="toggleUnlimitedStock(this)">
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="newProdUnlimitedBadge" style="padding:9px 12px; border:1px solid #bfdbfe; background:var(--blue-light); color:var(--blue); border-radius:9px; font-size:0.86rem; font-weight:700;">
+                                ∞ Unlimited Digital Copies
+                            </div>
+                            <input id="newProdStock" type="number" min="1" value="99" placeholder="Enter available license count" class="hidden" oninput="updateLiveListingPreview()">
+                        </div>
+
+                        <!-- Simplified Delivery Method Tabs -->
+                        <div class="form-group">
+                            <label>Delivery Method *</label>
+                            <div class="delivery-toggle-bar">
+                                <button type="button" id="delivTabLink" class="delivery-toggle-btn active" onclick="setDeliveryMethod('link')">External Link</button>
+                                <button type="button" id="delivTabFile" class="delivery-toggle-btn" onclick="setDeliveryMethod('file')">Upload File</button>
+                            </div>
+
+                            <div id="deliveryLinkWrap">
+                                <input id="newProdLink" type="url" placeholder="https://www.canva.com/design/... (Canva, Notion, or Google Drive)">
+                            </div>
+
+                            <div id="deliveryFileWrap" class="hidden">
+                                <input id="newProdDirectFile" type="file" accept=".pdf,.zip,.xlsx,.docx,application/pdf,application/zip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                            </div>
+
+                            <div id="deliveryHelperText" style="font-size:0.78rem; color:var(--muted); margin-top:6px; display:flex; align-items:center; gap:6px;">
+                                <span style="color:var(--blue); font-weight:800;">ℹ</span>
+                                <span>Paste a shareable Canva, Notion, or Google Drive link. It will be emailed automatically after payment.</span>
+                            </div>
+                        </div>
+
+                        <!-- Clean Photo Upload Label -->
+                        <div class="form-group">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <label style="margin:0;">Product Photos</label>
+                                <span style="font-size:0.75rem; color:var(--muted); font-weight:600;">(Max 10)</span>
+                            </div>
+                            <input id="newProdCover" type="file" accept="image/*" multiple onchange="handleNewListingPhotosChange(this)">
+                            <div id="newProdPhotoErr" class="hidden" style="color:#b91c1c; font-size:0.78rem; font-weight:600; margin-top:5px;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="newProdDesc" rows="3" placeholder="Describe what is included in this digital product..."></textarea>
+                        </div>
+
+                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:0.5rem;">
+                            <button type="button" class="btn" onclick="createSellerListing(false)">Publish Listing</button>
+                            <button type="button" class="btn btn-outline" onclick="createSellerListing(true)">Save as Draft</button>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: STICKY LIVE BUYER CARD PREVIEW -->
+                    <div class="sticky-preview-col">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:0.75rem; font-weight:800; letter-spacing:0.6px; text-transform:uppercase; color:var(--blue);">Live Buyer Card Preview</span>
+                            <span style="font-size:0.74rem; color:var(--muted);">Real-time marketplace view</span>
+                        </div>
+                        <div class="preview-card-shell">
+                            <!-- Soft light-blue placeholder box shown until seller selects a photo -->
+                            <div id="previewCardPlaceholder" style="width:100%; height:195px; background:#eff6ff; border-bottom:1px solid #dbeafe; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#3b82f6; gap:6px;">
+                                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <path d="M21 15l-5-5L5 21"></path>
+                                </svg>
+                                <span style="font-size:0.84rem; font-weight:600; color:#2563eb;">Cover photo preview</span>
+                            </div>
+                            <img id="previewCardImg" src="" alt="Live Buyer Preview" class="hidden" style="width:100%; height:195px; object-fit:cover; border-bottom:1px solid var(--border);">
+
+                            <div style="padding:1.15rem;">
+                                <span class="cat-pill" id="previewCardCat">CANVA TEMPLATES</span>
+                                <div style="font-size:0.76rem; color:var(--muted); margin-bottom:4px;">@{{ user.username }} <span style="color:var(--blue);">✓</span></div>
+                                <h3 id="previewCardTitle" style="font-size:1.02rem; font-weight:800; line-height:1.3; margin-bottom:8px; color:var(--text);">e.g. Aesthetic Instagram Brand Kit</h3>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                    <span style="font-size:0.76rem; color:var(--success); font-weight:600;">↓ Sent via Email</span>
+                                    <span id="previewCardStock" style="font-size:0.75rem; color:var(--muted); font-weight:600;">Unlimited digital access</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid var(--border); margin-bottom:10px;">
+                                    <strong id="previewCardPrice" style="font-size:1.15rem; color:var(--text);">₱299.00</strong>
+                                    <span style="color:var(--orange); font-size:0.8rem; font-weight:700;">★ 5.0 (New)</span>
+                                </div>
+                                <button type="button" class="btn" style="width:100%; justify-content:center; pointer-events:none;">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SELLER TAB: PAYOUTS & EARNINGS (GCASH, MAYA & BANK WITHDRAWALS) -->
+            <div id="tab-seller-payouts" class="tab-section hidden">
+                <div style="margin-bottom:1.25rem;">
+                    <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">Payouts &amp; Earnings</h2>
+                    <p style="margin:0.25rem 0 0;font-size:0.88rem;color:#64748b;">Withdraw your Suki Wallet earnings via GCash, Maya, or Philippine Bank Transfer.</p>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                    <div class="panel" style="margin-bottom:0;">
+                        <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">Available for Withdrawal</small>
+                        <h2 id="payoutAvailableBalance" style="color:var(--success); font-size:1.65rem; margin-top:6px;">₱{{ user.suki_wallet_balance }}</h2>
+                    </div>
+                    <div class="panel" style="margin-bottom:0;">
+                        <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">Gross Digital Sales</small>
+                        <h2 id="payoutGrossRevenue" style="color:var(--blue); font-size:1.65rem; margin-top:6px;">₱0.00</h2>
+                    </div>
+                    <div class="panel" style="margin-bottom:0;">
+                        <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">Completed Deliveries</small>
+                        <h2 id="payoutDeliveredCount" style="font-size:1.65rem; margin-top:6px;">0</h2>
+                    </div>
+                </div>
+
                 <div class="panel" style="max-width:780px;">
+                    <h3 style="margin-bottom:1rem;">Request Payout Withdrawal</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Product Title *</label>
-                            <input id="newProdTitle" type="text" placeholder="e.g. Aesthetic Instagram Brand Kit">
+                            <label>Payout Channel *</label>
+                            <select id="payoutChannel" onchange="updatePayoutAccountPlaceholder()">
+                                <option value="GCash">GCash E-Wallet (Instant)</option>
+                                <option value="Maya">Maya Wallet (Instant)</option>
+                                <option value="BDO Unibank">Bank Transfer — BDO Unibank</option>
+                                <option value="BPI">Bank Transfer — BPI</option>
+                                <option value="UnionBank">Bank Transfer — UnionBank</option>
+                                <option value="LandBank">Bank Transfer — LandBank</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>Category *</label>
-                            <input list="catOptions" id="newProdCategory" placeholder="Canva Templates">
-                            <datalist id="catOptions">
-                                <option value="Canva Templates">
-                                <option value="Digital Books">
-                                <option value="Notion Templates">
-                                <option value="Design Services">
-                            </datalist>
+                            <label>Amount to Withdraw (PHP) *</label>
+                            <input type="number" id="payoutAmount" step="0.01" min="100" placeholder="e.g. 500.00">
                         </div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label>Price (PHP) *</label>
-                            <input id="newProdPrice" type="number" step="0.01" placeholder="299.00">
+                            <label>Account Name *</label>
+                            <input type="text" id="payoutAccountName" placeholder="Full name registered on GCash / Maya / Bank">
                         </div>
                         <div class="form-group">
-                            <label>Available Licenses / Stock</label>
-                            <input id="newProdStock" type="number" value="99">
-                        </div>
-                        <div class="form-group">
-                            <label>Sizes / Formats</label>
-                            <input id="newProdSizes" type="text" placeholder="Standard Digital, A4, US Letter">
+                            <label id="payoutAccountNumberLabel">GCash Mobile Number *</label>
+                            <input type="text" id="payoutAccountNumber" placeholder="09XX XXX XXXX">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Delivery File / Canva Link *</label>
-                        <input id="newProdLink" type="url" placeholder="https://www.canva.com/design/...">
-                    </div>
-                    <div class="form-group">
-                        <label>Upload Photos (Up to 10 pictures)</label>
-                        <input id="newProdCover" type="file" accept="image/*" multiple onchange="validateNewListingPhotos(this)">
-                        <div id="newProdPhotoErr" class="hidden" style="color:#b91c1c; font-size:0.78rem; font-weight:600; margin-top:5px;"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea id="newProdDesc" rows="3" placeholder="Describe what is included in this digital product..."></textarea>
-                    </div>
-                    <button type="button" class="btn" onclick="createSellerListing()">Publish Listing</button>
+                    <button type="button" class="btn btn-success" onclick="submitPayoutRequest()">Request Withdrawal</button>
+                </div>
+
+                <div class="panel" style="max-width:780px;">
+                    <h3 style="margin-bottom:0.75rem;">Withdrawal History</h3>
+                    <table>
+                        <thead><tr><th>Reference #</th><th>Channel</th><th>Account</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody id="payoutHistoryBody">
+                            <tr><td colspan="5" style="text-align:center; color:var(--muted);">No withdrawal requests yet.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -937,15 +1211,29 @@
         <input type="hidden" id="editProdId">
         <div class="form-grid">
             <div class="form-group"><label>Product Title</label><input type="text" id="editProdTitle"></div>
-            <div class="form-group"><label>Category</label><input list="catOptions" id="editProdCat" autocomplete="off"></div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="editProdCat">
+                    <option value="Canva Templates">Canva Templates</option>
+                    <option value="E-books & Guides">E-books &amp; Guides</option>
+                    <option value="Notion Systems">Notion Systems</option>
+                    <option value="Spreadsheets & Trackers">Spreadsheets &amp; Trackers</option>
+                    <option value="Digital Planners & Journals">Digital Planners &amp; Journals</option>
+                    <option value="Printables & Wall Art">Printables &amp; Wall Art</option>
+                    <option value="Presets & Filters">Presets &amp; Filters</option>
+                    <option value="Graphics, Fonts & Icons">Graphics, Fonts &amp; Icons</option>
+                    <option value="Creative Services">Creative Services</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
             <div class="form-group"><label>Price (₱)</label><input type="number" step="0.01" id="editProdPrice"></div>
             <div class="form-group"><label>Stock</label><input type="number" id="editProdStock"></div>
-            <div class="form-group"><label>Available Sizes (Comma-separated)</label><input type="text" id="editProdSizes"></div>
+            <div class="form-group"><label>Format (Comma-separated)</label><input type="text" id="editProdSizes"></div>
             <div class="form-group"><label>Delivery Link</label><input type="url" id="editProdLink"></div>
         </div>
         <div class="form-group">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <label style="margin:0;">Upload Photos</label>
+                <label style="margin:0;">Product Photos</label>
                 <span id="editPhotoCountLabel" style="font-size:0.75rem; color:var(--muted); font-weight:600;">0 / 10 photos</span>
             </div>
             <input type="file" id="editProdPhotos" accept="image/*" multiple onchange="handleAddEditPhotos(this)">
@@ -970,6 +1258,18 @@
     const isAuth = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
     const userRole = "{{ user.role }}";
     const currentUsername = "{{ user.username }}";
+    const SUKI_CATEGORIES = [
+        "Canva Templates",
+        "E-books & Guides",
+        "Notion Systems",
+        "Spreadsheets & Trackers",
+        "Digital Planners & Journals",
+        "Printables & Wall Art",
+        "Presets & Filters",
+        "Graphics, Fonts & Icons",
+        "Creative Services",
+        "Others"
+    ];
     let allShops = [];
     let allProducts = [];
     let allOrders = [];
@@ -977,6 +1277,7 @@
     let selectedDetailSize = "";
     let currentProfileId = null;
     let usdRate = 0.0172;
+    let currentDeliveryMode = 'link';
 
     fetch('/api/exchange-rates/').then(r => r.json()).then(d => { if (d.USD) usdRate = d.USD; }).catch(() => {});
 
@@ -993,6 +1294,12 @@
         if (!url) return '';
         if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:') || url.startsWith('/')) return url;
         return '/' + url;
+    }
+
+    function formatStockLabel(stockLicenses) {
+        return Number(stockLicenses) >= 999999
+            ? 'Unlimited digital access'
+            : `${stockLicenses} licenses available`;
     }
 
     function notify(msg) {
@@ -1038,6 +1345,22 @@
                 img.classList.remove('hidden');
                 img.style.display = 'block';
             }
+        }
+    }
+
+    function toggleMarketplaceMode(showPublic) {
+        const pubWrap = document.getElementById('publicStorefrontWrapper');
+        const workWrap = document.getElementById('workspaceAppShell');
+        if (!pubWrap || !workWrap) return;
+
+        if (showPublic) {
+            workWrap.classList.add('hidden');
+            pubWrap.classList.remove('hidden');
+            renderGuestStorefront();
+            showGuestView('landing');
+        } else {
+            pubWrap.classList.add('hidden');
+            workWrap.classList.remove('hidden');
         }
     }
 
@@ -1203,16 +1526,19 @@
 
     /* ==================== GUEST STOREFRONT ==================== */
     function renderGuestStorefront() {
+        const publishedProducts = allProducts.filter(p => !p.is_draft);
+
         const heroCards = document.getElementById('heroShopCards');
         if (heroCards && allShops.length) {
             heroCards.innerHTML = allShops.slice(0, 2).map(s => {
-                const img = normalizeMediaUrl(s.shop_banner_url || (s.products[0] && s.products[0].gallery[0]) || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80');
+                const pubShopProds = (s.products || []).filter(p => !p.is_draft);
+                const img = normalizeMediaUrl(s.shop_banner_url || (pubShopProds[0] && pubShopProds[0].gallery[0]) || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80');
                 return `<div class="hero-shop-card" onclick="openPublicShop(${s.id})">
                     <img src="${img}" alt="${s.shop_name}">
                     <div class="hero-shop-card-body">
                         <span class="cat-pill">${s.shop_tagline}</span>
                         <div style="font-weight:800; font-size:0.95rem;">${s.shop_name} ✓</div>
-                        <div style="font-size:0.78rem; color:var(--muted);">${s.products.length} digital items</div>
+                        <div style="font-size:0.78rem; color:var(--muted);">${pubShopProds.length} digital items</div>
                     </div>
                 </div>`;
             }).join('');
@@ -1221,7 +1547,7 @@
         const shopsGrid = document.getElementById('featuredShopsGrid');
         if (shopsGrid) {
             shopsGrid.innerHTML = allShops.map(s => {
-                const shopProducts = (s.products || []).slice(0, 3);
+                const shopProducts = (s.products || []).filter(p => !p.is_draft).slice(0, 3);
                 const thumbs = shopProducts.map(p => `<img src="${normalizeMediaUrl(p.gallery[0])}" style="width:100%; height:68px; object-fit:cover; border-radius:8px; border:1px solid var(--border);">`).join('');
                 const avatar = s.shop_logo_url
                     ? `<img src="${normalizeMediaUrl(s.shop_logo_url)}" style="width:46px; height:46px; border-radius:12px; object-fit:cover; border:1px solid var(--border);">`
@@ -1245,18 +1571,25 @@
 
         const catSelect = document.getElementById('catFilterSelect');
         if (catSelect) {
-            const uniqueCats = [...new Set(allProducts.map(p => (p.category || '').trim()).filter(Boolean))].sort();
+            const currentSelected = catSelect.value || 'All';
+            const extraExisting = publishedProducts
+                .map(p => (p.category || '').trim())
+                .filter(c => c && !SUKI_CATEGORIES.some(sc => sc.toLowerCase() === c.toLowerCase()));
+            const mergedCats = [...SUKI_CATEGORIES, ...new Set(extraExisting)];
             catSelect.innerHTML = '<option value="All">All Categories</option>' +
-                uniqueCats.map(c => `<option value="${c}">${c}</option>`).join('');
+                mergedCats.map(c => `<option value="${c}">${c}</option>`).join('');
+            catSelect.value = currentSelected;
         }
 
-        renderDiscoverProducts(allProducts);
+        filterLandingProducts();
     }
 
     function filterLandingProducts() {
         const q = (document.getElementById('landingSearchInput')?.value || '').toLowerCase();
         const selectedCat = document.getElementById('catFilterSelect')?.value || 'All';
+        // Never show drafts on the public landing page
         const filtered = allProducts.filter(p => {
+            if (p.is_draft) return false;
             const matchCat = selectedCat === 'All' || (p.category || '').toLowerCase() === selectedCat.toLowerCase();
             const matchQ = !q || p.title.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q) || (p.seller_name && p.seller_name.toLowerCase().includes(q));
             return matchCat && matchQ;
@@ -1267,7 +1600,8 @@
     function renderDiscoverProducts(list) {
         const grid = document.getElementById('discoverProductsGrid');
         if (!grid) return;
-        grid.innerHTML = list.map(p => `
+        const publishedList = list.filter(p => !p.is_draft);
+        grid.innerHTML = publishedList.map(p => `
             <div class="prod-card">
                 <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${p.title}" style="cursor:pointer;" onclick="openProductDetail(${p.id})">
                 <div class="prod-card-body">
@@ -1302,6 +1636,8 @@
     function openPublicShop(shopId) {
         const shop = allShops.find(s => s.id === shopId);
         if (!shop) return;
+        const publishedShopProds = (shop.products || []).filter(p => !p.is_draft);
+
         const bannerEl = document.getElementById('pubShopBanner');
         if (shop.shop_banner_url) {
             bannerEl.style.backgroundImage = `url('${normalizeMediaUrl(shop.shop_banner_url)}')`;
@@ -1321,9 +1657,9 @@
         document.getElementById('pubShopHandle').innerText = `@${shop.username}`;
         document.getElementById('pubShopSales').innerText = `${(shop.sales_count || 0).toLocaleString()} Sales`;
         document.getElementById('pubShopBio').innerText = shop.bio || '';
-        document.getElementById('pubShopItemCount').innerText = `All Items (${shop.products.length})`;
+        document.getElementById('pubShopItemCount').innerText = `All Items (${publishedShopProds.length})`;
 
-        document.getElementById('pubShopProductsGrid').innerHTML = shop.products.map(p => `
+        document.getElementById('pubShopProductsGrid').innerHTML = publishedShopProds.map(p => `
             <div class="prod-card">
                 <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${p.title}" style="cursor:pointer;" onclick="openProductDetail(${p.id})">
                 <div class="prod-card-body">
@@ -1346,7 +1682,7 @@
     }
 
     function openProductDetail(productId) {
-        const p = allProducts.find(item => item.id === productId);
+        const p = allProducts.find(item => item.id === productId && !item.is_draft);
         if (!p) return;
         activeDetailProduct = p;
         selectedDetailSize = p.sizes_list[0] || "Standard Digital";
@@ -1356,7 +1692,7 @@
         document.getElementById('detailTitle').innerText = p.title;
         document.getElementById('detailSellerLink').innerText = `@${p.seller_name} ✓`;
         document.getElementById('detailSellerLink').onclick = () => openPublicShop(p.seller);
-        document.getElementById('detailStockText').innerText = `${p.stock_licenses} licenses available`;
+        document.getElementById('detailStockText').innerText = formatStockLabel(p.stock_licenses);
         document.getElementById('detailPrice').innerHTML = `₱${Number(p.price).toFixed(2)} <small style="font-size:0.85rem; color:var(--muted); font-weight:600;">(~$${(p.price * usdRate).toFixed(2)} USD)</small>`;
 
         document.getElementById('detailMainImg').src = normalizeMediaUrl(p.gallery[0]);
@@ -1421,12 +1757,18 @@
         document.querySelectorAll('.side-btn').forEach(el => el.classList.remove('active'));
         const target = document.getElementById('tab-' + name);
         if (target) target.classList.remove('hidden');
-        if (btn) btn.classList.add('active');
+        if (btn) {
+            btn.classList.add('active');
+        } else {
+            document.getElementById('navBtn-' + name)?.classList.add('active');
+        }
 
         if (name === 'cart') loadCart();
         if (name === 'wishlist') loadWishlist();
-        if (name === 'orders' || name === 'seller-orders' || name === 'overview') loadOrders();
+        if (name === 'orders' || name === 'seller-orders' || name === 'overview' || name === 'seller-payouts') loadOrders();
         if (name === 'seller-listings') renderSellerListings();
+        if (name === 'seller-add') updateLiveListingPreview();
+        if (name === 'seller-payouts') renderPayoutHistory();
         if (name === 'profile') loadProfile();
     }
 
@@ -1522,8 +1864,9 @@
     /* ==================== CUSTOMER ACTIONS (CART, WISHLIST, ORDERS, REVIEWS) ==================== */
     function filterCustomerCatalog() {
         const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+        // Ensure drafts never show in customer catalog
         const filtered = allProducts.filter(p =>
-            !q || p.title.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q) || (p.seller_name || '').toLowerCase().includes(q)
+            !p.is_draft && (!q || p.title.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q) || (p.seller_name || '').toLowerCase().includes(q))
         );
         renderCustomerCatalog(filtered);
     }
@@ -1531,7 +1874,8 @@
     function renderCustomerCatalog(list) {
         const custGrid = document.getElementById('customerProductGrid');
         if (!custGrid) return;
-        custGrid.innerHTML = list.map(p => `
+        const publishedList = list.filter(p => !p.is_draft);
+        custGrid.innerHTML = publishedList.map(p => `
             <div class="prod-card">
                 <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${p.title}">
                 <div class="prod-card-body">
@@ -1544,7 +1888,7 @@
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px; border-top:1px solid var(--border); margin-bottom:10px;">
                             <strong style="font-size:1.1rem; color:var(--blue);">₱${Number(p.price).toFixed(2)}</strong>
-                            <span style="font-size:0.78rem; color:var(--muted);">${p.stock_licenses} left</span>
+                            <span style="font-size:0.78rem; color:var(--muted);">${p.stock_licenses >= 999999 ? 'Unlimited digital access' : p.stock_licenses + ' left'}</span>
                         </div>
                         <div style="display:flex; gap:6px;">
                             <button class="btn btn-sm" style="flex:1; justify-content:center;" onclick="addToCart(${p.id}, '${(p.sizes_list[0] || 'Standard Digital').replace(/'/g, "\\'")}')">+ Add to Cart</button>
@@ -1717,6 +2061,167 @@
         }
     }
 
+    /* ==================== CREATE LISTING TOGGLES, LIVE PREVIEW, DRAFTS & PAYOUTS ==================== */
+    function setDeliveryMethod(mode) {
+        currentDeliveryMode = mode;
+        const linkBtn = document.getElementById('delivTabLink');
+        const fileBtn = document.getElementById('delivTabFile');
+        const linkWrap = document.getElementById('deliveryLinkWrap');
+        const fileWrap = document.getElementById('deliveryFileWrap');
+        const helperText = document.getElementById('deliveryHelperText');
+
+        if (linkBtn) linkBtn.classList.toggle('active', mode === 'link');
+        if (fileBtn) fileBtn.classList.toggle('active', mode === 'file');
+        if (linkWrap) linkWrap.classList.toggle('hidden', mode !== 'link');
+        if (fileWrap) fileWrap.classList.toggle('hidden', mode !== 'file');
+
+        if (helperText) {
+            helperText.innerHTML = mode === 'link'
+                ? `<span style="color:var(--blue); font-weight:800;">ℹ</span><span>Paste a shareable Canva, Notion, or Google Drive link. It will be emailed automatically after payment.</span>`
+                : `<span style="color:var(--blue); font-weight:800;">ℹ</span><span>Accepted formats: PDF, ZIP, XLSX, DOCX. Your file will be emailed automatically after payment.</span>`;
+        }
+    }
+
+    function toggleUnlimitedStock(checkbox) {
+        const isUnlimited = checkbox.checked;
+        const badge = document.getElementById('newProdUnlimitedBadge');
+        const stockInput = document.getElementById('newProdStock');
+        if (badge) badge.classList.toggle('hidden', !isUnlimited);
+        if (stockInput) {
+            stockInput.classList.toggle('hidden', isUnlimited);
+            stockInput.disabled = isUnlimited;
+        }
+        updateLiveListingPreview();
+    }
+
+    function updateLiveListingPreview() {
+        const titleEl = document.getElementById('newProdTitle');
+        const catEl = document.getElementById('newProdCategory');
+        const priceEl = document.getElementById('newProdPrice');
+        const unlimEl = document.getElementById('newProdUnlimitedStock');
+        const stockEl = document.getElementById('newProdStock');
+
+        if (!titleEl) return;
+
+        const rawTitle = titleEl.value.trim();
+        const rawCat = catEl ? catEl.value : 'Canva Templates';
+        const rawPrice = parseFloat(priceEl ? priceEl.value : '');
+        const isUnlim = unlimEl ? unlimEl.checked : true;
+        const customStock = stockEl ? (parseInt(stockEl.value, 10) || 1) : 99;
+
+        const prevTitle = document.getElementById('previewCardTitle');
+        const prevCat = document.getElementById('previewCardCat');
+        const prevPrice = document.getElementById('previewCardPrice');
+        const prevStock = document.getElementById('previewCardStock');
+
+        if (prevTitle) prevTitle.innerText = rawTitle || 'e.g. Aesthetic Instagram Brand Kit';
+        if (prevCat) prevCat.innerText = (rawCat || 'Canva Templates').toUpperCase();
+        if (prevPrice) prevPrice.innerText = !isNaN(rawPrice) && rawPrice >= 0 ? `₱${rawPrice.toFixed(2)}` : '₱299.00';
+        if (prevStock) prevStock.innerText = isUnlim ? 'Unlimited digital access' : `${customStock} licenses available`;
+    }
+
+    function handleNewListingPhotosChange(input) {
+        validateNewListingPhotos(input);
+        const prevImg = document.getElementById('previewCardImg');
+        const prevPlaceholder = document.getElementById('previewCardPlaceholder');
+
+        if (input.files && input.files[0]) {
+            if (prevImg) {
+                prevImg.src = URL.createObjectURL(input.files[0]);
+                prevImg.classList.remove('hidden');
+                prevImg.style.display = 'block';
+            }
+            if (prevPlaceholder) prevPlaceholder.classList.add('hidden');
+        } else {
+            if (prevImg) {
+                prevImg.src = '';
+                prevImg.classList.add('hidden');
+                prevImg.style.display = 'none';
+            }
+            if (prevPlaceholder) prevPlaceholder.classList.remove('hidden');
+        }
+    }
+
+    async function publishDraftListing(id) {
+        const res = await fetch(`/api/products/${id}/`, {
+            method: 'PATCH',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({ is_draft: false })
+        });
+        if (res.ok) {
+            showSukiPopup('Listing Published!', 'Your draft is now live on the marketplace.');
+            await sukiBootstrapAll();
+            renderSellerListings();
+        }
+    }
+
+    function updatePayoutAccountPlaceholder() {
+        const ch = document.getElementById('payoutChannel')?.value || 'GCash';
+        const label = document.getElementById('payoutAccountNumberLabel');
+        const input = document.getElementById('payoutAccountNumber');
+        if (!label || !input) return;
+        if (ch === 'GCash' || ch === 'Maya') {
+            label.innerText = `${ch} Mobile Number *`;
+            input.placeholder = '09XX XXX XXXX';
+        } else {
+            label.innerText = `${ch} Account Number *`;
+            input.placeholder = 'Enter 10–16 digit bank account number';
+        }
+    }
+
+    function getPayoutStorageKey() {
+        return `suki_payouts_${currentUsername}`;
+    }
+
+    function renderPayoutHistory() {
+        const tbody = document.getElementById('payoutHistoryBody');
+        if (!tbody) return;
+        let list = [];
+        try {
+            list = JSON.parse(localStorage.getItem(getPayoutStorageKey()) || '[]');
+        } catch (_) {}
+        tbody.innerHTML = list.length ? list.map(p => `<tr>
+            <td><strong>${p.ref}</strong></td>
+            <td>${p.channel}</td>
+            <td>${p.accountName} (${p.accountNum})</td>
+            <td><strong>₱${Number(p.amount).toFixed(2)}</strong></td>
+            <td><span class="badge badge-pending">${p.status}</span></td>
+        </tr>`).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No withdrawal requests yet.</td></tr>`;
+    }
+
+    function submitPayoutRequest() {
+        const channel = document.getElementById('payoutChannel').value;
+        const amount = parseFloat(document.getElementById('payoutAmount').value);
+        const accountName = document.getElementById('payoutAccountName').value.trim();
+        const accountNum = document.getElementById('payoutAccountNumber').value.trim();
+
+        if (!amount || amount < 100 || !accountName || !accountNum) {
+            showSukiPopup('Incomplete Details', 'Please enter a valid withdrawal amount (minimum ₱100) and your account details.', true);
+            return;
+        }
+
+        let list = [];
+        try {
+            list = JSON.parse(localStorage.getItem(getPayoutStorageKey()) || '[]');
+        } catch (_) {}
+        list.unshift({
+            ref: 'WD-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+            channel,
+            accountName,
+            accountNum,
+            amount,
+            status: 'PROCESSING (1–2 DAYS)'
+        });
+        localStorage.setItem(getPayoutStorageKey(), JSON.stringify(list));
+        document.getElementById('payoutAmount').value = '';
+        renderPayoutHistory();
+        showSukiPopup('Withdrawal Requested!', `Your ₱${amount.toFixed(2)} payout via ${channel} is now being processed.`);
+    }
+
     /* ==================== SELLER LISTINGS (BOX CARDS) & EDIT PHOTO ORGANIZER ==================== */
     let editPhotoSlots = [];
     let draggedPhotoIdx = null;
@@ -1739,17 +2244,44 @@
     }
 
     function renderSellerListings() {
-        const myProds = allProducts.filter(p => p.seller_name === currentUsername || p.seller === currentProfileId);
+        const myAll = allProducts.filter(p => p.seller_name === currentUsername || p.seller === currentProfileId);
+        const myDrafts = myAll.filter(p => p.is_draft);
+        const myPublished = myAll.filter(p => !p.is_draft);
+
+        const draftsSection = document.getElementById('sellerDraftsSection');
+        const draftsListEl = document.getElementById('sellerDraftsList');
+        if (draftsSection && draftsListEl) {
+            if (myDrafts.length > 0) {
+                draftsSection.classList.remove('hidden');
+                draftsListEl.innerHTML = myDrafts.map(d => `
+                    <div style="background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <strong style="font-size:0.92rem;">${d.title}</strong>
+                            <span style="font-size:0.78rem; color:var(--muted); margin-left:8px;">${d.category} • ₱${Number(d.price || 0).toFixed(2)}</span>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn btn-sm" onclick="publishDraftListing(${d.id})">Publish Now</button>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="openEditListing(${d.id})">Edit</button>
+                            <button type="button" class="btn btn-outline btn-sm" style="color:#b91c1c;" onclick="deleteSellerListing(${d.id})">Discard</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                draftsSection.classList.add('hidden');
+            }
+        }
+
         if (document.getElementById('statProducts')) {
-            document.getElementById('statProducts').innerText = myProds.length;
+            document.getElementById('statProducts').innerText = myPublished.length;
         }
         const listEl = document.getElementById('sellerListingsContainer');
         if (!listEl) return;
 
-        listEl.innerHTML = myProds.length ? myProds.map(p => {
+        listEl.innerHTML = myPublished.length ? myPublished.map(p => {
             const photoCount = Array.isArray(p.gallery) ? p.gallery.length : 1;
             const shopUpper = (p.shop_display_name || p.seller_name || 'SHOP').toUpperCase();
             const catUpper = (p.category || 'DIGITAL').toUpperCase();
+            const stockText = p.stock_licenses >= 999999 ? '∞ Unlimited' : p.stock_licenses;
             return `
             <div class="prod-card">
                 <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${p.title}">
@@ -1759,7 +2291,7 @@
                         <h3 style="font-size:1.05rem; font-weight:800; line-height:1.3; margin-bottom:0.45rem; color:var(--text);">${p.title}</h3>
                         <p class="desc-clamp-3">${p.description || 'No description provided.'}</p>
                         <div style="font-size:0.78rem; color:var(--blue); font-weight:600; margin-bottom:0.85rem;">
-                            Photos: ${photoCount} • Stock: ${p.stock_licenses}
+                            Photos: ${photoCount} • Stock: ${stockText}
                         </div>
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid var(--border);">
@@ -1771,17 +2303,37 @@
                     </div>
                 </div>
             </div>
-        `}).join('') : `<div class="panel" style="grid-column:1/-1; text-align:center; color:var(--muted);">No listings yet. Click <strong>+ New Listing</strong> to publish your first product.</div>`;
+        `}).join('') : `<div class="panel" style="grid-column:1/-1; text-align:center; color:var(--muted);">No published listings yet. Click <strong>+ New Listing</strong> to publish your first product.</div>`;
     }
 
-    async function createSellerListing() {
+    async function createSellerListing(saveAsDraft = false) {
         const title = document.getElementById('newProdTitle').value.trim();
         const category = document.getElementById('newProdCategory').value.trim();
-        const price = document.getElementById('newProdPrice').value;
+        const price = document.getElementById('newProdPrice').value || (saveAsDraft ? '0.00' : '');
+        const isUnlimited = document.getElementById('newProdUnlimitedStock').checked;
+        const stockVal = isUnlimited ? '999999' : (document.getElementById('newProdStock').value || '1');
+
         const link = document.getElementById('newProdLink').value.trim();
-        if (!title || !category || !price || !link) {
-            notify('Please fill in Title, Category, Price, and Delivery Link.');
+        const directFileInput = document.getElementById('newProdDirectFile');
+        const hasDirectFile = directFileInput && directFileInput.files && directFileInput.files.length > 0;
+
+        if (!title) {
+            notify('Please enter a Product Title.');
             return;
+        }
+        if (!saveAsDraft) {
+            if (!category || !price) {
+                notify('Please fill in Product Title, Category, and Price.');
+                return;
+            }
+            if (currentDeliveryMode === 'link' && !link) {
+                notify('Please enter your External Link (Canva, Notion, or Google Drive).');
+                return;
+            }
+            if (currentDeliveryMode === 'file' && !hasDirectFile) {
+                notify('Please choose a digital file (PDF, ZIP, XLSX, DOCX) to upload.');
+                return;
+            }
         }
 
         const cov = document.getElementById('newProdCover');
@@ -1792,12 +2344,19 @@
 
         const fd = new FormData();
         fd.append('title', title);
-        fd.append('category', category);
+        fd.append('category', category || 'Canva Templates');
         fd.append('price', price);
-        fd.append('stock_licenses', document.getElementById('newProdStock').value || '99');
+        fd.append('stock_licenses', stockVal);
         fd.append('available_sizes', document.getElementById('newProdSizes').value || 'Standard Digital');
-        fd.append('download_link', link);
-        fd.append('description', document.getElementById('newProdDesc').value || '');
+        fd.append('description', document.getElementById('newProdDesc').value || 'Instant digital download delivered via email.');
+        fd.append('is_draft', saveAsDraft ? 'true' : 'false');
+
+        if (currentDeliveryMode === 'file' && hasDirectFile) {
+            fd.append('delivery_file', directFileInput.files[0]);
+            fd.append('download_link', 'https://suki-marketplace.ph/pending-file');
+        } else {
+            fd.append('download_link', link || 'https://www.canva.com/templates/');
+        }
 
         if (cov && cov.files) {
             Array.from(cov.files).slice(0, 10).forEach(f => fd.append('images', f));
@@ -1810,16 +2369,34 @@
             body: fd
         });
         if (res.ok) {
-            showSukiPopup('Listing Published!', 'Your new digital product is now live on Suki.');
+            showSukiPopup(
+                saveAsDraft ? 'Draft Saved!' : 'Listing Published!',
+                saveAsDraft
+                    ? 'Your draft is saved privately in My Shop Listings and is hidden from customers.'
+                    : 'Your new digital product is now live on Suki.'
+            );
             document.getElementById('newProdTitle').value = '';
             document.getElementById('newProdPrice').value = '';
             document.getElementById('newProdLink').value = '';
             document.getElementById('newProdDesc').value = '';
+            if (directFileInput) directFileInput.value = '';
             if (cov) cov.value = '';
+
+            // Reset preview back to light-blue placeholder box
+            const prevImg = document.getElementById('previewCardImg');
+            const prevPlaceholder = document.getElementById('previewCardPlaceholder');
+            if (prevImg) {
+                prevImg.src = '';
+                prevImg.classList.add('hidden');
+                prevImg.style.display = 'none';
+            }
+            if (prevPlaceholder) prevPlaceholder.classList.remove('hidden');
+
+            updateLiveListingPreview();
             await sukiBootstrapAll();
-            showTab('seller-listings', null);
+            showTab('seller-listings', document.getElementById('navBtn-seller-listings'));
         } else {
-            showSukiPopup('Publish Failed', `Please check your inputs (${res.status}).`, true);
+            showSukiPopup('Save Failed', `Please check your inputs (${res.status}).`, true);
         }
     }
 
@@ -1828,7 +2405,16 @@
         if (!p) return;
         document.getElementById('editProdId').value = p.id;
         document.getElementById('editProdTitle').value = p.title;
-        document.getElementById('editProdCat').value = p.category;
+        const catSelect = document.getElementById('editProdCat');
+        if (catSelect) {
+            if (!Array.from(catSelect.options).some(o => o.value === p.category)) {
+                const opt = document.createElement('option');
+                opt.value = p.category;
+                opt.text = p.category;
+                catSelect.appendChild(opt);
+            }
+            catSelect.value = p.category;
+        }
         document.getElementById('editProdPrice').value = p.price;
         document.getElementById('editProdStock').value = p.stock_licenses;
         document.getElementById('editProdSizes').value = p.available_sizes || 'Standard Digital';
@@ -2307,6 +2893,7 @@
                 await loadWishlist();
             } else if (userRole === 'seller') {
                 renderSellerListings();
+                updateLiveListingPreview();
             }
             await loadOrders();
         }

@@ -60,6 +60,7 @@ class ProductSerializer(serializers.ModelSerializer):
     gallery = serializers.SerializerMethodField()
     sizes_list = serializers.SerializerMethodField()
     reviews = ReviewSerializer(many=True, read_only=True)
+    download_link = serializers.CharField(required=False, allow_blank=True, default="https://www.canva.com/templates/")
 
     class Meta:
         model = DigitalProduct
@@ -67,7 +68,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'id', 'seller', 'seller_name', 'shop_display_name', 'title', 'description',
             'whats_included', 'category', 'price', 'stock_licenses', 'available_sizes',
             'sizes_list', 'image', 'image_url', 'image_url_2', 'image_url_3',
-            'gallery', 'download_link', 'reviews'
+            'gallery', 'download_link', 'is_draft', 'reviews'
         ]
         read_only_fields = ['seller']
 
