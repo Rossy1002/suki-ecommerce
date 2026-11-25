@@ -75,6 +75,7 @@
             margin-bottom: 0.85rem;
             display: -webkit-box;
             -webkit-line-clamp: 3;
+            line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -130,6 +131,88 @@
         .badge { padding: 4px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; background: #e2e8f0; }
         .badge-delivered { background: #dcfce7; color: #166534; }
         .badge-pending { background: #fef3c7; color: #b45309; }
+
+        /* Seller Total Earnings Dashboard & Analytics Charts */
+        .analytics-charts-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 980px) {
+            .analytics-charts-grid { grid-template-columns: 1fr; }
+        }
+        .chart-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.35rem 1.5rem;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+            position: relative;
+        }
+        .chart-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .chart-toggle-group {
+            display: inline-flex;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            gap: 3px;
+        }
+        .chart-toggle-btn {
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .chart-toggle-btn.active {
+            background: #fff;
+            color: var(--blue);
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+        }
+        .chart-tooltip {
+            position: absolute;
+            background: #0f172a;
+            color: #fff;
+            padding: 7px 11px;
+            border-radius: 9px;
+            font-size: 0.76rem;
+            pointer-events: none;
+            z-index: 30;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.22);
+            white-space: nowrap;
+            transform: translate(-50%, -115%);
+            display: none;
+        }
+        .donut-legend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 0.85rem;
+        }
+        .donut-legend-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.81rem;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
 
         /* Create Listing 2-Column Layout, Delivery Toggle, Unlimited Stock Switch & Live Preview */
         .create-listing-layout {
@@ -650,7 +733,6 @@
                 <button class="side-btn" id="navBtn-seller-listings" onclick="showTab('seller-listings', this)">My Shop Listings</button>
                 <button class="side-btn" id="navBtn-seller-orders" onclick="showTab('seller-orders', this)">Orders &amp; Email Delivery <span class="count-pill" id="orderCount">0</span></button>
                 <button class="side-btn" id="navBtn-seller-add" onclick="showTab('seller-add', this)">+ Create Listing</button>
-                <button class="side-btn" id="navBtn-seller-payouts" onclick="showTab('seller-payouts', this)">Payouts &amp; Earnings</button>
                 <button class="side-btn" id="navBtn-profile" onclick="showTab('profile', this)">Shop Profile</button>
             {% endif %}
         </div>
@@ -684,12 +766,77 @@
             <!-- OVERVIEW TAB -->
             <div id="tab-overview" class="tab-section">
                 {% if user.role == 'seller' %}
+                    <!-- Top KPI Metric Cards -->
                     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-                        <div class="panel"><h3>Total Earnings</h3><h2 id="statRevenue" style="color:var(--blue); margin-top:6px;">₱0.00</h2></div>
-                        <div class="panel"><h3>Available Wallet</h3><h2 id="statWallet" style="color:var(--success); margin-top:6px;">₱{{ user.suki_wallet_balance }}</h2></div>
-                        <div class="panel"><h3>Total Orders</h3><h2 id="statOrders" style="margin-top:6px;">0</h2></div>
-                        <div class="panel"><h3>Active Listings</h3><h2 id="statProducts" style="margin-top:6px;">0</h2></div>
+                        <div class="panel" style="margin-bottom:0;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Total Earnings</span>
+                                <span class="cat-pill" style="margin:0;">NET SALES</span>
+                            </div>
+                            <h2 id="statRevenue" style="color:var(--blue); font-size:1.65rem; margin-top:8px;">₱0.00</h2>
+                            <div id="statAvgOrder" style="font-size:0.76rem; color:var(--muted); margin-top:4px;">Avg. ₱0.00 per order</div>
+                        </div>
+                        <div class="panel" style="margin-bottom:0;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Available Wallet</span>
+                                <span class="cat-pill" style="margin:0; background:#dcfce7; color:#166534;">SUKI WALLET</span>
+                            </div>
+                            <h2 id="statWallet" style="color:var(--success); font-size:1.65rem; margin-top:8px;">₱{{ user.suki_wallet_balance }}</h2>
+                            <div style="font-size:0.76rem; color:var(--muted); margin-top:4px;">Instant digital checkout credits</div>
+                        </div>
+                        <div class="panel" style="margin-bottom:0;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Total Orders</span>
+                            </div>
+                            <h2 id="statOrders" style="font-size:1.65rem; margin-top:8px;">0</h2>
+                            <div id="statOrdersSub" style="font-size:0.76rem; color:var(--muted); margin-top:4px;">0 delivered • 0 pending</div>
+                        </div>
+                        <div class="panel" style="margin-bottom:0;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Active Listings</span>
+                            </div>
+                            <h2 id="statProducts" style="font-size:1.65rem; margin-top:8px;">0</h2>
+                            <div style="font-size:0.76rem; color:var(--muted); margin-top:4px;">Live on Suki Marketplace</div>
+                        </div>
                     </div>
+
+                    <!-- Seller Total Earnings Graphs Grid -->
+                    <div class="analytics-charts-grid">
+                        <!-- Left Graph: Total Earnings Trend Area/Line Graph -->
+                        <div class="chart-card">
+                            <div id="sellerChartTooltip" class="chart-tooltip"></div>
+                            <div class="chart-card-header">
+                                <div>
+                                    <span class="cat-pill" style="margin-bottom:4px;">EARNINGS ANALYTICS</span>
+                                    <h3 style="font-size:1.08rem; font-weight:800;">Total Earnings Performance</h3>
+                                    <p id="earningsTrendSubtitle" style="font-size:0.8rem; color:var(--muted);">Revenue curve across recent sales</p>
+                                </div>
+                                <div class="chart-toggle-group">
+                                    <button type="button" class="chart-toggle-btn active" onclick="setSellerTrendMode('daily', this)">7-Day Trend</button>
+                                    <button type="button" class="chart-toggle-btn" onclick="setSellerTrendMode('orders', this)">By Order</button>
+                                </div>
+                            </div>
+                            <div id="sellerEarningsTrendWrap" style="width:100%; overflow:hidden;"></div>
+                        </div>
+
+                        <!-- Right Graph: Earnings Breakdown Donut Chart -->
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <div>
+                                    <span class="cat-pill" style="background:#fef3c7; color:#b45309; margin-bottom:4px;">REVENUE SHARE</span>
+                                    <h3 style="font-size:1.08rem; font-weight:800;">Earnings Breakdown</h3>
+                                    <p style="font-size:0.8rem; color:var(--muted);">Distribution by item &amp; status</p>
+                                </div>
+                                <div class="chart-toggle-group">
+                                    <button type="button" class="chart-toggle-btn active" onclick="setSellerBreakdownMode('product', this)">By Product</button>
+                                    <button type="button" class="chart-toggle-btn" onclick="setSellerBreakdownMode('status', this)">By Status</button>
+                                </div>
+                            </div>
+                            <div id="sellerEarningsBreakdownWrap"></div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders Table -->
                     <div class="panel">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
                             <h3>Recent Orders to Send via Email</h3>
@@ -935,71 +1082,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- SELLER TAB: PAYOUTS & EARNINGS (GCASH, MAYA & BANK WITHDRAWALS) -->
-            <div id="tab-seller-payouts" class="tab-section hidden">
-                <div style="margin-bottom:1.25rem;">
-                    <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">Payouts &amp; Earnings</h2>
-                    <p style="margin:0.25rem 0 0;font-size:0.88rem;color:#64748b;">Withdraw your Suki Wallet earnings via GCash, Maya, or Philippine Bank Transfer.</p>
-                </div>
-
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-                    <div class="panel" style="margin-bottom:0;">
-                        <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">Available for Withdrawal</small>
-                        <h2 id="payoutAvailableBalance" style="color:var(--success); font-size:1.65rem; margin-top:6px;">₱{{ user.suki_wallet_balance }}</h2>
-                    </div>
-                    <div class="panel" style="margin-bottom:0;">
-                        <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">Gross Digital Sales</small>
-                        <h2 id="payoutGrossRevenue" style="color:var(--blue); font-size:1.65rem; margin-top:6px;">₱0.00</h2>
-                    </div>
-                    <div class="panel" style="margin-bottom:0;">
-                        <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">Completed Deliveries</small>
-                        <h2 id="payoutDeliveredCount" style="font-size:1.65rem; margin-top:6px;">0</h2>
-                    </div>
-                </div>
-
-                <div class="panel" style="max-width:780px;">
-                    <h3 style="margin-bottom:1rem;">Request Payout Withdrawal</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Payout Channel *</label>
-                            <select id="payoutChannel" onchange="updatePayoutAccountPlaceholder()">
-                                <option value="GCash">GCash E-Wallet (Instant)</option>
-                                <option value="Maya">Maya Wallet (Instant)</option>
-                                <option value="BDO Unibank">Bank Transfer — BDO Unibank</option>
-                                <option value="BPI">Bank Transfer — BPI</option>
-                                <option value="UnionBank">Bank Transfer — UnionBank</option>
-                                <option value="LandBank">Bank Transfer — LandBank</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Amount to Withdraw (PHP) *</label>
-                            <input type="number" id="payoutAmount" step="0.01" min="100" placeholder="e.g. 500.00">
-                        </div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Account Name *</label>
-                            <input type="text" id="payoutAccountName" placeholder="Full name registered on GCash / Maya / Bank">
-                        </div>
-                        <div class="form-group">
-                            <label id="payoutAccountNumberLabel">GCash Mobile Number *</label>
-                            <input type="text" id="payoutAccountNumber" placeholder="09XX XXX XXXX">
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-success" onclick="submitPayoutRequest()">Request Withdrawal</button>
-                </div>
-
-                <div class="panel" style="max-width:780px;">
-                    <h3 style="margin-bottom:0.75rem;">Withdrawal History</h3>
-                    <table>
-                        <thead><tr><th>Reference #</th><th>Channel</th><th>Account</th><th>Amount</th><th>Status</th></tr></thead>
-                        <tbody id="payoutHistoryBody">
-                            <tr><td colspan="5" style="text-align:center; color:var(--muted);">No withdrawal requests yet.</td></tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
@@ -1279,6 +1361,8 @@
     let currentProfileId = null;
     let usdRate = 0.0172;
     let currentDeliveryMode = 'link';
+    let sellerTrendChartMode = 'daily';
+    let sellerBreakdownMode = 'product';
 
     fetch('/api/exchange-rates/').then(r => r.json()).then(d => { if (d.USD) usdRate = d.USD; }).catch(() => {});
 
@@ -1289,6 +1373,15 @@
 
     function getCsrfToken() {
         return getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    }
+
+    function escapeHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function normalizeMediaUrl(url) {
@@ -1588,7 +1681,6 @@
     function filterLandingProducts() {
         const q = (document.getElementById('landingSearchInput')?.value || '').toLowerCase();
         const selectedCat = document.getElementById('catFilterSelect')?.value || 'All';
-        // Never show drafts on the public landing page
         const filtered = allProducts.filter(p => {
             if (p.is_draft) return false;
             const matchCat = selectedCat === 'All' || (p.category || '').toLowerCase() === selectedCat.toLowerCase();
@@ -1766,10 +1858,9 @@
 
         if (name === 'cart') loadCart();
         if (name === 'wishlist') loadWishlist();
-        if (name === 'orders' || name === 'seller-orders' || name === 'overview' || name === 'seller-payouts') loadOrders();
+        if (name === 'orders' || name === 'seller-orders' || name === 'overview') loadOrders();
         if (name === 'seller-listings') renderSellerListings();
         if (name === 'seller-add') updateLiveListingPreview();
-        if (name === 'seller-payouts') renderPayoutHistory();
         if (name === 'profile') loadProfile();
     }
 
@@ -1865,7 +1956,6 @@
     /* ==================== CUSTOMER ACTIONS (CART, WISHLIST, ORDERS, REVIEWS) ==================== */
     function filterCustomerCatalog() {
         const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
-        // Ensure drafts never show in customer catalog
         const filtered = allProducts.filter(p =>
             !p.is_draft && (!q || p.title.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q) || (p.seller_name || '').toLowerCase().includes(q))
         );
@@ -2062,7 +2152,253 @@
         }
     }
 
-    /* ==================== CREATE LISTING TOGGLES, LIVE PREVIEW, DRAFTS & PAYOUTS ==================== */
+    /* ==================== SELLER EARNINGS DASHBOARD GRAPHS ==================== */
+    function setSellerTrendMode(mode, btn) {
+        sellerTrendChartMode = mode;
+        btn?.parentElement?.querySelectorAll('.chart-toggle-btn').forEach(b => b.classList.remove('active'));
+        btn?.classList.add('active');
+        renderSellerEarningsCharts(allOrders);
+    }
+
+    function setSellerBreakdownMode(mode, btn) {
+        sellerBreakdownMode = mode;
+        btn?.parentElement?.querySelectorAll('.chart-toggle-btn').forEach(b => b.classList.remove('active'));
+        btn?.classList.add('active');
+        renderSellerEarningsCharts(allOrders);
+    }
+
+    function showSellerChartTooltip(e, title, detail) {
+        const tip = document.getElementById('sellerChartTooltip');
+        const card = tip?.parentElement;
+        if (!tip || !card) return;
+        const rect = card.getBoundingClientRect();
+        const x = Math.min(Math.max(e.clientX - rect.left, 70), rect.width - 70);
+        const y = Math.max(e.clientY - rect.top, 45);
+        tip.innerHTML = `<div style="font-weight:800; color:#93c5fd;">${escapeHtml(title)}</div><div>${escapeHtml(detail)}</div>`;
+        tip.style.left = `${x}px`;
+        tip.style.top = `${y}px`;
+        tip.style.display = 'block';
+    }
+
+    function hideSellerChartTooltip() {
+        const tip = document.getElementById('sellerChartTooltip');
+        if (tip) tip.style.display = 'none';
+    }
+
+    function renderSellerEarningsCharts(orders) {
+        const trendWrap = document.getElementById('sellerEarningsTrendWrap');
+        const breakdownWrap = document.getElementById('sellerEarningsBreakdownWrap');
+        if (!trendWrap || !breakdownWrap) return;
+
+        const validOrders = (orders || []).filter(o => o.status !== 'REFUNDED');
+        const totalEarnings = validOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+        const deliveredCount = (orders || []).filter(o => o.status === 'DELIVERED').length;
+        const pendingCount = (orders || []).filter(o => o.status === 'PENDING').length;
+
+        const subOrdersEl = document.getElementById('statOrdersSub');
+        if (subOrdersEl) subOrdersEl.innerText = `${deliveredCount} delivered • ${pendingCount} pending`;
+
+        const avgOrderEl = document.getElementById('statAvgOrder');
+        if (avgOrderEl) {
+            const avg = validOrders.length ? (totalEarnings / validOrders.length) : 0;
+            avgOrderEl.innerText = `Avg. ₱${avg.toFixed(2)} per order`;
+        }
+
+        // 1. TREND AREA / LINE GRAPH
+        let points = [];
+        const subtitleEl = document.getElementById('earningsTrendSubtitle');
+
+        if (sellerTrendChartMode === 'daily') {
+            if (subtitleEl) subtitleEl.innerText = `7-day cumulative earnings • Total ₱${totalEarnings.toFixed(2)}`;
+            const baseDate = validOrders.length && validOrders[0].created_at
+                ? new Date(validOrders[0].created_at)
+                : new Date();
+            const dayMap = {};
+            const dayKeys = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(baseDate);
+                d.setDate(baseDate.getDate() - i);
+                const key = d.toISOString().slice(0, 10);
+                const shortLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                dayKeys.push(key);
+                dayMap[key] = { label: shortLabel, fullLabel: shortLabel, value: 0, count: 0 };
+            }
+            validOrders.forEach(o => {
+                const dObj = o.created_at ? new Date(o.created_at) : baseDate;
+                const key = dObj.toISOString().slice(0, 10);
+                if (dayMap[key]) {
+                    dayMap[key].value += Number(o.total_amount || 0);
+                    dayMap[key].count += 1;
+                } else if (dayKeys.length) {
+                    const lastKey = dayKeys[dayKeys.length - 1];
+                    dayMap[lastKey].value += Number(o.total_amount || 0);
+                    dayMap[lastKey].count += 1;
+                }
+            });
+            points = dayKeys.map(k => dayMap[k]);
+        } else {
+            if (subtitleEl) subtitleEl.innerText = `Earnings per customer order (${validOrders.length} total)`;
+            const recent = [...validOrders].reverse().slice(-8);
+            if (recent.length) {
+                points = recent.map(o => ({
+                    label: (o.delivery_tracking_code || `#${o.id}`).slice(-6),
+                    fullLabel: `${o.delivery_tracking_code} • ${o.product_title}`,
+                    value: Number(o.total_amount || 0),
+                    count: o.quantity || 1
+                }));
+            } else {
+                points = ['Ord 1', 'Ord 2', 'Ord 3', 'Ord 4', 'Ord 5'].map(lbl => ({
+                    label: lbl, fullLabel: lbl, value: 0, count: 0
+                }));
+            }
+        }
+
+        const W = 580, H = 215;
+        const padL = 56, padR = 20, padT = 18, padB = 34;
+        const chartW = W - padL - padR;
+        const chartH = H - padT - padB;
+        const rawMax = Math.max(...points.map(p => p.value), 0);
+        const maxVal = rawMax > 0 ? Math.ceil((rawMax * 1.2) / 100) * 100 : 1000;
+
+        const coords = points.map((pt, idx) => {
+            const x = points.length === 1
+                ? padL + chartW / 2
+                : padL + (idx / (points.length - 1)) * chartW;
+            const y = padT + chartH - (pt.value / maxVal) * chartH;
+            return { ...pt, x, y };
+        });
+
+        const gridSteps = [0, 0.5, 1];
+        const gridSvg = gridSteps.map(ratio => {
+            const gy = padT + chartH - ratio * chartH;
+            const valLabel = `₱${Math.round(maxVal * ratio).toLocaleString()}`;
+            return `
+                <line x1="${padL}" y1="${gy}" x2="${W - padR}" y2="${gy}" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1"/>
+                <text x="${padL - 8}" y="${gy + 4}" text-anchor="end" font-size="10.5" fill="#64748b" font-weight="600">${valLabel}</text>
+            `;
+        }).join('');
+
+        const linePoints = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+        const areaPath = coords.length
+            ? `M ${coords[0].x.toFixed(1)},${(padT + chartH).toFixed(1)} ` +
+              coords.map(c => `L ${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ') +
+              ` L ${coords[coords.length - 1].x.toFixed(1)},${(padT + chartH).toFixed(1)} Z`
+            : '';
+
+        const xLabelsSvg = coords.map(c => `
+            <text x="${c.x.toFixed(1)}" y="${H - 10}" text-anchor="middle" font-size="10.5" fill="#64748b" font-weight="600">${escapeHtml(c.label)}</text>
+        `).join('');
+
+        const dotsSvg = coords.map(c => {
+            const tipTitle = c.fullLabel;
+            const tipDetail = `₱${c.value.toFixed(2)} (${c.count} ${c.count === 1 ? 'order' : 'orders'})`;
+            return `
+                <g style="cursor:pointer;"
+                   onmouseenter="showSellerChartTooltip(event, '${escapeHtml(tipTitle)}', '${escapeHtml(tipDetail)}')"
+                   onmousemove="showSellerChartTooltip(event, '${escapeHtml(tipTitle)}', '${escapeHtml(tipDetail)}')"
+                   onmouseleave="hideSellerChartTooltip()">
+                    <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="16" fill="transparent"/>
+                    <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="5" fill="#1638a6" stroke="#ffffff" stroke-width="2.5"/>
+                </g>
+            `;
+        }).join('');
+
+        trendWrap.innerHTML = `
+            <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">
+                <defs>
+                    <linearGradient id="sukiEarnAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#1638a6" stop-opacity="0.24"/>
+                        <stop offset="100%" stop-color="#1638a6" stop-opacity="0.01"/>
+                    </linearGradient>
+                </defs>
+                ${gridSvg}
+                <path d="${areaPath}" fill="url(#sukiEarnAreaGrad)"/>
+                <polyline fill="none" stroke="#1638a6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${linePoints}"/>
+                ${xLabelsSvg}
+                ${dotsSvg}
+            </svg>
+            ${totalEarnings === 0 ? `<div style="text-align:center; font-size:0.78rem; color:var(--muted); margin-top:4px;">No sales recorded yet — earnings will plot automatically once orders arrive.</div>` : ''}
+        `;
+
+        // 2. BREAKDOWN DONUT CHART
+        const palette = ['#1638a6', '#16a34a', '#e07a00', '#0ea5e9', '#8b5cf6'];
+        let slices = [];
+        let centerTopLabel = 'TOTAL';
+        let centerMainValue = `₱${totalEarnings.toFixed(0)}`;
+
+        if (sellerBreakdownMode === 'product') {
+            const byProd = {};
+            validOrders.forEach(o => {
+                const key = o.product_title || 'Digital Item';
+                if (!byProd[key]) byProd[key] = { label: key, value: 0, isCurrency: true };
+                byProd[key].value += Number(o.total_amount || 0);
+            });
+            const sorted = Object.values(byProd).sort((a, b) => b.value - a.value);
+            if (sorted.length > 4) {
+                const top4 = sorted.slice(0, 4);
+                const restVal = sorted.slice(4).reduce((s, x) => s + x.value, 0);
+                slices = [...top4, { label: 'Other Products', value: restVal, isCurrency: true }];
+            } else {
+                slices = sorted;
+            }
+        } else {
+            centerTopLabel = 'ORDERS';
+            centerMainValue = `${(orders || []).length}`;
+            const statusGroups = [
+                { label: 'Sent via Email', value: deliveredCount, isCurrency: false },
+                { label: 'Pending Delivery', value: pendingCount, isCurrency: false },
+                { label: 'Refunded / Other', value: Math.max(0, (orders || []).length - deliveredCount - pendingCount), isCurrency: false }
+            ].filter(s => s.value > 0);
+            slices = statusGroups;
+        }
+
+        const totalSliceVal = slices.reduce((s, x) => s + x.value, 0);
+        const radius = 50;
+        const circumference = 2 * Math.PI * radius;
+        let cumulativePercent = 0;
+
+        const segmentsSvg = totalSliceVal > 0
+            ? slices.map((sl, i) => {
+                const pct = sl.value / totalSliceVal;
+                const dashLen = pct * circumference;
+                const dashOffset = -cumulativePercent * circumference;
+                cumulativePercent += pct;
+                return `<circle cx="65" cy="65" r="${radius}" fill="transparent" stroke="${palette[i % palette.length]}" stroke-width="16" stroke-dasharray="${dashLen.toFixed(2)} ${circumference.toFixed(2)}" stroke-dashoffset="${dashOffset.toFixed(2)}" transform="rotate(-90 65 65)"/>`;
+            }).join('')
+            : `<circle cx="65" cy="65" r="${radius}" fill="transparent" stroke="#e2e8f0" stroke-width="16"/>`;
+
+        const legendHtml = totalSliceVal > 0
+            ? slices.map((sl, i) => {
+                const pctText = Math.round((sl.value / totalSliceVal) * 100);
+                const valText = sl.isCurrency ? `₱${sl.value.toFixed(2)}` : `${sl.value} order${sl.value === 1 ? '' : 's'}`;
+                return `
+                    <div class="donut-legend-row">
+                        <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                            <span style="width:10px; height:10px; border-radius:50%; background:${palette[i % palette.length]}; flex-shrink:0;"></span>
+                            <span style="font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(sl.label)}">${escapeHtml(sl.label)}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                            <span style="color:var(--muted); font-size:0.75rem; font-weight:700;">${pctText}%</span>
+                            <strong style="color:var(--text);">${valText}</strong>
+                        </div>
+                    </div>
+                `;
+            }).join('')
+            : `<div style="text-align:center; font-size:0.8rem; color:var(--muted); padding:0.75rem 0;">No breakdown data yet.</div>`;
+
+        breakdownWrap.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:center; padding:0.25rem 0;">
+                <svg viewBox="0 0 130 130" style="width:136px; height:136px;">
+                    ${segmentsSvg}
+                    <text x="65" y="60" text-anchor="middle" font-size="9.5" font-weight="800" fill="#64748b">${centerTopLabel}</text>
+                    <text x="65" y="76" text-anchor="middle" font-size="14" font-weight="800" fill="#0f172a">${escapeHtml(centerMainValue)}</text>
+                </svg>
+            </div>
+            <div class="donut-legend-list">${legendHtml}</div>
+        `;
+    }
+
+    /* ==================== CREATE LISTING TOGGLES, LIVE PREVIEW & DRAFTS ==================== */
     function setDeliveryMethod(mode) {
         currentDeliveryMode = mode;
         const linkBtn = document.getElementById('delivTabLink');
@@ -2158,69 +2494,6 @@
             await sukiBootstrapAll();
             renderSellerListings();
         }
-    }
-
-    function updatePayoutAccountPlaceholder() {
-        const ch = document.getElementById('payoutChannel')?.value || 'GCash';
-        const label = document.getElementById('payoutAccountNumberLabel');
-        const input = document.getElementById('payoutAccountNumber');
-        if (!label || !input) return;
-        if (ch === 'GCash' || ch === 'Maya') {
-            label.innerText = `${ch} Mobile Number *`;
-            input.placeholder = '09XX XXX XXXX';
-        } else {
-            label.innerText = `${ch} Account Number *`;
-            input.placeholder = 'Enter 10–16 digit bank account number';
-        }
-    }
-
-    function getPayoutStorageKey() {
-        return `suki_payouts_${currentUsername}`;
-    }
-
-    function renderPayoutHistory() {
-        const tbody = document.getElementById('payoutHistoryBody');
-        if (!tbody) return;
-        let list = [];
-        try {
-            list = JSON.parse(localStorage.getItem(getPayoutStorageKey()) || '[]');
-        } catch (_) {}
-        tbody.innerHTML = list.length ? list.map(p => `<tr>
-            <td><strong>${p.ref}</strong></td>
-            <td>${p.channel}</td>
-            <td>${p.accountName} (${p.accountNum})</td>
-            <td><strong>₱${Number(p.amount).toFixed(2)}</strong></td>
-            <td><span class="badge badge-pending">${p.status}</span></td>
-        </tr>`).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No withdrawal requests yet.</td></tr>`;
-    }
-
-    function submitPayoutRequest() {
-        const channel = document.getElementById('payoutChannel').value;
-        const amount = parseFloat(document.getElementById('payoutAmount').value);
-        const accountName = document.getElementById('payoutAccountName').value.trim();
-        const accountNum = document.getElementById('payoutAccountNumber').value.trim();
-
-        if (!amount || amount < 100 || !accountName || !accountNum) {
-            showSukiPopup('Incomplete Details', 'Please enter a valid withdrawal amount (minimum ₱100) and your account details.', true);
-            return;
-        }
-
-        let list = [];
-        try {
-            list = JSON.parse(localStorage.getItem(getPayoutStorageKey()) || '[]');
-        } catch (_) {}
-        list.unshift({
-            ref: 'WD-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
-            channel,
-            accountName,
-            accountNum,
-            amount,
-            status: 'PROCESSING (1–2 DAYS)'
-        });
-        localStorage.setItem(getPayoutStorageKey(), JSON.stringify(list));
-        document.getElementById('payoutAmount').value = '';
-        renderPayoutHistory();
-        showSukiPopup('Withdrawal Requested!', `Your ₱${amount.toFixed(2)} payout via ${channel} is now being processed.`);
     }
 
     /* ==================== SELLER LISTINGS (BOX CARDS) & EDIT PHOTO ORGANIZER ==================== */
@@ -2383,7 +2656,6 @@
             if (directFileInput) directFileInput.value = '';
             if (cov) cov.value = '';
 
-            // Reset preview back to light-blue placeholder box
             const prevImg = document.getElementById('previewCardImg');
             const prevPlaceholder = document.getElementById('previewCardPlaceholder');
             if (prevImg) {
@@ -2795,6 +3067,8 @@
             const totalRev = orders.filter(o => o.status !== 'REFUNDED').reduce((acc, o) => acc + Number(o.total_amount || 0), 0);
             if (document.getElementById('statRevenue')) document.getElementById('statRevenue').innerText = `₱${totalRev.toFixed(2)}`;
 
+            renderSellerEarningsCharts(orders);
+
             const overviewTbody = document.getElementById('overviewSellerOrders');
             if (overviewTbody) {
                 overviewTbody.innerHTML = orders.length ? orders.slice(0, 6).map(o => `<tr>
@@ -2905,7 +3179,7 @@
     });
     const fav = document.createElement('link');
     fav.rel = 'icon';
-    fav.href = '/media/suki_logo.png';
+    fav.href = '/media/suki_logo.png?v=2';
     document.head.appendChild(fav);
 
     sukiBootstrapAll();
