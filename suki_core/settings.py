@@ -2,6 +2,12 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+env_path = BASE_DIR / '.env'
+if env_path.exists():
+    for line in env_path.read_text().splitlines():
+        if '=' in line and not line.strip().startswith('#'):
+            k, v = line.strip().split('=', 1)
+            os.environ.setdefault(k, v.strip('"\''))
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-suki-demo-key-change-in-prod')
 DEBUG = True
 ALLOWED_HOSTS = ['*']
