@@ -838,8 +838,8 @@
                     <!-- Recent Orders Table -->
                     <div class="panel">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                            <h3>Recent Orders to Send via Email</h3>
-                            <button class="btn btn-sm" onclick="showTab('seller-add', null)">+ Add New Template / E-Book</button>
+                            <h3>Recent Orders</h3>
+                            <button class="btn btn-sm" onclick="showTab('seller-add', null)">+ Add New Template</button>
                         </div>
                         <table>
                             <thead><tr><th>Order</th><th>Product</th><th>Selected Size</th><th>Status</th><th>Payout</th><th>Action</th></tr></thead>
@@ -1309,9 +1309,51 @@
                 </select>
             </div>
             <div class="form-group"><label>Price (₱)</label><input type="number" step="0.01" id="editProdPrice"></div>
-            <div class="form-group"><label>Stock</label><input type="number" id="editProdStock"></div>
             <div class="form-group"><label>Format (Comma-separated)</label><input type="text" id="editProdSizes"></div>
-            <div class="form-group"><label>Delivery Link</label><input type="url" id="editProdLink"></div>
+        </div>
+
+        <!-- Full-width Stock with right-aligned Unlimited Copies toggle -->
+        <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:12px;">
+                <label style="margin:0;">Stock</label>
+                <div style="display:flex; align-items:center; gap:8px; white-space:nowrap;">
+                    <span style="font-size:0.78rem; font-weight:700; color:var(--blue); white-space:nowrap;">Unlimited Copies</span>
+                    <label class="switch-pill" title="Toggle Unlimited Digital Copies" style="flex-shrink:0;">
+                        <input type="checkbox" id="editProdUnlimitedStock" checked onchange="toggleEditUnlimitedStock(this)">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div id="editProdUnlimitedBadge" style="padding:9px 12px; border:1px solid #bfdbfe; background:var(--blue-light); color:var(--blue); border-radius:9px; font-size:0.86rem; font-weight:700;">
+                ∞ Unlimited Digital Copies
+            </div>
+            <input type="number" min="1" id="editProdStock" placeholder="Enter available license count" class="hidden">
+        </div>
+
+        <!-- Delivery Method Tabs (External Link or Upload File) -->
+        <div class="form-group">
+            <label>Delivery Method *</label>
+            <div class="delivery-toggle-bar">
+                <button type="button" id="editDelivTabLink" class="delivery-toggle-btn active" onclick="setEditDeliveryMethod('link')">External Link</button>
+                <button type="button" id="editDelivTabFile" class="delivery-toggle-btn" onclick="setEditDeliveryMethod('file')">Upload File</button>
+            </div>
+
+            <div id="editDeliveryLinkWrap">
+                <input type="url" id="editProdLink" placeholder="https://www.canva.com/design/... (Canva, Notion, or Google Drive)">
+            </div>
+
+            <div id="editDeliveryFileWrap" class="hidden">
+                <div id="editCurrentFileNotice" class="hidden" style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:9px; padding:8px 12px; font-size:0.8rem; color:var(--blue-dark); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Current file: <strong id="editCurrentFileName"></strong></span>
+                    <a id="editCurrentFileHref" href="#" target="_blank" style="color:var(--blue); font-weight:700; text-decoration:underline; white-space:nowrap; flex-shrink:0;">View File</a>
+                </div>
+                <input id="editProdDirectFile" type="file" accept=".pdf,.zip,.xlsx,.docx,application/pdf,application/zip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            </div>
+
+            <div id="editDeliveryHelperText" style="font-size:0.78rem; color:var(--muted); margin-top:6px; display:flex; align-items:center; gap:6px;">
+                <span style="color:var(--blue); font-weight:800;">ℹ</span>
+                <span>Paste a shareable Canva, Notion, or Google Drive link. It will be emailed automatically after payment.</span>
+            </div>
         </div>
         <div class="form-group">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -2672,6 +2714,42 @@
         }
     }
 
+    let editDeliveryMode = 'link';
+
+    function toggleEditUnlimitedStock(checkbox) {
+        const isUnlimited = checkbox.checked;
+        const badge = document.getElementById('editProdUnlimitedBadge');
+        const stockInput = document.getElementById('editProdStock');
+        if (badge) badge.classList.toggle('hidden', !isUnlimited);
+        if (stockInput) {
+            stockInput.classList.toggle('hidden', isUnlimited);
+            stockInput.disabled = isUnlimited;
+            if (!isUnlimited && (!stockInput.value || Number(stockInput.value) >= 999999)) {
+                stockInput.value = '99';
+            }
+        }
+    }
+
+    function setEditDeliveryMethod(mode) {
+        editDeliveryMode = mode;
+        const linkBtn = document.getElementById('editDelivTabLink');
+        const fileBtn = document.getElementById('editDelivTabFile');
+        const linkWrap = document.getElementById('editDeliveryLinkWrap');
+        const fileWrap = document.getElementById('editDeliveryFileWrap');
+        const helperText = document.getElementById('editDeliveryHelperText');
+
+        if (linkBtn) linkBtn.classList.toggle('active', mode === 'link');
+        if (fileBtn) fileBtn.classList.toggle('active', mode === 'file');
+        if (linkWrap) linkWrap.classList.toggle('hidden', mode !== 'link');
+        if (fileWrap) fileWrap.classList.toggle('hidden', mode !== 'file');
+
+        if (helperText) {
+            helperText.innerHTML = mode === 'link'
+                ? `<span style="color:var(--blue); font-weight:800;">ℹ</span><span>Paste a shareable Canva, Notion, or Google Drive link. It will be emailed automatically after payment.</span>`
+                : `<span style="color:var(--blue); font-weight:800;">ℹ</span><span>Accepted formats: PDF, ZIP, XLSX, DOCX. Your file will be emailed automatically after payment.</span>`;
+        }
+    }
+
     function openEditListing(prodId) {
         const p = allProducts.find(item => item.id === prodId);
         if (!p) return;
@@ -2688,9 +2766,38 @@
             catSelect.value = p.category;
         }
         document.getElementById('editProdPrice').value = p.price;
-        document.getElementById('editProdStock').value = p.stock_licenses;
+
+        const isUnlimited = Number(p.stock_licenses) >= 999999;
+        const unlimCheck = document.getElementById('editProdUnlimitedStock');
+        const stockInput = document.getElementById('editProdStock');
+        if (unlimCheck) unlimCheck.checked = isUnlimited;
+        if (stockInput) stockInput.value = isUnlimited ? '99' : p.stock_licenses;
+        if (unlimCheck) toggleEditUnlimitedStock(unlimCheck);
+
         document.getElementById('editProdSizes').value = p.available_sizes || 'Standard Digital';
-        document.getElementById('editProdLink').value = p.download_link || '';
+
+        const directFileInput = document.getElementById('editProdDirectFile');
+        if (directFileInput) directFileInput.value = '';
+        const currentFileNotice = document.getElementById('editCurrentFileNotice');
+        const currentFileName = document.getElementById('editCurrentFileName');
+        const currentFileHref = document.getElementById('editCurrentFileHref');
+        const existingLink = p.download_link || '';
+        const isUploadedFile = existingLink.includes('/digital_files/');
+
+        if (isUploadedFile) {
+            document.getElementById('editProdLink').value = '';
+            const rawSegment = existingLink.split('/').pop().split('?')[0];
+            const cleanName = rawSegment.replace(/^[0-9a-f]{10}_/i, '') || rawSegment;
+            if (currentFileName) currentFileName.innerText = decodeURIComponent(cleanName);
+            if (currentFileHref) currentFileHref.href = existingLink;
+            if (currentFileNotice) currentFileNotice.classList.remove('hidden');
+            setEditDeliveryMethod('file');
+        } else {
+            document.getElementById('editProdLink').value = existingLink;
+            if (currentFileNotice) currentFileNotice.classList.add('hidden');
+            setEditDeliveryMethod('link');
+        }
+
         document.getElementById('editProdDesc').value = p.description || '';
 
         const fileInput = document.getElementById('editProdPhotos');
@@ -2873,14 +2980,44 @@
 
     async function saveEditedProduct() {
         const id = document.getElementById('editProdId').value;
+        const title = document.getElementById('editProdTitle').value.trim();
+        const price = document.getElementById('editProdPrice').value;
+        const isUnlimited = document.getElementById('editProdUnlimitedStock').checked;
+        const stockVal = isUnlimited ? '999999' : (document.getElementById('editProdStock').value || '1');
+        const link = document.getElementById('editProdLink').value.trim();
+        const directFileInput = document.getElementById('editProdDirectFile');
+        const hasNewDirectFile = directFileInput && directFileInput.files && directFileInput.files.length > 0;
+        const existingProduct = allProducts.find(item => String(item.id) === String(id));
+        const hasExistingUploadedFile = existingProduct && (existingProduct.download_link || '').includes('/digital_files/');
+
+        if (!title || !price) {
+            notify('Please fill in Product Title and Price.');
+            return;
+        }
+        if (editDeliveryMode === 'link' && !link) {
+            notify('Please enter your External Link (Canva, Notion, or Google Drive).');
+            return;
+        }
+        if (editDeliveryMode === 'file' && !hasNewDirectFile && !hasExistingUploadedFile) {
+            notify('Please choose a digital file (PDF, ZIP, XLSX, DOCX) to upload.');
+            return;
+        }
+
         const fd = new FormData();
-        fd.append('title', document.getElementById('editProdTitle').value);
+        fd.append('title', title);
         fd.append('category', document.getElementById('editProdCat').value);
-        fd.append('price', document.getElementById('editProdPrice').value);
-        fd.append('stock_licenses', document.getElementById('editProdStock').value);
+        fd.append('price', price);
+        fd.append('stock_licenses', stockVal);
         fd.append('available_sizes', document.getElementById('editProdSizes').value);
-        fd.append('download_link', document.getElementById('editProdLink').value);
         fd.append('description', document.getElementById('editProdDesc').value);
+
+        if (editDeliveryMode === 'file') {
+            if (hasNewDirectFile) {
+                fd.append('delivery_file', directFileInput.files[0]);
+            }
+        } else {
+            fd.append('download_link', link);
+        }
 
         const manifest = [];
         let newFileCounter = 0;
