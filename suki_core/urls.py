@@ -4,6 +4,7 @@ from django.views.static import serve
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
+from django.urls import path, include
 from marketplace.views import (
     storefront_view, api_login_view, api_register_view, public_shops_api, currency_rates_api, UserProfileViewSet, ProductViewSet,
     WishlistViewSet, CartViewSet, OrderViewSet, ReviewViewSet, SupportViewSet
@@ -27,6 +28,7 @@ urlpatterns = [
     path('api/exchange-rates/', currency_rates_api, name='exchange-rates'),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
+    path('accounts/', include('allauth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += [re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})]
