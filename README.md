@@ -20,8 +20,8 @@ A virtualized full-stack digital marketplace built with **Python (Django + Djang
 4. Access the platform on the host browser via **\`http://127.0.0.1:8000\`** (with VM Port Forwarding `Host 8000 -> Guest 8000`).
 
 ## 2. Demo Accounts
-- **Customer:** \`customer1\` / \`pass1234\` (Pre-loaded with ₱5,000.00 Suki Wallet Credits)
-- **Seller:** \`seller1\` / \`sell1234\`
+- **Customer:** \`customer1@suki.ph \` / \`pass1234\` (Pre-loaded with ₱5,000.00 Suki Wallet Credits)
+- **Seller:** \`maya@suki.ph\` / \`aklat@suki.ph\` / \`sell1234\`
 - **Admin:** \`admin\` / \`admin1234\`
 
 ## 3. Integrated APIs (Minimum 2 Distinct APIs)

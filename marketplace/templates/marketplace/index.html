@@ -16,6 +16,7 @@
 
         .btn { background: var(--blue); color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; text-decoration: none; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px; transition: 0.15s; }
         .btn:hover { background: var(--blue-dark); }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
         .btn-orange { background: var(--orange); color: #fff; }
         .btn-orange:hover { background: var(--orange-hover); }
         .btn-outline { background: #fff; color: var(--text); border: 1px solid var(--border); }
@@ -82,13 +83,49 @@
             line-height: 1.45;
         }
 
-        /* Public Shop Page View */
+        /* Public Shop Page View & Seller Shop Profile Banner */
         .public-shop-banner { height: 220px; background-size: cover; background-position: center; position: relative; background-color: var(--blue-dark); }
         .public-shop-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, rgba(15,37,115,0.82), rgba(15,23,42,0.45)); }
         .public-shop-banner-text { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: 3rem 1.5rem; color: #fff; }
         .public-shop-header-card { max-width: 1180px; margin: -36px auto 2rem; padding: 0 1.5rem; position: relative; z-index: 5; }
         .public-shop-profile { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; box-shadow: 0 8px 20px rgba(15,23,42,0.05); }
-        .big-shop-avatar { width: 84px; height: 84px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #3b82f6); color: #fff; font-size: 1.75rem; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; margin-top: -45px; box-shadow: 0 4px 10px rgba(0,0,0,0.12); overflow: hidden; }
+        .big-shop-avatar { width: 84px; height: 84px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #3b82f6); color: #fff; font-size: 1.75rem; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; margin-top: -45px; box-shadow: 0 4px 10px rgba(0,0,0,0.12); overflow: hidden; flex-shrink: 0; }
+
+        /* Seller Dashboard Shop Profile Storefront Layout */
+        .seller-shop-shell {
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+            margin-bottom: 1.75rem;
+        }
+        .seller-shop-banner-inner {
+            height: 215px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            background-color: var(--blue-dark);
+            background-image: linear-gradient(135deg, #1638a6 0%, #0f2573 100%);
+        }
+        .seller-shop-banner-inner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(15, 37, 115, 0.84), rgba(15, 23, 42, 0.48));
+        }
+        .seller-shop-banner-content {
+            position: relative;
+            z-index: 2;
+            padding: 2.75rem 2.25rem;
+            color: #fff;
+        }
+        .seller-shop-card-wrap {
+            padding: 0 1.75rem 1.75rem;
+            margin-top: -42px;
+            position: relative;
+            z-index: 5;
+        }
 
         /* Product Details Gallery View */
         .detail-container { max-width: 1120px; margin: 2rem auto; padding: 0 1.5rem; }
@@ -110,24 +147,379 @@
         .detail-tab-btn.active { color: var(--blue); border-bottom: 2px solid var(--blue); }
 
         /* Workspace Shell (Logged-in Seller & Customer) */
-        .app-shell { display: flex; min-height: 100vh; }
-        .sidebar { width: 250px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; position: sticky; top: 0; height: 100vh; }
-        .side-btn { width: 100%; text-align: left; background: transparent; border: none; padding: 10px 12px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; color: var(--muted); cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .side-btn.active { background: var(--blue-light); color: var(--blue); }
-        .count-pill { background: #fef3c7; color: #b45309; font-size: 0.75rem; padding: 1px 8px; border-radius: 99px; font-weight: 700; }
-        .main-area { flex: 1; display: flex; flex-direction: column; }
-        .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .wallet-chip { background: #ecfdf5; border: 1px solid #bbf7d0; color: var(--success); padding: 6px 14px; border-radius: 99px; font-weight: 700; font-size: 0.85rem; }
-        .content-pad { padding: 2rem; max-width: 1200px; width: 100%; margin: 0 auto; }
+        .app-shell { display: flex; min-height: 100vh; background: #f1f5f9; }
+        .sidebar {
+            width: 272px;
+            background: #ffffff;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem 1.15rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.03);
+            z-index: 20;
+        }
+        .sidebar-brand-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0.85rem;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        .role-badge-customer {
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .role-badge-seller {
+            background: #fef3c7;
+            color: #b45309;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .workspace-role-label {
+            font-weight: 800;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            color: var(--blue);
+        }
+        .workspace-role-seller {
+            color: #b45309;
+        }
+        .sidebar-logout-btn {
+            width: 100%;
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            padding: 11px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.16s ease;
+        }
+        .sidebar-logout-btn:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+        .sidebar-section-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.85px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            padding: 0 0.75rem;
+            margin-bottom: 0.65rem;
+            margin-top: 0.25rem;
+        }
+        .sidebar-nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .side-btn {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.16s ease;
+        }
+        .side-btn:hover {
+            background: #f8fafc;
+            color: var(--text);
+            border-color: #e2e8f0;
+            transform: translateX(2px);
+        }
+        .side-btn.active {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: var(--blue);
+            border-color: #bfdbfe;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(22, 56, 166, 0.08);
+        }
+        .side-btn.seller-active {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: #92400e;
+            border-color: #fde68a;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.08);
+        }
+        .side-btn-left {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+        .side-ico {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: #f1f5f9;
+            color: #64748b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: 0.16s;
+        }
+        .side-btn:hover .side-ico {
+            background: #e2e8f0;
+            color: var(--text);
+        }
+        .side-btn.active .side-ico {
+            background: var(--blue);
+            color: #ffffff;
+        }
+        .side-btn.seller-active .side-ico {
+            background: var(--orange);
+            color: #ffffff;
+        }
+        .count-pill { background: #fef3c7; color: #b45309; font-size: 0.74rem; padding: 2px 9px; border-radius: 99px; font-weight: 800; border: 1px solid #fde68a; }
+        .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .topbar {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.1rem 2.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 15;
+        }
+        .wallet-chip { background: #ecfdf5; border: 1px solid #bbf7d0; color: var(--success); padding: 7px 15px; border-radius: 99px; font-weight: 700; font-size: 0.85rem; }
+        .content-pad { padding: 2.25rem 2.5rem; max-width: 1240px; width: 100%; margin: 0 auto; }
+
+        
+        /* Customer My Profile & Wallet Upgraded Workspace */
+        .cust-profile-hero {
+            background: linear-gradient(135deg, #0f2573 0%, #1638a6 55%, #1d4ed8 100%);
+            border-radius: 20px;
+            padding: 1.75rem 2rem;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 12px 28px rgba(15, 37, 115, 0.16);
+            position: relative;
+            overflow: hidden;
+        }
+        .cust-profile-hero::after {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .cust-avatar-ring {
+            position: relative;
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #93c5fd);
+            border: 4px solid rgba(255, 255, 255, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .cust-avatar-ring img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .cust-avatar-cam-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--orange);
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+        .cust-profile-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(310px, 0.85fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 960px) {
+            .cust-profile-grid { grid-template-columns: 1fr; }
+        }
+        .suki-wallet-card {
+            background: linear-gradient(145deg, #064e3b 0%, #047857 52%, #10b981 100%);
+            border-radius: 18px;
+            padding: 1.5rem;
+            color: #ffffff;
+            box-shadow: 0 12px 26px rgba(6, 78, 59, 0.2);
+            margin-bottom: 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .suki-wallet-card::before {
+            content: '';
+            position: absolute;
+            right: -30px;
+            bottom: -30px;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+        }
+        .wallet-quick-chip {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .wallet-quick-chip:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
+        .wallet-tx-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.84rem;
+        }
+        .wallet-tx-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Workspace Welcome Hero Banners (Distinct for Customer vs Seller) */
+        .workspace-hero-banner {
+            border-radius: 18px;
+            padding: 1.65rem 2rem;
+            margin-bottom: 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            border: 1px solid var(--border);
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+        }
+        .customer-hero-banner {
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 55%, #eef2ff 100%);
+            border-color: #bfdbfe;
+        }
+        .seller-hero-banner {
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 55%, #fef3c7 100%);
+            border-color: #fde68a;
+        }
+        .customer-quick-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .cust-cat-pill-btn {
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 8px 15px;
+            border-radius: 99px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .cust-cat-pill-btn:hover {
+            border-color: #93c5fd;
+            color: var(--blue);
+            background: #f8fbff;
+        }
+        .cust-cat-pill-btn.active {
+            background: var(--blue);
+            color: #ffffff;
+            border-color: var(--blue);
+            box-shadow: 0 3px 10px rgba(22, 56, 166, 0.18);
+        }
+        .seller-kpi-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.35rem 1.45rem;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+            transition: 0.15s;
+        }
+        .seller-kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+        }
         .panel, .panel-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .form-group { margin-bottom: 1rem; }
         label { display: block; font-size: 0.84rem; font-weight: 600; margin-bottom: 4px; }
         input, textarea, select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 0.9rem; background: #fff; }
+        input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--blue); cursor: pointer; vertical-align: middle; }
         input:disabled { background: #f1f5f9; color: var(--muted); cursor: not-allowed; }
         table { width: 100%; border-collapse: collapse; }
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
         th { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; background: #f8fafc; }
+        tr.cart-row-selected { background: #f8fbff; }
         .badge { padding: 4px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; background: #e2e8f0; }
         .badge-delivered { background: #dcfce7; color: #166534; }
         .badge-pending { background: #fef3c7; color: #b45309; }
@@ -291,6 +683,204 @@
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
         }
 
+        /* Orders & Email Delivery Enhanced Workspace */
+        .orders-kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+            gap: 0.9rem;
+            margin-bottom: 1.25rem;
+        }
+        .orders-kpi-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+        }
+        .orders-kpi-card.pending-alert {
+            border-color: #fcd34d;
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+        }
+        .pending-action-banner {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--orange);
+            border-radius: 12px;
+            padding: 0.85rem 1.15rem;
+            margin-bottom: 1.15rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .orders-toolbar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.15rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+        }
+        .order-filter-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .order-filter-pill {
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 99px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .order-filter-pill:hover {
+            background: #f1f5f9;
+            color: var(--text);
+        }
+        .order-filter-pill.active {
+            background: var(--blue);
+            color: #fff;
+            border-color: var(--blue);
+        }
+        .orders-search-sort {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex: 1;
+            min-width: 260px;
+            max-width: 460px;
+        }
+        .orders-search-sort input {
+            padding: 7px 12px;
+            font-size: 0.83rem;
+            border-radius: 9px;
+        }
+        .orders-search-sort select {
+            width: auto;
+            min-width: 145px;
+            padding: 7px 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 9px;
+        }
+        .order-fulfill-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--success);
+            border-radius: 16px;
+            padding: 1.15rem 1.35rem;
+            margin-bottom: 0.95rem;
+            display: grid;
+            grid-template-columns: 78px minmax(0, 1fr) auto;
+            gap: 1.15rem;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            transition: 0.15s;
+        }
+        .order-fulfill-card.is-pending {
+            border-left-color: var(--orange);
+            background: linear-gradient(to right, #fffdf7 0%, #ffffff 18%);
+        }
+        .order-fulfill-card:hover {
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            transform: translateY(-1px);
+        }
+        .order-thumb-box {
+            position: relative;
+            width: 78px;
+            height: 78px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #f1f5f9;
+            flex-shrink: 0;
+        }
+        .order-thumb-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .order-qty-badge {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(15, 23, 42, 0.82);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        .order-code-chip {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.76rem;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: var(--text);
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .mini-copy-btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.12s;
+        }
+        .mini-copy-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: var(--blue-light);
+        }
+        .buyer-avatar-pill {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--blue-light);
+            color: var(--blue);
+            font-size: 0.7rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .order-card-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.65rem;
+        }
+        @media (max-width: 820px) {
+            .order-fulfill-card {
+                grid-template-columns: 64px minmax(0, 1fr);
+            }
+            .order-card-right {
+                grid-column: 1 / -1;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 0.75rem;
+                border-top: 1px solid var(--border);
+                width: 100%;
+            }
+        }
+
         /* Receipt & Details Info Rows */
         .info-row-list { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
         .info-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
@@ -372,6 +962,81 @@
 
         .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
         .modal-card { background: #fff; border-radius: 16px; padding: 1.75rem; width: 100%; max-width: 460px; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.22); }
+        /* Customer Product Details Popup Modal */
+        .cust-detail-modal-card {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 980px;
+            max-height: 92vh;
+            overflow-y: auto;
+            padding: 1.75rem 2rem;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.28);
+            position: relative;
+        }
+        .cust-detail-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 1.75rem;
+            align-items: start;
+        }
+        @media (max-width: 820px) {
+            .cust-detail-grid { grid-template-columns: 1fr; }
+            .cust-detail-modal-card { padding: 1.25rem; }
+        }
+        .cust-main-gallery-img {
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+        }
+        .cust-thumb-strip {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .cust-thumb-item {
+            width: 84px;
+            height: 62px;
+            object-fit: cover;
+            border-radius: 9px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            opacity: 0.72;
+            transition: 0.15s;
+        }
+        .cust-thumb-item.active, .cust-thumb-item:hover {
+            border-color: var(--blue);
+            opacity: 1;
+        }
+        .cust-thumb-more-wrap {
+            position: relative;
+            width: 84px;
+            height: 62px;
+            border-radius: 9px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .cust-thumb-more-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .cust-thumb-more-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.68);
+            color: #fff;
+            font-weight: 800;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         #toast { position: fixed; bottom: 20px; right: 20px; background: var(--blue-dark); color: white; padding: 12px 20px; border-radius: 10px; font-size: 0.9rem; display: none; z-index: 999; }
         .hidden { display: none !important; }
         .modal-backdrop.hidden { display: none !important; pointer-events: none !important; }
@@ -584,12 +1249,6 @@
         <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
             <button type="button" class="btn btn-outline" style="width:100%; justify-content:center; padding:11px; border-radius:99px; color:var(--blue); border-color:var(--blue);" onclick="openAuthModal('buyer')">Create new account</button>
         </div>
-
-        <div style="margin-top:12px; font-size:0.75rem; color:var(--muted); background:#f8fafc; padding:9px 12px; border-radius:10px; border:1px solid var(--border);">
-            <strong>Demo Logins:</strong><br>
-            Sellers: <code>maya@suki.ph</code> / <code>aklat@suki.ph</code> (<code>sell1234</code>)<br>
-            Buyers: <code>customer1@suki.ph</code> / <code>customer2@suki.ph</code> (<code>pass1234</code>)
-        </div>
     </div>
 </div>
 
@@ -684,7 +1343,7 @@
                 <option value="Prefer not to say">Prefer not to say</option>
             </select>
         </div>
-        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="bPhone" placeholder="Mobile number"></div>
+        <div class="form-group"><label>Contact Number</label><input type="text" id="bPhone" placeholder="Mobile number"></div>
         <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
         <div style="display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
             <div>
@@ -715,33 +1374,102 @@
 <div class="app-shell" id="workspaceAppShell">
     <aside class="sidebar">
         <div>
-            <div class="logo-wrap" style="margin-bottom:1.5rem;" onclick="toggleMarketplaceMode(true)" title="Back to Suki Marketplace">
-                <div class="logo-icon">S</div>
-                <span class="logo-text">Suki</span>
-                <span class="cat-pill" style="margin:0;">{{ user.role }}</span>
+            <div class="sidebar-brand-card">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="logo-icon">S</div>
+                    <span class="logo-text">Suki</span>
+                </div>
+                <span class="{% if user.role == 'seller' %}role-badge-seller{% else %}role-badge-customer{% endif %}">{{ user.role }}</span>
             </div>
 
             {% if user.role == 'customer' %}
-                <button class="side-btn active" onclick="showTab('overview', this)">Catalog &amp; Shop</button>
-                <button class="side-btn" onclick="showTab('cart', this)">Shopping Cart <span class="count-pill" id="cartCount">0</span></button>
-                <button class="side-btn" onclick="showTab('wishlist', this)">My Wishlist</button>
-                <button class="side-btn" onclick="showTab('orders', this)">Orders &amp; Reviews</button>
-                <button class="side-btn" onclick="showTab('support', this)">Customer Support</button>
-                <button class="side-btn" onclick="showTab('profile', this)">My Profile &amp; Wallet</button>
+                <div class="sidebar-section-label">Buyer Menu</div>
+                <nav class="sidebar-nav-list">
+                    <button class="side-btn active" id="navBtn-overview" onclick="showTab('overview', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+                            <span>Catalog &amp; Shop</span>
+                        </span>
+                    </button>
+                    <button class="side-btn" id="navBtn-cart" onclick="showTab('cart', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+                            <span>Shopping Cart</span>
+                        </span>
+                        <span class="count-pill" id="cartCount">0</span>
+                    </button>
+                    <button class="side-btn" id="navBtn-wishlist" onclick="showTab('wishlist', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                            <span>My Wishlist</span>
+                        </span>
+                    </button>
+                    <button class="side-btn" id="navBtn-orders" onclick="showTab('orders', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>
+                            <span>Orders &amp; Reviews</span>
+                        </span>
+                    </button>
+                    <button class="side-btn" id="navBtn-support" onclick="showTab('support', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                            <span>Customer Support</span>
+                        </span>
+                    </button>
+                    <button class="side-btn" id="navBtn-profile" onclick="showTab('profile', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                            <span>My Profile &amp; Wallet</span>
+                        </span>
+                    </button>
+                </nav>
             {% else %}
-                <button class="side-btn active" id="navBtn-overview" onclick="showTab('overview', this)">Overview &amp; Analytics</button>
-                <button class="side-btn" id="navBtn-seller-listings" onclick="showTab('seller-listings', this)">My Shop Listings</button>
-                <button class="side-btn" id="navBtn-seller-orders" onclick="showTab('seller-orders', this)">Orders &amp; Email Delivery <span class="count-pill" id="orderCount">0</span></button>
-                <button class="side-btn" id="navBtn-seller-add" onclick="showTab('seller-add', this)">+ Create Listing</button>
-                <button class="side-btn" id="navBtn-profile" onclick="showTab('profile', this)">Shop Profile</button>
+                <div class="sidebar-section-label">Creator Studio</div>
+                <nav class="sidebar-nav-list">
+                    <button class="side-btn seller-active" id="navBtn-overview" onclick="showTab('overview', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+                            <span>Overview &amp; Analytics</span>
+                        </span>
+                    </button>
+                    <button class="side-btn" id="navBtn-seller-listings" onclick="showTab('seller-listings', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+                            <span>My Shop Listings</span>
+                        </span>
+                    </button>
+                    <button class="side-btn" id="navBtn-seller-orders" onclick="showTab('seller-orders', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                            <span>Orders &amp; Email Delivery</span>
+                        </span>
+                        <span class="count-pill" id="orderCount">0</span>
+                    </button>
+                    <button class="side-btn" id="navBtn-seller-add" onclick="showTab('seller-add', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>
+                            <span>+ Create Listing</span>
+                        </span>
+                    </button>
+                    <button class="side-btn" id="navBtn-profile" onclick="showTab('profile', this)">
+                        <span class="side-btn-left">
+                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+                            <span>Shop Profile</span>
+                        </span>
+                    </button>
+                </nav>
             {% endif %}
         </div>
-        <div style="border-top:1px solid var(--border); padding-top:0.85rem; display:flex; flex-direction:column; gap:6px;">
-            <button type="button" class="side-btn" style="color:var(--blue); background:var(--blue-light); margin-bottom:0;" onclick="toggleMarketplaceMode(true)">
-                <span>&larr; Back to Marketplace</span>
-            </button>
+        <div style="border-top:1px solid var(--border); padding-top:1rem; display:flex; flex-direction:column; gap:8px;">
+            <form method="post" action="/api-auth/logout/?next=/" style="margin:0; width:100%;">
+                {% csrf_token %}
+                <button type="submit" class="sidebar-logout-btn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Log out</span>
+                </button>
+            </form>
             {% if user.is_superuser %}
-            <a href="/api/" style="font-size:0.78rem; color:var(--muted); text-decoration:none; padding:4px 8px;">↗ View REST API Endpoints</a>
+            <a href="/api/" style="font-size:0.78rem; color:var(--muted); text-decoration:none; padding:4px 8px; text-align:center;">↗ View REST API Endpoints</a>
             {% endif %}
         </div>
     </aside>
@@ -749,58 +1477,70 @@
     <div class="main-area">
         <header class="topbar">
             <div>
-                <small style="color:var(--muted); font-weight:700; text-transform:uppercase;">{{ user.role }} Workspace</small>
-                <h2 id="pageHeading" style="font-size:1.15rem;">{% if user.role == 'seller' %}{{ user.shop_name|default:user.username }}{% else %}Discover Digital Products{% endif %}</h2>
+                <small class="workspace-role-label {% if user.role == 'seller' %}workspace-role-seller{% endif %}">{{ user.role }} Workspace</small>
+                <h2 id="pageHeading" style="font-size:1.25rem; font-weight:800; margin-top:2px;">{% if user.role == 'seller' %}{{ user.shop_name|default:user.username }}{% else %}Discover Digital Products{% endif %}</h2>
             </div>
-            <div style="display:flex; align-items:center; gap:12px;">
+            <div style="display:flex; align-items:center; gap:14px;">
                 <span class="wallet-chip" id="walletDisplay">Suki Wallet: ₱{{ user.suki_wallet_balance }}</span>
-                <strong style="font-size:0.88rem;">{{ user.username }}</strong>
-                <form method="post" action="/api-auth/logout/?next=/">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline btn-sm">Log out</button>
-                </form>
+                <strong style="font-size:0.9rem;">{{ user.username }}</strong>
             </div>
         </header>
 
         <div class="content-pad">
-            <!-- OVERVIEW TAB -->
+            <!-- OVERVIEW TAB (STRICTLY SEPARATED CUSTOMER VS SELLER WORKSPACE) -->
             <div id="tab-overview" class="tab-section">
                 {% if user.role == 'seller' %}
+                    <!-- SELLER WORKSPACE BANNER -->
+                    <div class="workspace-hero-banner seller-hero-banner">
+                        <div>
+                            <span class="cat-pill" style="background:#fef3c7; color:#b45309; margin-bottom:6px;">CREATOR STUDIO &amp; ANALYTICS</span>
+                            <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-bottom:4px;">Welcome back, {{ user.shop_name|default:user.username }}!</h2>
+                            <p style="font-size:0.88rem; color:#64748b; max-width:560px;">Track your digital shop earnings, monitor pending email deliveries, and publish new templates.</p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-outline" onclick="showTab('seller-orders', document.getElementById('navBtn-seller-orders'))">Manage Deliveries</button>
+                            <button type="button" class="btn btn-orange" onclick="showTab('seller-add', document.getElementById('navBtn-seller-add'))">+ Create New Listing</button>
+                        </div>
+                    </div>
+
                     <!-- Top KPI Metric Cards -->
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-                        <div class="panel" style="margin-bottom:0;">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:1.75rem;">
+                        <div class="seller-kpi-card" style="border-top:4px solid var(--blue);">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Total Earnings</span>
+                                <span style="font-size:0.78rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Total Earnings</span>
                                 <span class="cat-pill" style="margin:0;">NET SALES</span>
                             </div>
-                            <h2 id="statRevenue" style="color:var(--blue); font-size:1.65rem; margin-top:8px;">₱0.00</h2>
-                            <div id="statAvgOrder" style="font-size:0.76rem; color:var(--muted); margin-top:4px;">Avg. ₱0.00 per order</div>
+                            <h2 id="statRevenue" style="color:var(--blue); font-size:1.75rem; margin-top:10px;">₱0.00</h2>
+                            <div id="statAvgOrder" style="font-size:0.78rem; color:var(--muted); margin-top:4px;">Avg. ₱0.00 per order</div>
                         </div>
-                        <div class="panel" style="margin-bottom:0;">
+                        <div class="seller-kpi-card" style="border-top:4px solid var(--success);">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Available Wallet</span>
+                                <span style="font-size:0.78rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Available Wallet</span>
+                                <span style="font-size:0.72rem; font-weight:800; color:var(--success);">PAYOUT READY</span>
                             </div>
-                            <h2 id="statWallet" style="color:var(--success); font-size:1.65rem; margin-top:8px;">₱{{ user.suki_wallet_balance }}</h2>
-                            <div style="font-size:0.76rem; color:var(--muted); margin-top:4px;">Instant digital checkout credits</div>
+                            <h2 id="statWallet" style="color:var(--success); font-size:1.75rem; margin-top:10px;">₱{{ user.suki_wallet_balance }}</h2>
+                            <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">Instant digital checkout credits</div>
                         </div>
-                        <div class="panel" style="margin-bottom:0;">
+                        <div class="seller-kpi-card" style="border-top:4px solid var(--orange);">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Total Orders</span>
+                                <span style="font-size:0.78rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Total Orders</span>
+                                <span style="font-size:0.72rem; font-weight:800; color:#b45309;">FULFILLMENT</span>
                             </div>
-                            <h2 id="statOrders" style="font-size:1.65rem; margin-top:8px;">0</h2>
-                            <div id="statOrdersSub" style="font-size:0.76rem; color:var(--muted); margin-top:4px;">0 delivered • 0 pending</div>
+                            <h2 id="statOrders" style="font-size:1.75rem; margin-top:10px;">0</h2>
+                            <div id="statOrdersSub" style="font-size:0.78rem; color:var(--muted); margin-top:4px;">0 delivered • 0 pending</div>
                         </div>
-                        <div class="panel" style="margin-bottom:0;">
+                        <div class="seller-kpi-card" style="border-top:4px solid #6366f1;">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Active Listings</span>
+                                <span style="font-size:0.78rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Active Listings</span>
+                                <span style="font-size:0.72rem; font-weight:800; color:#4f46e5;">CATALOG</span>
                             </div>
-                            <h2 id="statProducts" style="font-size:1.65rem; margin-top:8px;">0</h2>
-                            <div style="font-size:0.76rem; color:var(--muted); margin-top:4px;">Live on Suki Marketplace</div>
+                            <h2 id="statProducts" style="font-size:1.75rem; margin-top:10px;">0</h2>
+                            <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">Live on Suki Marketplace</div>
                         </div>
                     </div>
 
                     <!-- Seller Total Earnings Graphs Grid -->
-                    <div class="analytics-charts-grid">
+                    <div class="analytics-charts-grid" style="gap:1.5rem; margin-bottom:1.75rem;">
                         <!-- Left Graph: Total Earnings Trend Area/Line Graph -->
                         <div class="chart-card">
                             <div id="sellerChartTooltip" class="chart-tooltip"></div>
@@ -836,10 +1576,13 @@
                     </div>
 
                     <!-- Recent Orders Table -->
-                    <div class="panel">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                            <h3>Recent Orders</h3>
-                            <button class="btn btn-sm" onclick="showTab('seller-add', null)">+ Add New Template</button>
+                    <div class="panel" style="padding:1.75rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.15rem;">
+                            <div>
+                                <h3 style="font-size:1.1rem; font-weight:800;">Recent Customer Orders</h3>
+                                <p style="font-size:0.82rem; color:var(--muted);">Latest purchases requiring or completing email delivery</p>
+                            </div>
+                            <button class="btn btn-sm" onclick="showTab('seller-add', document.getElementById('navBtn-seller-add'))">+ Add New Template</button>
                         </div>
                         <table>
                             <thead><tr><th>Order</th><th>Product</th><th>Selected Size</th><th>Status</th><th>Payout</th><th>Action</th></tr></thead>
@@ -847,24 +1590,69 @@
                         </table>
                     </div>
                 {% else %}
-                    <div style="display:flex; gap:10px; margin-bottom:1.25rem;">
-                        <input type="text" id="searchInput" placeholder="Search Canva templates, booklets, or e-books..." onkeyup="filterCustomerCatalog()">
+                    <!-- CUSTOMER WORKSPACE BANNER -->
+                    <div class="workspace-hero-banner customer-hero-banner">
+                        <div>
+                            <span class="cat-pill" style="margin-bottom:6px;">SUKI BUYER CATALOG</span>
+                            <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-bottom:4px;">Find tools &amp; templates for your next project</h2>
+                            <p style="font-size:0.88rem; color:#64748b; max-width:560px;">Instant email delivery on every Canva template, spreadsheet tracker, and digital e-book.</p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-outline" onclick="showTab('orders', document.getElementById('navBtn-orders'))">My Purchases</button>
+                            <button type="button" class="btn" onclick="showTab('cart', document.getElementById('navBtn-cart'))">View Cart</button>
+                        </div>
                     </div>
-                    <div class="products-grid" id="customerProductGrid"></div>
+
+                    <!-- Customer Search + Category Quick Filters -->
+                    <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; margin-bottom:1.25rem; box-shadow:0 2px 10px rgba(15,23,42,0.03);">
+                        <input type="text" id="searchInput" placeholder="Search Canva templates, booklets, trackers, or e-books..." onkeyup="filterCustomerCatalog()" style="border:1px solid #cbd5e1; padding:11px 14px; font-size:0.92rem;">
+                    </div>
+
+                    <div class="customer-quick-pills" id="customerCategoryPills">
+                        <button type="button" class="cust-cat-pill-btn active" onclick="setCustomerCatFilter('All', this)">All Products</button>
+                        <button type="button" class="cust-cat-pill-btn" onclick="setCustomerCatFilter('Canva Templates', this)">Canva Templates</button>
+                        <button type="button" class="cust-cat-pill-btn" onclick="setCustomerCatFilter('E-books & Guides', this)">E-books &amp; Guides</button>
+                        <button type="button" class="cust-cat-pill-btn" onclick="setCustomerCatFilter('Spreadsheets & Trackers', this)">Spreadsheets &amp; Trackers</button>
+                        <button type="button" class="cust-cat-pill-btn" onclick="setCustomerCatFilter('Digital Planners & Journals', this)">Digital Planners</button>
+                        <button type="button" class="cust-cat-pill-btn" onclick="setCustomerCatFilter('Notion Systems', this)">Notion Systems</button>
+                    </div>
+
+                    <div class="products-grid" style="gap:1.5rem;" id="customerProductGrid"></div>
                 {% endif %}
             </div>
 
-            <!-- CUSTOMER CART -->
+            <!-- CUSTOMER CART (WITH SELECTIVE CHECKBOXES + CONFIRMATION MODAL) -->
             <div id="tab-cart" class="tab-section hidden">
                 <div class="panel">
-                    <h3 style="margin-bottom:1rem;">Shopping Cart</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <h3 style="margin-bottom:2px;">Shopping Cart</h3>
+                            <p style="font-size:0.82rem; color:var(--muted);">Select the items you want to purchase using your Suki Wallet.</p>
+                        </div>
+                        <span id="cartSelectedCountBadge" class="cat-pill" style="margin:0;">0 items selected</span>
+                    </div>
                     <table>
-                        <thead><tr><th>Product</th><th>Selected Size</th><th>Price</th><th>Qty</th><th>Subtotal</th><th>Action</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th style="width:42px; text-align:center;">
+                                    <input type="checkbox" id="cartSelectAll" title="Select all items" onchange="toggleSelectAllCart(this.checked)">
+                                </th>
+                                <th>Product</th>
+                                <th>Selected Size</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Subtotal</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
                         <tbody id="cartBody"></tbody>
                     </table>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem;">
-                        <strong id="cartTotal" style="font-size:1.15rem;">Total: ₱0.00</strong>
-                        <button class="btn btn-success" onclick="checkoutCart()">Pay with Suki Wallet</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <strong id="cartTotal" style="font-size:1.15rem; display:block;">Selected Total: ₱0.00</strong>
+                            <span id="cartTotalHint" style="font-size:0.78rem; color:var(--muted);">Check the items you want to pay for</span>
+                        </div>
+                        <button type="button" id="cartPayBtn" class="btn btn-success" onclick="openConfirmCheckoutModal()">Pay Selected with Suki Wallet</button>
                     </div>
                 </div>
             </div>
@@ -1084,96 +1872,329 @@
                 </div>
             </div>
 
-            <!-- PROFILE TAB (CUSTOMER & SELLER) -->
+            <!-- PROFILE TAB (CUSTOMER SETTINGS VS SELLER STOREFRONT SHOP PROFILE + SETTINGS MODAL) -->
             <div id="tab-profile" class="tab-section hidden">
-                <div class="panel-box" style="max-width:860px;">
-                    {% if user.role == 'customer' %}
-                    <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem;">Customer Profile Settings</h2>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
-                        <div class="form-group"><label>Email (Where digital links are sent)</label><input type="email" id="profEmail"></div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>First Name</label><input type="text" id="profFirstName" placeholder="First name"></div>
-                        <div class="form-group"><label>Last Name</label><input type="text" id="profLastName" placeholder="Last name"></div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="profPhone" placeholder="e.g. 0917 123 4567"></div>
-                        <div class="form-group"><label>Payment / Payout Method</label><input type="text" id="profPayment"></div>
-                    </div>
-                    <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
+                {% if user.role == 'customer' %}
+                <!-- CUSTOMER PROFILE IDENTITY HERO BANNER -->
+                <div class="cust-profile-hero">
+                    <div style="display:flex; align-items:center; gap:1.35rem; flex-wrap:wrap; position:relative; z-index:2;">
+                        <div style="position:relative;">
+                            <div class="cust-avatar-ring" id="custProfileAvatarBox" onclick="document.getElementById('custAvatarInput').click()" title="Click to upload profile photo">
+                                {% if user.shop_logo %}
+                                    <img src="{{ user.shop_logo.url }}" alt="{{ user.username }}">
+                                {% else %}
+                                    {{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+                                {% endif %}
+                            </div>
+                            <button type="button" class="cust-avatar-cam-badge" onclick="document.getElementById('custAvatarInput').click()" title="Upload profile picture">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            </button>
+                            <input type="file" id="custAvatarInput" accept="image/*" class="hidden" onchange="handleCustomerAvatarChange(this)">
+                        </div>
                         <div>
-                            <select id="profCountry">
-                                <option value="Philippines">Philippines</option>
-                                <option value="Singapore">Singapore</option>
-                                <option value="United States">United States</option>
-                                <option value="Japan">Japan</option>
-                                <option value="Canada">Canada</option>
-                                <option value="Australia">Australia</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                            </select>
+                            <h2 id="custHeroFullName" style="font-size:1.55rem; font-weight:800; letter-spacing:-0.3px;">{{ user.first_name|default:user.username }} {{ user.last_name }}</h2>
+                            <div style="font-size:0.86rem; color:#dbeafe; margin-top:2px;">
+                                <span id="custHeroHandle">@{{ user.username }}</span> &bull; <span id="custHeroEmail">{{ user.email }}</span>
+                            </div>
                         </div>
-                        <div><input type="text" id="profRegion" placeholder="Region"></div>
-                        <div><input type="text" id="profCity" placeholder="City"></div>
                     </div>
-                    <div class="form-group"><label>Bio / Description</label><textarea id="profBio" rows="3" placeholder="Tell sellers a bit about yourself..."></textarea></div>
-                    <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn" onclick="saveProfile()">Save Profile</button>
+
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; position:relative; z-index:2;">
+                        <button type="button" class="btn btn-outline btn-sm" style="background:rgba(255,255,255,0.95); color:var(--blue); border:none; padding:10px 15px;" onclick="document.getElementById('custAvatarInput').click()">
+                            Change Photo
+                        </button>
                     </div>
-                    {% else %}
-                    <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1.25rem;">Shop & Seller Profile Settings</h2>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
-                        <div class="form-group"><label>Email</label><input type="email" id="profEmail"></div>
+                </div>
+
+                <!-- 2-COLUMN PROFILE SETTINGS + SUKI WALLET WORKSPACE -->
+                <div class="cust-profile-grid">
+                    <!-- LEFT COLUMN: CUSTOMER PROFILE SETTINGS -->
+                    <div class="panel-box" style="margin-bottom:0;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:8px;">
+                            <div>
+                                <span class="cat-pill" style="margin-bottom:4px;">PERSONAL INFORMATION</span>
+                                <h2 style="font-size:1.22rem; font-weight:800;">Customer Profile Settings</h2>
+                            </div>
+                            <span id="custAvatarFileHint" style="font-size:0.78rem; color:var(--blue); font-weight:600;"></span>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
+                            <div class="form-group"><label>Email (Where digital links are sent)</label><input type="email" id="profEmail"></div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group"><label>First Name</label><input type="text" id="profFirstName" placeholder="First name" oninput="updateCustHeroPreview()"></div>
+                            <div class="form-group"><label>Last Name</label><input type="text" id="profLastName" placeholder="Last name" oninput="updateCustHeroPreview()"></div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="profPhone" placeholder="e.g. 0917 123 4567"></div>
+                            <div class="form-group">
+                                <label>Preferred Payment Method</label>
+                                <select id="profPayment">
+                                    <option value="Suki Wallet">Suki Wallet (Instant Checkout)</option>
+                                    <option value="GCash">GCash</option>
+                                    <option value="Maya">Maya</option>
+                                    <option value="Credit / Debit Card">Credit / Debit Card</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
+                            <div>
+                                <select id="profCountry" onchange="updateCustHeroPreview()">
+                                    <option value="Philippines">Philippines</option>
+                                    <option value="Singapore">Singapore</option>
+                                    <option value="United States">United States</option>
+                                    <option value="Japan">Japan</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                </select>
+                            </div>
+                            <div><input type="text" id="profRegion" placeholder="Region" oninput="updateCustHeroPreview()"></div>
+                            <div><input type="text" id="profCity" placeholder="City" oninput="updateCustHeroPreview()"></div>
+                        </div>
+                        <div class="form-group"><label>Bio / Description</label><textarea id="profBio" rows="3" placeholder="Tell sellers a bit about yourself..."></textarea></div>
+                        <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <span style="font-size:0.78rem; color:var(--muted);">Changes apply immediately across your orders &amp; reviews.</span>
+                            <button type="button" class="btn" onclick="saveProfile()">Save Profile</button>
+                        </div>
                     </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Owner First Name</label><input type="text" id="profFirstName" placeholder="First name"></div>
-                        <div class="form-group"><label>Owner Last Name</label><input type="text" id="profLastName" placeholder="Last name"></div>
+
+                    <!-- RIGHT COLUMN: SUKI WALLET BALANCE & ACTIVITY -->
+                    <div>
+                        <div class="suki-wallet-card">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
+                                <span style="font-size:0.74rem; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; background:rgba(255,255,255,0.18); padding:4px 10px; border-radius:99px;">SUKI WALLET</span>
+                                <span style="font-size:0.78rem; color:#a7f3d0; font-weight:700;">● Active</span>
+                            </div>
+
+                            <div style="font-size:0.78rem; color:#d1fae5; font-weight:600;">Available Balance</div>
+                            <div id="custProfileWalletBalance" style="font-size:2.25rem; font-weight:800; letter-spacing:-0.6px; margin:2px 0 4px;">₱{{ user.suki_wallet_balance }}</div>
+                            <div id="custProfileWalletUsd" style="font-size:0.78rem; color:#a7f3d0; margin-bottom:1.15rem;">≈ $0.00 USD • Protected by Suki Buyer Guarantee</div>
+
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button type="button" class="btn" style="background:#ffffff; color:#065f46; flex:1; justify-content:center; font-weight:800;" onclick="openTopUpWalletModal()">+ Top Up Wallet</button>
+                                <button type="button" class="wallet-quick-chip" onclick="showTab('cart', document.getElementById('navBtn-cart'))">Go to Cart &rarr;</button>
+                            </div>
+                        </div>
+
+                        <div class="panel-box" style="margin-bottom:0;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                                <div>
+                                    <h3 style="font-size:1rem; font-weight:800;">Recent Wallet Activity</h3>
+                                    <p style="font-size:0.78rem; color:var(--muted);">Purchases &amp; wallet credits</p>
+                                </div>
+                                <span id="custWalletTotalSpentBadge" class="cat-pill" style="margin:0;">Spent: ₱0.00</span>
+                            </div>
+                            <div id="custWalletActivityList">
+                                <div style="text-align:center; color:var(--muted); font-size:0.84rem; padding:1rem 0;">No wallet transactions yet.</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Mobile / Contact Number</label><input type="text" id="profPhone" placeholder="e.g. 0917 123 4567"></div>
-                        <div class="form-group"><label>Payment / Payout Method</label><input type="text" id="profPayment"></div>
+                </div>
+                {% else %}
+                <!-- SELLER SHOP PROFILE (MATCHING LANDING PAGE PUBLIC SHOP STYLE WITH EDIT PROFILE POPUP & MY SHOP LISTINGS) -->
+                <div class="seller-shop-shell">
+                    <div class="seller-shop-banner-inner" id="sellerDashShopBanner" {% if user.shop_banner %}style="background-image:url('{{ user.shop_banner.url }}');"{% endif %}>
+                        <div class="seller-shop-banner-content">
+                            <small id="sellerDashShopTagline" style="letter-spacing:1.1px; font-weight:800; opacity:0.9; text-transform:uppercase;">{{ user.shop_tagline|default:"DIGITAL SHOP" }}</small>
+                            <h1 id="sellerDashShopHeadline" style="font-size:2.05rem; font-weight:800; margin-top:4px; letter-spacing:-0.4px;">{{ user.shop_name|default:user.username }}</h1>
+                        </div>
                     </div>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Shop Name</label><input type="text" id="profShopName"></div>
-                        <div class="form-group"><label>Shop Tagline</label><input type="text" id="profShopTagline"></div>
+
+                    <div class="seller-shop-card-wrap">
+                        <div class="public-shop-profile">
+                            <div style="display:flex; gap:1.25rem; align-items:flex-start; flex:1; min-width:260px;">
+                                <div class="big-shop-avatar" id="sellerDashShopAvatar" {% if user.shop_logo %}style="background:#fff;"{% endif %}>
+                                    {% if user.shop_logo %}
+                                        <img src="{{ user.shop_logo.url }}" alt="{{ user.shop_name|default:user.username }}" style="width:100%; height:100%; object-fit:cover;">
+                                    {% else %}
+                                        {{ user.shop_name|default:user.username|slice:":2"|upper }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h2 id="sellerDashShopName" style="font-size:1.5rem; font-weight:800; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                        <span>{{ user.shop_name|default:user.username }}</span>
+                                        <span style="color:var(--blue);">✓</span>
+                                    </h2>
+                                    <div style="font-size:0.84rem; color:var(--muted); margin:4px 0 8px;">
+                                        <span id="sellerDashShopHandle">@{{ user.username }}</span> &bull;
+                                        <strong id="sellerDashShopSales" style="color:var(--text);">0 Sales</strong> &bull;
+                                        <span style="color:var(--orange); font-weight:700;">★ 4.9</span>
+                                    </div>
+                                    <p id="sellerDashShopBio" style="color:var(--muted); font-size:0.9rem; max-width:650px; line-height:1.55;">{{ user.shop_or_bio|default:"Add a shop bio in Edit Profile to introduce your digital products to buyers." }}</p>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                                <button type="button" class="btn" onclick="openSellerProfileSettingsModal()">
+                                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    <span>Edit Profile</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Shop Address</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
+                </div>
+
+                <!-- SELLER SHOP PRODUCTS SECTION (MATCHING MY SHOP LISTINGS STYLE) -->
+                <div style="margin-top:0.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.15rem; flex-wrap:wrap; gap:10px;">
                         <div>
-                            <select id="profCountry">
-                                <option value="Philippines">Philippines</option>
-                                <option value="Singapore">Singapore</option>
-                                <option value="United States">United States</option>
-                                <option value="Japan">Japan</option>
-                                <option value="Canada">Canada</option>
-                                <option value="Australia">Australia</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                            </select>
+                            <h3 id="sellerProfileItemsHeading" style="font-size:1.25rem; font-weight:800; color:var(--text);">All Items (0)</h3>
+                            <p style="font-size:0.84rem; color:var(--muted);">Manage your published products right from your shop profile.</p>
                         </div>
-                        <div><input type="text" id="profRegion" placeholder="Region"></div>
-                        <div><input type="text" id="profCity" placeholder="City"></div>
+                        <button type="button" class="btn btn-sm" onclick="showTab('seller-add', document.getElementById('navBtn-seller-add'))">+ New Listing</button>
                     </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Shop Logo</label>
-                            <input type="file" id="profLogo" accept="image/*" onchange="previewShopImage(this, 'logoPreview')">
-                            <img id="logoPreview" src="" style="width:64px; height:64px; object-fit:cover; border-radius:12px; margin-top:8px; border:1px solid var(--border); display:none;">
-                        </div>
-                        <div class="form-group">
-                            <label>Shop Cover Banner</label>
-                            <input type="file" id="profBanner" accept="image/*" onchange="previewShopImage(this, 'bannerPreview')">
-                            <img id="bannerPreview" src="" style="width:100%; max-width:240px; height:64px; object-fit:cover; border-radius:10px; margin-top:8px; border:1px solid var(--border); display:none;">
-                        </div>
+                    <div id="sellerProfileProductsGrid" class="products-grid"></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.role == 'seller' %}
+<!-- SELLER PROFILE SETTINGS POPUP MODAL -->
+<div id="sellerProfileSettingsModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeSellerProfileSettingsModal()">
+    <div class="modal-card" style="max-width:780px; width:100%; max-height:92vh; overflow-y:auto; position:relative; padding:1.85rem 2rem;">
+        <button type="button" onclick="closeSellerProfileSettingsModal()" style="position:absolute; top:14px; right:18px; background:#f1f5f9; border:none; width:34px; height:34px; border-radius:50%; font-size:1.3rem; line-height:1; cursor:pointer; color:var(--muted); display:flex; align-items:center; justify-content:center;" title="Close">&times;</button>
+
+        <span class="cat-pill" style="background:#fef3c7; color:#b45309; margin-bottom:6px;">CREATOR STORE SETTINGS</span>
+        <h2 style="font-size:1.3rem; font-weight:800; margin-bottom:1.25rem;">Seller Profile Settings</h2>
+
+        <div class="form-grid">
+            <div class="form-group"><label>Username</label><input type="text" id="profUsername" disabled></div>
+            <div class="form-group"><label>Email</label><input type="email" id="profEmail"></div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group"><label>Owner First Name</label><input type="text" id="profFirstName" placeholder="First name"></div>
+            <div class="form-group"><label>Owner Last Name</label><input type="text" id="profLastName" placeholder="Last name"></div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group"><label>Contact Number</label><input type="text" id="profPhone" placeholder="e.g. 0917 123 4567"></div>
+            <div class="form-group"><label>Payout Method</label><input type="text" id="profPayment"></div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group"><label>Shop Name</label><input type="text" id="profShopName"></div>
+            <div class="form-group"><label>Shop Tagline</label><input type="text" id="profShopTagline"></div>
+        </div>
+        <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Shop Address</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
+            <div>
+                <select id="profCountry">
+                    <option value="Philippines">Philippines</option>
+                    <option value="Singapore">Singapore</option>
+                    <option value="United States">United States</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                </select>
+            </div>
+            <div><input type="text" id="profRegion" placeholder="Region"></div>
+            <div><input type="text" id="profCity" placeholder="City"></div>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Shop Logo</label>
+                <input type="file" id="profLogo" accept="image/*" onchange="previewShopImage(this, 'logoPreview')">
+                <img id="logoPreview" src="" style="width:68px; height:68px; object-fit:cover; border-radius:50%; margin-top:8px; border:2px solid var(--border); display:none;">
+            </div>
+            <div class="form-group">
+                <label>Shop Cover Banner</label>
+                <input type="file" id="profBanner" accept="image/*" onchange="previewShopImage(this, 'bannerPreview')">
+                <img id="bannerPreview" src="" style="width:100%; max-width:260px; height:68px; object-fit:cover; border-radius:10px; margin-top:8px; border:1px solid var(--border); display:none;">
+            </div>
+        </div>
+        <div class="form-group"><label>Shop Description / Bio</label><textarea id="profBio" rows="3"></textarea></div>
+        <div style="margin-top:0.75rem; display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="closeSellerProfileSettingsModal()">Cancel</button>
+            <button type="button" class="btn" onclick="saveProfile()">Save Profile</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- CUSTOMER PRODUCT DETAIL POPUP MODAL -->
+<div id="customerProductModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeCustomerProductModal()">
+    <div class="cust-detail-modal-card">
+        <button type="button" onclick="closeCustomerProductModal()" style="position:absolute; top:14px; right:18px; background:#f1f5f9; border:none; width:34px; height:34px; border-radius:50%; font-size:1.3rem; line-height:1; cursor:pointer; color:var(--muted); display:flex; align-items:center; justify-content:center;" title="Close">&times;</button>
+
+        <div style="font-size:0.78rem; color:var(--muted); margin-bottom:1rem; padding-right:2.5rem;" id="custModalBreadcrumb">Catalog &rsaquo; Shop &rsaquo; Product</div>
+
+        <div class="cust-detail-grid">
+            <div>
+                <img id="custModalMainImg" src="" alt="Product Preview" class="cust-main-gallery-img">
+                <div class="cust-thumb-strip" id="custModalThumbStrip"></div>
+            </div>
+
+            <div class="buy-box" style="padding:1.45rem;">
+                <span class="cat-pill" id="custModalCategory">CANVA TEMPLATES</span>
+                <h2 id="custModalTitle" style="font-size:1.45rem; font-weight:800; line-height:1.25; margin-bottom:0.65rem;">Product Title</h2>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.9rem; font-size:0.84rem; flex-wrap:wrap;">
+                    <span style="font-weight:700; color:var(--blue);" id="custModalSeller">@seller ✓</span>
+                    <span style="color:var(--orange); font-weight:700;" id="custModalRating">★ 4.9</span>
+                    <span style="color:var(--muted);" id="custModalStock">Unlimited digital access</span>
+                </div>
+
+                <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">ONE-TIME PURCHASE</div>
+                <div style="font-size:1.85rem; font-weight:800; color:var(--blue); margin-bottom:0.9rem;" id="custModalPrice">₱149.00</div>
+
+                <div style="font-size:0.82rem; font-weight:700; margin-bottom:4px;">Select Template Size / Format:</div>
+                <div class="size-chips" id="custModalSizeChips"></div>
+
+                <div style="display:flex; flex-direction:column; gap:9px;">
+                    <button type="button" id="custModalBuyNowBtn" class="btn btn-orange" style="justify-content:center; padding:11px;">Buy Now</button>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" id="custModalAddCartBtn" class="btn btn-outline" style="flex:1; justify-content:center; padding:11px; color:var(--blue); border-color:var(--blue);">+ Add to Cart</button>
+                        <button type="button" id="custModalWishlistBtn" class="btn btn-outline" style="padding:11px 14px;" title="Save to Wishlist">♡</button>
                     </div>
-                    <div class="form-group"><label>Shop Description / Bio</label><textarea id="profBio" rows="3"></textarea></div>
-                    <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn" onclick="saveProfile()">Save Profile</button>
-                    </div>
-                    {% endif %}
+                </div>
+
+                <div style="margin-top:1.1rem; padding-top:0.9rem; border-top:1px solid var(--border); font-size:0.79rem; color:var(--muted); display:flex; flex-direction:column; gap:5px;">
+                    <span>↓ Instant Digital Delivery via Email</span>
+                    <span>✓ Secure payment with Suki Buyer Protection</span>
                 </div>
             </div>
+        </div>
+
+        <div class="detail-tabs-card" style="margin-top:1.5rem; padding:1.25rem;">
+            <div class="detail-tab-nav">
+                <button type="button" class="detail-tab-btn cust-detail-tab-btn active" onclick="switchCustModalTab('desc', this)">Product Description</button>
+                <button type="button" class="detail-tab-btn cust-detail-tab-btn" onclick="switchCustModalTab('inc', this)">What's Included</button>
+                <button type="button" class="detail-tab-btn cust-detail-tab-btn" onclick="switchCustModalTab('rev', this)">Customer Reviews</button>
+            </div>
+            <div id="custModalTabContent" style="font-size:0.9rem; color:var(--text); white-space:pre-line; line-height:1.65;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRM CHECKOUT MODAL (FOR CUSTOMER CART) -->
+<div id="confirmCheckoutModal" class="modal-backdrop hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+    <div class="modal-card" style="max-width:470px; position:relative;">
+        <button type="button" onclick="document.getElementById('confirmCheckoutModal').classList.add('hidden')" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <span class="cat-pill" style="background:#dcfce7; color:#166534;">CONFIRM SUKI WALLET PAYMENT</span>
+        <h3 style="font-size:1.22rem; font-weight:800; margin-bottom:0.35rem;">Confirm Checkout</h3>
+        <p style="font-size:0.84rem; color:var(--muted); margin-bottom:1rem;">Please review your selected items before deducting credits from your Suki Wallet.</p>
+
+        <div id="ccItemsList" style="max-height:175px; overflow-y:auto; border:1px solid var(--border); border-radius:12px; margin-bottom:1rem; background:#f8fafc;"></div>
+
+        <div class="info-row-list">
+            <div class="info-row"><span>Selected Items</span><span id="ccItemCount">0 items</span></div>
+            <div class="info-row"><span>Current Wallet Balance</span><span id="ccWalletBefore">₱0.00</span></div>
+            <div class="info-row"><span>Total Amount to Deduct</span><span id="ccTotalAmount" style="color:var(--blue); font-size:0.98rem;">₱0.00</span></div>
+            <div class="info-row"><span>Remaining Balance</span><span id="ccWalletAfter" style="color:var(--success);">₱0.00</span></div>
+        </div>
+
+        <div id="ccInsufficientWarn" class="hidden" style="background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:9px 12px; border-radius:10px; font-size:0.82rem; font-weight:600; margin-bottom:1rem;">
+            Insufficient Suki Wallet credits for the selected items.
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('confirmCheckoutModal').classList.add('hidden')">Cancel</button>
+            <button type="button" id="ccConfirmBtn" class="btn btn-success" onclick="executeConfirmedCheckout()">Confirm &amp; Pay</button>
         </div>
     </div>
 </div>
@@ -1210,7 +2231,7 @@
             <div class="info-row"><span>Size / Format</span><span id="odSize"></span></div>
             <div class="info-row"><span>Amount Paid</span><span id="odAmount" style="color:var(--success);"></span></div>
             <div class="info-row"><span>Order Status</span><span id="odStatus"></span></div>
-            <div class="info-row"><span>Delivery Link</span><a id="odLink" href="#" target="_blank" style="color:var(--blue);"></a></div>
+            <div class="info-row"><span>Delivery Link</span><span style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;"><a id="odLink" href="#" target="_blank" style="color:var(--blue);"></a><button type="button" class="mini-copy-btn" onclick="copyTextValue(document.getElementById('odLink').href, 'Delivery link copied!')">Copy Link</button></span></div>
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:8px;">
@@ -1275,7 +2296,10 @@
         </div>
 
         <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:10px 12px; margin-bottom:1rem;">
-            <div style="font-size:0.74rem; font-weight:800; color:var(--blue); text-transform:uppercase; margin-bottom:4px;">Delivery File / Canva Link</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span style="font-size:0.74rem; font-weight:800; color:var(--blue); text-transform:uppercase;">Delivery File / Canva Link</span>
+                <button type="button" class="mini-copy-btn" onclick="copyTextValue(document.getElementById('recDownloadLink').href, 'Delivery link copied!')">Copy Link</button>
+            </div>
             <a id="recDownloadLink" href="#" target="_blank" style="font-size:0.85rem; font-weight:700; color:var(--blue-dark); word-break:break-all;"></a>
         </div>
 
@@ -1377,6 +2401,43 @@
 </div>
 {% endif %}
 
+
+<!-- TOP UP SUKI WALLET MODAL (CUSTOMER) -->
+<div id="topUpWalletModal" class="modal-backdrop hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+    <div class="modal-card" style="max-width:430px; position:relative;">
+        <button type="button" onclick="document.getElementById('topUpWalletModal').classList.add('hidden')" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <span class="cat-pill" style="background:#dcfce7; color:#166534;">INSTANT WALLET CREDITS</span>
+        <h3 style="font-size:1.22rem; font-weight:800; margin-bottom:0.35rem;">Top Up Suki Wallet</h3>
+        <p style="font-size:0.84rem; color:var(--muted); margin-bottom:1rem;">Add credits to your Suki Wallet for instant one-click digital checkouts.</p>
+
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:1rem;">
+            <button type="button" class="btn btn-outline btn-sm" style="justify-content:center;" onclick="document.getElementById('topUpAmountInput').value=100">+₱100</button>
+            <button type="button" class="btn btn-outline btn-sm" style="justify-content:center;" onclick="document.getElementById('topUpAmountInput').value=250">+₱250</button>
+            <button type="button" class="btn btn-outline btn-sm" style="justify-content:center;" onclick="document.getElementById('topUpAmountInput').value=500">+₱500</button>
+            <button type="button" class="btn btn-outline btn-sm" style="justify-content:center;" onclick="document.getElementById('topUpAmountInput').value=1000">+₱1,000</button>
+        </div>
+
+        <div class="form-group">
+            <label>Amount to Add (PHP) *</label>
+            <input type="number" id="topUpAmountInput" min="10" step="10" value="500" placeholder="Enter amount in ₱">
+        </div>
+        <div class="form-group">
+            <label>Payment Channel</label>
+            <select id="topUpChannelSelect">
+                <option value="GCash">GCash E-Wallet</option>
+                <option value="Maya">Maya</option>
+                <option value="Online Banking / InstaPay">Online Banking / InstaPay</option>
+                <option value="Credit / Debit Card">Credit / Debit Card</option>
+            </select>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:1.15rem;">
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('topUpWalletModal').classList.add('hidden')">Cancel</button>
+            <button type="button" id="confirmTopUpBtn" class="btn btn-success" onclick="submitWalletTopUp()">Add Credits Now</button>
+        </div>
+    </div>
+</div>
+
 <div id="toast"></div>
 <script>
     const isAuth = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
@@ -1397,6 +2458,9 @@
     let allShops = [];
     let allProducts = [];
     let allOrders = [];
+    let allCartItems = [];
+    let selectedCartIds = new Set();
+    let currentWalletBalance = Number("{{ user.suki_wallet_balance|default:'0' }}") || 0;
     let activeDetailProduct = null;
     let selectedDetailSize = "";
     let currentProfileId = null;
@@ -1404,6 +2468,9 @@
     let currentDeliveryMode = 'link';
     let sellerTrendChartMode = 'daily';
     let sellerBreakdownMode = 'product';
+    let sellerOrderStatusFilter = 'ALL';
+    let sellerOrderSearchQuery = '';
+    let sellerOrderSortMode = 'newest';
 
     fetch('/api/exchange-rates/').then(r => r.json()).then(d => { if (d.USD) usdRate = d.USD; }).catch(() => {});
 
@@ -1886,15 +2953,53 @@
     }
 
     /* ==================== WORKSPACE TABS & PROFILE ==================== */
+    const tabHeadingsMap = {
+        'overview': userRole === 'seller' ? "{{ user.shop_name|default:user.username }}" : 'Discover Digital Products',
+        'cart': 'Shopping Cart',
+        'wishlist': 'My Saved Wishlist',
+        'orders': 'Orders & Reviews',
+        'support': 'Customer Support',
+        'profile': userRole === 'seller' ? 'Shop Profile' : 'My Profile & Wallet',
+        'seller-listings': 'My Shop Listings',
+        'seller-orders': 'Orders & Email Delivery',
+        'seller-add': 'Create New Listing'
+    };
+
+    function getTabStorageKey() {
+        return 'suki_active_tab_' + (userRole || 'guest') + '_' + (currentUsername || 'user');
+    }
+
     function showTab(name, btn) {
-        document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.side-btn').forEach(el => el.classList.remove('active'));
         const target = document.getElementById('tab-' + name);
-        if (target) target.classList.remove('hidden');
-        if (btn) {
-            btn.classList.add('active');
-        } else {
-            document.getElementById('navBtn-' + name)?.classList.add('active');
+        if (!target) {
+            name = 'overview';
+        }
+        document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.side-btn').forEach(el => {
+            el.classList.remove('active');
+            el.classList.remove('seller-active');
+        });
+        const finalTarget = document.getElementById('tab-' + name);
+        if (finalTarget) finalTarget.classList.remove('hidden');
+
+        const activeClass = userRole === 'seller' ? 'seller-active' : 'active';
+        const targetBtn = btn || document.getElementById('navBtn-' + name);
+        if (targetBtn) {
+            targetBtn.classList.add(activeClass);
+        }
+
+        if (isAuth) {
+            try {
+                localStorage.setItem(getTabStorageKey(), name);
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState(null, '', '#' + name);
+                }
+            } catch (e) {}
+        }
+
+        const headingEl = document.getElementById('pageHeading');
+        if (headingEl && tabHeadingsMap[name]) {
+            headingEl.innerText = tabHeadingsMap[name];
         }
 
         if (name === 'cart') loadCart();
@@ -1902,7 +3007,70 @@
         if (name === 'orders' || name === 'seller-orders' || name === 'overview') loadOrders();
         if (name === 'seller-listings') renderSellerListings();
         if (name === 'seller-add') updateLiveListingPreview();
-        if (name === 'profile') loadProfile();
+        if (name === 'profile') {
+            loadProfile();
+            if (userRole === 'seller') renderSellerListings();
+        }
+    }
+
+    function openSellerProfileSettingsModal() {
+        loadProfile();
+        document.getElementById('sellerProfileSettingsModal')?.classList.remove('hidden');
+    }
+
+    function closeSellerProfileSettingsModal() {
+        document.getElementById('sellerProfileSettingsModal')?.classList.add('hidden');
+    }
+
+    function syncSellerDashboardShopProfile(u) {
+        if (userRole !== 'seller' || !u) return;
+        const shopDisplay = (u.shop_name || u.username || 'My Shop').trim();
+        const taglineDisplay = (u.shop_tagline || 'DIGITAL SHOP').trim();
+        const bioDisplay = (u.shop_or_bio || 'Add a shop bio in Edit Profile to introduce your digital products to buyers.').trim();
+        const handleDisplay = `@${u.username || currentUsername}`;
+
+        const bannerEl = document.getElementById('sellerDashShopBanner');
+        const effectiveBanner = u.effective_banner || u.shop_banner;
+        if (bannerEl && effectiveBanner) {
+            bannerEl.style.backgroundImage = `url('${normalizeMediaUrl(effectiveBanner)}')`;
+        }
+
+        const tagEl = document.getElementById('sellerDashShopTagline');
+        if (tagEl) tagEl.innerText = taglineDisplay;
+
+        const headEl = document.getElementById('sellerDashShopHeadline');
+        if (headEl) headEl.innerText = shopDisplay;
+
+        const nameEl = document.getElementById('sellerDashShopName');
+        if (nameEl) nameEl.innerHTML = `<span>${escapeHtml(shopDisplay)}</span> <span style="color:var(--blue);">✓</span>`;
+
+        const handleEl = document.getElementById('sellerDashShopHandle');
+        if (handleEl) handleEl.innerText = handleDisplay;
+
+        const bioEl = document.getElementById('sellerDashShopBio');
+        if (bioEl) bioEl.innerText = bioDisplay;
+
+        const avatarEl = document.getElementById('sellerDashShopAvatar');
+        const effectiveLogo = u.effective_logo || u.shop_logo;
+        if (avatarEl) {
+            if (effectiveLogo) {
+                avatarEl.style.background = '#fff';
+                avatarEl.innerHTML = `<img src="${normalizeMediaUrl(effectiveLogo)}" alt="${escapeHtml(shopDisplay)}" style="width:100%; height:100%; object-fit:cover;">`;
+            } else {
+                const initials = shopDisplay.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'S';
+                avatarEl.innerText = initials;
+            }
+        }
+
+        const matchingShop = allShops.find(s => s.username === u.username || s.id === u.id);
+        const salesEl = document.getElementById('sellerDashShopSales');
+        if (salesEl) {
+            const validSales = (allOrders || []).filter(o => o.status !== 'REFUNDED').length;
+            const salesCount = matchingShop && typeof matchingShop.sales_count === 'number'
+                ? Math.max(matchingShop.sales_count, validSales)
+                : validSales;
+            salesEl.innerText = `${salesCount.toLocaleString()} Sales`;
+        }
     }
 
     async function loadProfile() {
@@ -1931,13 +3099,17 @@
             setVal('profShopName', u.shop_name);
             setVal('profShopTagline', u.shop_tagline);
 
+            if (u.suki_wallet_balance !== undefined) {
+                currentWalletBalance = Number(u.suki_wallet_balance);
+            }
+
             const walletEl = document.getElementById('walletDisplay');
             if (walletEl && u.suki_wallet_balance !== undefined) {
-                walletEl.innerText = `Suki Wallet: ₱${Number(u.suki_wallet_balance).toFixed(2)}`;
+                walletEl.innerText = `Suki Wallet: ₱${currentWalletBalance.toFixed(2)}`;
             }
             const statWallet = document.getElementById('statWallet');
             if (statWallet && u.suki_wallet_balance !== undefined) {
-                statWallet.innerText = `₱${Number(u.suki_wallet_balance).toFixed(2)}`;
+                statWallet.innerText = `₱${currentWalletBalance.toFixed(2)}`;
             }
 
             const lp = document.getElementById('logoPreview');
@@ -1950,9 +3122,184 @@
                 bp.src = normalizeMediaUrl(u.effective_banner || u.shop_banner);
                 bp.style.display = 'block';
             }
+
+            syncCustomerProfileAndWallet(u);
+            syncSellerDashboardShopProfile(u);
         } catch (e) {
             console.error('loadProfile error:', e);
         }
+    }
+
+    function syncCustomerProfileAndWallet(u) {
+        if (userRole !== 'customer' || !u) return;
+        const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ').trim() || u.username;
+        const nameEl = document.getElementById('custHeroFullName');
+        if (nameEl) nameEl.innerText = fullName;
+
+        const handleEl = document.getElementById('custHeroHandle');
+        if (handleEl) handleEl.innerText = `@${u.username}`;
+
+        const emailEl = document.getElementById('custHeroEmail');
+        if (emailEl) emailEl.innerText = u.email || '';
+
+        const locParts = [u.city, u.region, u.country || 'Philippines'].filter(Boolean);
+        const locEl = document.getElementById('custHeroLocationBadge');
+        if (locEl) locEl.innerText = `📍 ${locParts.join(', ')}`;
+
+        const avatarBox = document.getElementById('custProfileAvatarBox');
+        const avatarUrl = u.effective_logo || u.shop_logo;
+        if (avatarBox) {
+            if (avatarUrl) {
+                avatarBox.innerHTML = `<img src="${normalizeMediaUrl(avatarUrl)}" alt="${escapeHtml(fullName)}">`;
+            } else {
+                const initials = ((u.first_name || u.username || 'C')[0] + (u.last_name ? u.last_name[0] : '')).toUpperCase();
+                avatarBox.innerText = initials;
+            }
+        }
+
+        const wBalEl = document.getElementById('custProfileWalletBalance');
+        if (wBalEl) wBalEl.innerText = `₱${currentWalletBalance.toFixed(2)}`;
+
+        const wUsdEl = document.getElementById('custProfileWalletUsd');
+        if (wUsdEl) wUsdEl.innerText = `≈ $${(currentWalletBalance * usdRate).toFixed(2)} USD • Protected by Suki Buyer Guarantee`;
+
+        renderCustomerWalletActivity();
+    }
+
+    function updateCustHeroPreview() {
+        if (userRole !== 'customer') return;
+        const fn = (document.getElementById('profFirstName')?.value || '').trim();
+        const ln = (document.getElementById('profLastName')?.value || '').trim();
+        const fullName = [fn, ln].filter(Boolean).join(' ') || currentUsername;
+        const nameEl = document.getElementById('custHeroFullName');
+        if (nameEl) nameEl.innerText = fullName;
+
+        const city = (document.getElementById('profCity')?.value || '').trim();
+        const region = (document.getElementById('profRegion')?.value || '').trim();
+        const country = (document.getElementById('profCountry')?.value || 'Philippines').trim();
+        const locEl = document.getElementById('custHeroLocationBadge');
+        if (locEl) locEl.innerText = `📍 ${[city, region, country].filter(Boolean).join(', ')}`;
+    }
+
+    function handleCustomerAvatarChange(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const avatarBox = document.getElementById('custProfileAvatarBox');
+        if (avatarBox) {
+            avatarBox.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="New Avatar">`;
+        }
+        const hintEl = document.getElementById('custAvatarFileHint');
+        if (hintEl) {
+            hintEl.innerText = `Selected: ${file.name} (Click Save Profile to apply)`;
+        }
+        notify('Photo selected! Click Save Profile to update your profile picture.');
+    }
+
+    function openTopUpWalletModal() {
+        document.getElementById('topUpWalletModal')?.classList.remove('hidden');
+    }
+
+    async function submitWalletTopUp() {
+        const amt = parseFloat(document.getElementById('topUpAmountInput')?.value || '0');
+        const channel = document.getElementById('topUpChannelSelect')?.value || 'GCash';
+        if (isNaN(amt) || amt < 10) {
+            notify('Please enter an amount of at least ₱10.00.');
+            return;
+        }
+        if (!currentProfileId) await loadProfile();
+
+        const btn = document.getElementById('confirmTopUpBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Adding...';
+        }
+
+        const newBalance = Number((currentWalletBalance + amt).toFixed(2));
+        try {
+            const targetUrl = currentProfileId ? `/api/profile/${currentProfileId}/` : '/api/profile/';
+            const res = await fetch(targetUrl, {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ suki_wallet_balance: newBalance })
+            });
+            if (res.ok) {
+                currentWalletBalance = newBalance;
+                const logs = JSON.parse(localStorage.getItem('suki_wallet_topups_' + currentUsername) || '[]');
+                logs.unshift({
+                    title: `Wallet Top-Up (${channel})`,
+                    amount: amt,
+                    type: 'credit',
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('suki_wallet_topups_' + currentUsername, JSON.stringify(logs.slice(0, 10)));
+
+                document.getElementById('topUpWalletModal').classList.add('hidden');
+                await loadProfile();
+                showSukiPopup('Wallet Topped Up!', `₱${amt.toFixed(2)} via ${channel} has been added to your Suki Wallet.`);
+            } else {
+                showSukiPopup('Top Up Notice', `Could not update wallet balance (${res.status}).`, true);
+            }
+        } catch (err) {
+            notify('Network error: ' + err.message);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = 'Add Credits Now';
+            }
+        }
+    }
+
+    function renderCustomerWalletActivity() {
+        const listEl = document.getElementById('custWalletActivityList');
+        const spentBadge = document.getElementById('custWalletTotalSpentBadge');
+        if (!listEl) return;
+
+        const validOrders = (allOrders || []).filter(o => o.status !== 'REFUNDED');
+        const totalSpent = validOrders.reduce((s, o) => s + Number(o.total_amount || 0), 0);
+        if (spentBadge) spentBadge.innerText = `Spent: ₱${totalSpent.toFixed(2)}`;
+
+        const topups = JSON.parse(localStorage.getItem('suki_wallet_topups_' + currentUsername) || '[]');
+        const orderTxs = validOrders.map(o => ({
+            title: o.product_title || 'Digital Purchase',
+            subtitle: `${o.delivery_tracking_code || ''} • ${o.status}`,
+            amount: Number(o.total_amount || 0),
+            type: 'debit',
+            date: o.created_at || ''
+        }));
+        const topupTxs = topups.map(t => ({
+            title: t.title,
+            subtitle: 'Suki Wallet Credit',
+            amount: Number(t.amount || 0),
+            type: 'credit',
+            date: t.date || ''
+        }));
+
+        const combined = [...topupTxs, ...orderTxs].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 6);
+
+        if (!combined.length) {
+            listEl.innerHTML = `<div style="text-align:center; color:var(--muted); font-size:0.84rem; padding:1rem 0;">No wallet transactions yet. Top up or purchase a template to see history here.</div>`;
+            return;
+        }
+
+        listEl.innerHTML = combined.map(tx => {
+            const isCredit = tx.type === 'credit';
+            const dLabel = tx.date ? new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent';
+            return `
+                <div class="wallet-tx-item">
+                    <div style="min-width:0;">
+                        <div style="font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(tx.title)}</div>
+                        <div style="font-size:0.74rem; color:var(--muted);">${escapeHtml(tx.subtitle)} &bull; ${dLabel}</div>
+                    </div>
+                    <strong style="color:${isCredit ? 'var(--success)' : 'var(--text)'}; white-space:nowrap;">
+                        ${isCredit ? '+' : '-'}₱${tx.amount.toFixed(2)}
+                    </strong>
+                </div>
+            `;
+        }).join('');
     }
 
     async function saveProfile() {
@@ -1976,6 +3323,8 @@
 
         const logoInput = document.getElementById('profLogo');
         if (logoInput && logoInput.files && logoInput.files[0]) fd.append('shop_logo', logoInput.files[0]);
+        const custAvatarInput = document.getElementById('custAvatarInput');
+        if (custAvatarInput && custAvatarInput.files && custAvatarInput.files[0]) fd.append('shop_logo', custAvatarInput.files[0]);
         const bannerInput = document.getElementById('profBanner');
         if (bannerInput && bannerInput.files && bannerInput.files[0]) fd.append('shop_banner', bannerInput.files[0]);
 
@@ -1987,21 +3336,44 @@
             body: fd
         });
         if (res.ok) {
+            closeSellerProfileSettingsModal();
+            const hintEl = document.getElementById('custAvatarFileHint');
+            if (hintEl) hintEl.innerText = '';
+            const custAvIn = document.getElementById('custAvatarInput');
+            if (custAvIn) custAvIn.value = '';
             await loadProfile();
-            showSukiPopup('Profile Saved!', 'Your shop and account profile changes have been saved.');
+            await sukiBootstrapAll();
+            showSukiPopup('Profile Saved!', 'Your profile changes have been saved.');
         } else {
             showSukiPopup('Save Failed', `Could not save profile (${res.status}).`, true);
         }
     }
 
-    /* ==================== CUSTOMER ACTIONS (CART, WISHLIST, ORDERS, REVIEWS) ==================== */
+    /* ==================== CUSTOMER ACTIONS (CART WITH CHECKBOXES, WISHLIST, ORDERS, REVIEWS) ==================== */
+    let activeCustomerCategory = 'All';
+
+    function setCustomerCatFilter(cat, btn) {
+        activeCustomerCategory = cat;
+        document.querySelectorAll('.cust-cat-pill-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        filterCustomerCatalog();
+    }
+
     function filterCustomerCatalog() {
         const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
-        const filtered = allProducts.filter(p =>
-            !p.is_draft && (!q || p.title.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q) || (p.seller_name || '').toLowerCase().includes(q))
-        );
+        const filtered = allProducts.filter(p => {
+            if (p.is_draft) return false;
+            const catMatch = activeCustomerCategory === 'All' ||
+                (p.category || '').toLowerCase().includes(activeCustomerCategory.toLowerCase()) ||
+                (activeCustomerCategory === 'E-books & Guides' && (p.category || '').toLowerCase().includes('book'));
+            const qMatch = !q || p.title.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q) || (p.seller_name || '').toLowerCase().includes(q);
+            return catMatch && qMatch;
+        });
         renderCustomerCatalog(filtered);
     }
+
+    let activeCustModalProduct = null;
+    let selectedCustModalSize = "Standard Digital";
 
     function renderCustomerCatalog(list) {
         const custGrid = document.getElementById('customerProductGrid');
@@ -2009,13 +3381,13 @@
         const publishedList = list.filter(p => !p.is_draft);
         custGrid.innerHTML = publishedList.map(p => `
             <div class="prod-card">
-                <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${p.title}">
+                <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${escapeHtml(p.title)}" style="cursor:pointer;" onclick="openCustomerProductModal(${p.id})">
                 <div class="prod-card-body">
                     <div>
-                        <span class="cat-pill">${p.category}</span>
-                        <div style="font-size:0.78rem; color:var(--muted); margin-bottom:4px;">by ${p.shop_display_name} (@${p.seller_name})</div>
-                        <h3 style="font-size:1rem; font-weight:700; margin-bottom:6px;">${p.title}</h3>
-                        <p class="desc-clamp-3">${p.description}</p>
+                        <span class="cat-pill">${escapeHtml(p.category)}</span>
+                        <div style="font-size:0.78rem; color:var(--muted); margin-bottom:4px;">by ${escapeHtml(p.shop_display_name)} (@${escapeHtml(p.seller_name)})</div>
+                        <h3 style="font-size:1rem; font-weight:700; margin-bottom:6px; cursor:pointer;" onclick="openCustomerProductModal(${p.id})">${escapeHtml(p.title)}</h3>
+                        <p class="desc-clamp-3" style="cursor:pointer;" onclick="openCustomerProductModal(${p.id})">${escapeHtml(p.description)}</p>
                     </div>
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px; border-top:1px solid var(--border); margin-bottom:10px;">
@@ -2023,13 +3395,125 @@
                             <span style="font-size:0.78rem; color:var(--muted);">${p.stock_licenses >= 999999 ? 'Unlimited digital access' : p.stock_licenses + ' left'}</span>
                         </div>
                         <div style="display:flex; gap:6px;">
-                            <button class="btn btn-sm" style="flex:1; justify-content:center;" onclick="addToCart(${p.id}, '${(p.sizes_list[0] || 'Standard Digital').replace(/'/g, "\\'")}')">+ Add to Cart</button>
-                            <button class="btn btn-outline btn-sm" onclick="addToWishlist(${p.id})" title="Save to Wishlist">♡</button>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="openCustomerProductModal(${p.id})">Details</button>
+                            <button type="button" class="btn btn-sm" style="flex:1; justify-content:center;" onclick="addToCart(${p.id}, '${(p.sizes_list[0] || 'Standard Digital').replace(/'/g, "\\'")}')">+ Add to Cart</button>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="addToWishlist(${p.id})" title="Save to Wishlist">♡</button>
                         </div>
                     </div>
                 </div>
             </div>
         `).join('');
+    }
+
+    function openCustomerProductModal(productId) {
+        const p = allProducts.find(item => item.id === productId && !item.is_draft);
+        if (!p) return;
+        activeCustModalProduct = p;
+        const sizes = Array.isArray(p.sizes_list) && p.sizes_list.length ? p.sizes_list : ["Standard Digital"];
+        selectedCustModalSize = sizes[0];
+
+        document.getElementById('custModalBreadcrumb').innerHTML = `Catalog &amp; Shop &rsaquo; ${escapeHtml(p.shop_display_name || p.seller_name)} &rsaquo; <strong>${escapeHtml(p.title)}</strong>`;
+        document.getElementById('custModalCategory').innerText = p.category || 'DIGITAL PRODUCT';
+        document.getElementById('custModalTitle').innerText = p.title;
+        document.getElementById('custModalSeller').innerText = `@${p.seller_name} ✓`;
+        document.getElementById('custModalStock').innerText = formatStockLabel(p.stock_licenses);
+        document.getElementById('custModalPrice').innerHTML = `₱${Number(p.price).toFixed(2)} <small style="font-size:0.82rem; color:var(--muted); font-weight:600;">(~$${(Number(p.price) * usdRate).toFixed(2)} USD)</small>`;
+
+        const gallery = Array.isArray(p.gallery) && p.gallery.length ? p.gallery : [p.image || p.image_url || ''];
+        document.getElementById('custModalMainImg').src = normalizeMediaUrl(gallery[0]);
+        renderCustModalThumbs(gallery, false);
+
+        document.getElementById('custModalSizeChips').innerHTML = sizes.map((sz, idx) => `
+            <button type="button" class="size-chip ${idx === 0 ? 'selected' : ''}" onclick="selectCustModalSizeChip('${escapeHtml(sz)}', this)">${escapeHtml(sz)}</button>
+        `).join('');
+
+        document.getElementById('custModalAddCartBtn').onclick = () => {
+            addToCart(p.id, selectedCustModalSize);
+        };
+        document.getElementById('custModalBuyNowBtn').onclick = async () => {
+            await buyNowFromCustomerModal(p.id, selectedCustModalSize);
+        };
+        document.getElementById('custModalWishlistBtn').onclick = () => {
+            addToWishlist(p.id);
+        };
+
+        switchCustModalTab('desc', document.querySelector('.cust-detail-tab-btn'));
+        document.getElementById('customerProductModal').classList.remove('hidden');
+    }
+
+    function closeCustomerProductModal() {
+        document.getElementById('customerProductModal')?.classList.add('hidden');
+    }
+
+    function renderCustModalThumbs(gallery, showAll) {
+        const strip = document.getElementById('custModalThumbStrip');
+        if (!strip) return;
+        if (!showAll && gallery.length > 3) {
+            const extraCount = gallery.length - 3;
+            strip.innerHTML = gallery.slice(0, 2).map((url, idx) => `
+                <img src="${normalizeMediaUrl(url)}" class="cust-thumb-item ${idx === 0 ? 'active' : ''}" onclick="selectCustModalPhoto('${normalizeMediaUrl(url)}', this)">
+            `).join('') + `
+                <div class="cust-thumb-more-wrap" onclick="renderCustModalThumbs(activeCustModalProduct.gallery, true)" title="Show all ${gallery.length} photos">
+                    <img src="${normalizeMediaUrl(gallery[2])}">
+                    <div class="cust-thumb-more-overlay">+${extraCount}</div>
+                </div>
+            `;
+        } else {
+            strip.innerHTML = gallery.map((url, idx) => `
+                <img src="${normalizeMediaUrl(url)}" class="cust-thumb-item ${idx === 0 ? 'active' : ''}" onclick="selectCustModalPhoto('${normalizeMediaUrl(url)}', this)">
+            `).join('');
+        }
+    }
+
+    function selectCustModalPhoto(url, thumbEl) {
+        document.getElementById('custModalMainImg').src = url;
+        document.querySelectorAll('.cust-thumb-item').forEach(t => t.classList.remove('active'));
+        thumbEl.classList.add('active');
+    }
+
+    function selectCustModalSizeChip(sz, btn) {
+        selectedCustModalSize = sz;
+        document.querySelectorAll('#custModalSizeChips .size-chip').forEach(c => c.classList.remove('selected'));
+        btn.classList.add('selected');
+    }
+
+    function switchCustModalTab(tabKey, btn) {
+        document.querySelectorAll('.cust-detail-tab-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const box = document.getElementById('custModalTabContent');
+        if (!box || !activeCustModalProduct) return;
+        if (tabKey === 'desc') {
+            box.innerText = activeCustModalProduct.description || 'No description provided.';
+        } else if (tabKey === 'inc') {
+            box.innerText = activeCustModalProduct.whats_included || 'Instant digital file / template link delivered via email.';
+        } else if (tabKey === 'rev') {
+            const revs = activeCustModalProduct.reviews || [];
+            box.innerHTML = revs.length
+                ? revs.map(r => `<div style="padding:10px 0; border-bottom:1px solid var(--border);"><strong>${escapeHtml(r.customer_full_name || r.customer_name)}</strong> <span style="color:var(--orange);">★ ${r.rating}/5</span><p style="margin-top:4px;">${escapeHtml(r.comment)}</p></div>`).join('')
+                : 'No reviews yet for this item.';
+        }
+    }
+
+    async function buyNowFromCustomerModal(productId, size) {
+        const res = await fetch('/api/cart/', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+            body: JSON.stringify({ product: productId, selected_size: size, quantity: 1 })
+        });
+        if (res.ok) {
+            const created = await res.json().catch(() => null);
+            closeCustomerProductModal();
+            await loadCart();
+            if (created && created.id) {
+                selectedCartIds.clear();
+                selectedCartIds.add(created.id);
+                renderCartTable();
+            }
+            openConfirmCheckoutModal();
+        } else {
+            notify('Could not process Buy Now right now.');
+        }
     }
 
     async function addToCart(productId, size = 'Standard Digital') {
@@ -2040,6 +3524,10 @@
             body: JSON.stringify({ product: productId, selected_size: size, quantity: 1 })
         });
         if (res.ok) {
+            const created = await res.json().catch(() => null);
+            if (created && created.id) {
+                selectedCartIds.add(created.id);
+            }
             notify('Added to shopping cart!');
             await loadCart();
         } else {
@@ -2053,28 +3541,180 @@
         if (!res.ok) return;
         const data = await res.json();
         const items = Array.isArray(data) ? data : (data.results || []);
+
+        const prevIds = new Set(allCartItems.map(i => i.id));
+        allCartItems = items;
+
+        // Auto-select newly added items while preserving user's previous check/uncheck choices
+        const currentIds = new Set(items.map(i => i.id));
+        selectedCartIds.forEach(id => {
+            if (!currentIds.has(id)) selectedCartIds.delete(id);
+        });
+        items.forEach(item => {
+            if (!prevIds.has(item.id)) {
+                selectedCartIds.add(item.id);
+            }
+        });
+
         const countEl = document.getElementById('cartCount');
         if (countEl) countEl.innerText = items.length;
 
+        renderCartTable();
+    }
+
+    function renderCartTable() {
         const tbody = document.getElementById('cartBody');
         const totalEl = document.getElementById('cartTotal');
+        const hintEl = document.getElementById('cartTotalHint');
+        const badgeEl = document.getElementById('cartSelectedCountBadge');
+        const selectAllEl = document.getElementById('cartSelectAll');
+        const payBtn = document.getElementById('cartPayBtn');
         if (!tbody) return;
 
-        let total = 0;
-        tbody.innerHTML = items.length ? items.map(item => {
+        let selectedTotal = 0;
+        let selectedCount = 0;
+
+        tbody.innerHTML = allCartItems.length ? allCartItems.map(item => {
             const sub = Number(item.product_price || 0) * item.quantity;
-            total += sub;
-            return `<tr>
-                <td><strong>${item.product_title}</strong></td>
-                <td>${item.selected_size}</td>
+            const isChecked = selectedCartIds.has(item.id);
+            if (isChecked) {
+                selectedTotal += sub;
+                selectedCount += 1;
+            }
+            return `<tr class="${isChecked ? 'cart-row-selected' : ''}">
+                <td style="text-align:center;">
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleCartItemSelect(${item.id}, this.checked)">
+                </td>
+                <td><strong>${escapeHtml(item.product_title)}</strong></td>
+                <td>${escapeHtml(item.selected_size)}</td>
                 <td>₱${Number(item.product_price).toFixed(2)}</td>
                 <td>${item.quantity}</td>
                 <td><strong>₱${sub.toFixed(2)}</strong></td>
-                <td><button class="btn btn-outline btn-sm" onclick="removeCartItem(${item.id})">Remove</button></td>
+                <td><button type="button" class="btn btn-outline btn-sm" onclick="removeCartItem(${item.id})">Remove</button></td>
             </tr>`;
-        }).join('') : `<tr><td colspan="6" style="text-align:center; color:var(--muted);">Your shopping cart is empty.</td></tr>`;
+        }).join('') : `<tr><td colspan="7" style="text-align:center; color:var(--muted);">Your shopping cart is empty.</td></tr>`;
 
-        if (totalEl) totalEl.innerText = `Total: ₱${total.toFixed(2)}`;
+        if (selectAllEl) {
+            selectAllEl.disabled = allCartItems.length === 0;
+            selectAllEl.checked = allCartItems.length > 0 && selectedCount === allCartItems.length;
+            selectAllEl.indeterminate = selectedCount > 0 && selectedCount < allCartItems.length;
+        }
+        if (badgeEl) {
+            badgeEl.innerText = `${selectedCount} of ${allCartItems.length} selected`;
+        }
+        if (totalEl) {
+            totalEl.innerText = `Selected Total: ₱${selectedTotal.toFixed(2)}`;
+        }
+        if (hintEl) {
+            hintEl.innerText = selectedCount > 0
+                ? `Paying for ${selectedCount} selected item${selectedCount === 1 ? '' : 's'} via Suki Wallet`
+                : 'Check at least one item to proceed to checkout';
+        }
+        if (payBtn) {
+            payBtn.disabled = selectedCount === 0;
+        }
+    }
+
+    function toggleCartItemSelect(itemId, checked) {
+        if (checked) {
+            selectedCartIds.add(itemId);
+        } else {
+            selectedCartIds.delete(itemId);
+        }
+        renderCartTable();
+    }
+
+    function toggleSelectAllCart(checked) {
+        if (checked) {
+            allCartItems.forEach(item => selectedCartIds.add(item.id));
+        } else {
+            selectedCartIds.clear();
+        }
+        renderCartTable();
+    }
+
+    function openConfirmCheckoutModal() {
+        const selectedItems = allCartItems.filter(item => selectedCartIds.has(item.id));
+        if (!selectedItems.length) {
+            notify('Please check at least one item in your cart first.');
+            return;
+        }
+
+        const totalCost = selectedItems.reduce((sum, item) => sum + (Number(item.product_price || 0) * item.quantity), 0);
+        const remaining = currentWalletBalance - totalCost;
+        const hasEnough = remaining >= 0;
+
+        const itemsListEl = document.getElementById('ccItemsList');
+        if (itemsListEl) {
+            itemsListEl.innerHTML = selectedItems.map(item => {
+                const sub = Number(item.product_price || 0) * item.quantity;
+                return `<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 12px; border-bottom:1px solid var(--border); font-size:0.84rem;">
+                    <div>
+                        <div style="font-weight:700; color:var(--text);">${escapeHtml(item.product_title)}</div>
+                        <div style="font-size:0.75rem; color:var(--muted);">${escapeHtml(item.selected_size)} &times; ${item.quantity}</div>
+                    </div>
+                    <strong style="color:var(--text);">₱${sub.toFixed(2)}</strong>
+                </div>`;
+            }).join('');
+        }
+
+        document.getElementById('ccItemCount').innerText = `${selectedItems.length} item${selectedItems.length === 1 ? '' : 's'}`;
+        document.getElementById('ccWalletBefore').innerText = `₱${currentWalletBalance.toFixed(2)}`;
+        document.getElementById('ccTotalAmount').innerText = `₱${totalCost.toFixed(2)}`;
+
+        const afterEl = document.getElementById('ccWalletAfter');
+        if (afterEl) {
+            afterEl.innerText = hasEnough ? `₱${remaining.toFixed(2)}` : `-₱${Math.abs(remaining).toFixed(2)}`;
+            afterEl.style.color = hasEnough ? 'var(--success)' : '#dc2626';
+        }
+
+        const warnEl = document.getElementById('ccInsufficientWarn');
+        if (warnEl) warnEl.classList.toggle('hidden', hasEnough);
+
+        const confirmBtn = document.getElementById('ccConfirmBtn');
+        if (confirmBtn) {
+            confirmBtn.disabled = !hasEnough;
+            confirmBtn.innerText = 'Confirm & Pay';
+        }
+
+        document.getElementById('confirmCheckoutModal').classList.remove('hidden');
+    }
+
+    async function executeConfirmedCheckout() {
+        const selectedIds = Array.from(selectedCartIds);
+        if (!selectedIds.length) {
+            notify('Please select at least one item to checkout.');
+            return;
+        }
+
+        const confirmBtn = document.getElementById('ccConfirmBtn');
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.innerText = 'Processing...';
+        }
+
+        try {
+            const res = await fetch('/api/cart/checkout/', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                body: JSON.stringify({ item_ids: selectedIds })
+            });
+            const data = await res.json();
+            document.getElementById('confirmCheckoutModal').classList.add('hidden');
+            if (res.ok) {
+                selectedIds.forEach(id => selectedCartIds.delete(id));
+                showSukiPopup('Checkout Successful!', `Paid ₱${Number(data.amount_deducted).toFixed(2)} via Suki Wallet.`);
+                await loadProfile();
+                await loadCart();
+                await loadOrders();
+            } else {
+                showSukiPopup('Checkout Notice', data.error || 'Checkout failed.', true);
+            }
+        } catch (err) {
+            document.getElementById('confirmCheckoutModal').classList.add('hidden');
+            showSukiPopup('Network Error', err.message, true);
+        }
     }
 
     async function removeCartItem(id) {
@@ -2084,25 +3724,9 @@
             headers: { 'X-CSRFToken': getCsrfToken() }
         });
         if (res.ok) {
+            selectedCartIds.delete(id);
             notify('Item removed.');
             await loadCart();
-        }
-    }
-
-    async function checkoutCart() {
-        const res = await fetch('/api/cart/checkout/', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() }
-        });
-        const data = await res.json();
-        if (res.ok) {
-            showSukiPopup('Checkout Successful!', `Paid ₱${Number(data.amount_deducted).toFixed(2)} via Suki Wallet.`);
-            await loadProfile();
-            await loadCart();
-            await loadOrders();
-        } else {
-            showSukiPopup('Checkout Notice', data.error || 'Checkout failed.', true);
         }
     }
 
@@ -2125,6 +3749,8 @@
         if (!res.ok) return;
         const data = await res.json();
         const items = Array.isArray(data) ? data : (data.results || []);
+        const heroWishEl = document.getElementById('custHeroWishCount');
+        if (heroWishEl) heroWishEl.innerText = items.length;
         const tbody = document.getElementById('wishlistBody');
         if (!tbody) return;
         tbody.innerHTML = items.length ? items.map(w => `<tr>
@@ -2558,6 +4184,35 @@
         }
     }
 
+    function buildSellerProductCardHtml(p) {
+        const photoCount = Array.isArray(p.gallery) ? p.gallery.length : 1;
+        const shopUpper = (p.shop_display_name || p.seller_name || 'SHOP').toUpperCase();
+        const catUpper = (p.category || 'DIGITAL').toUpperCase();
+        const stockText = p.stock_licenses >= 999999 ? '∞ Unlimited' : p.stock_licenses;
+        return `
+            <div class="prod-card">
+                <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${escapeHtml(p.title)}">
+                <div class="prod-card-body">
+                    <div>
+                        <span class="cat-pill">${escapeHtml(catUpper)} • ${escapeHtml(shopUpper)}</span>
+                        <h3 style="font-size:1.05rem; font-weight:800; line-height:1.3; margin-bottom:0.45rem; color:var(--text);">${escapeHtml(p.title)}</h3>
+                        <p class="desc-clamp-3">${escapeHtml(p.description || 'No description provided.')}</p>
+                        <div style="font-size:0.78rem; color:var(--blue); font-weight:600; margin-bottom:0.85rem;">
+                            Photos: ${photoCount} • Stock: ${stockText}
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid var(--border);">
+                        <strong style="font-size:1.1rem; color:var(--text);">₱${Number(p.price).toFixed(2)}</strong>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="openEditListing(${p.id})">Edit</button>
+                            <button type="button" class="btn btn-outline btn-sm" style="color:#b91c1c;" onclick="deleteSellerListing(${p.id})">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     function renderSellerListings() {
         const myAll = allProducts.filter(p => p.seller_name === currentUsername || p.seller === currentProfileId);
         const myDrafts = myAll.filter(p => p.is_draft);
@@ -2571,8 +4226,8 @@
                 draftsListEl.innerHTML = myDrafts.map(d => `
                     <div style="background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                         <div>
-                            <strong style="font-size:0.92rem;">${d.title}</strong>
-                            <span style="font-size:0.78rem; color:var(--muted); margin-left:8px;">${d.category} • ₱${Number(d.price || 0).toFixed(2)}</span>
+                            <strong style="font-size:0.92rem;">${escapeHtml(d.title)}</strong>
+                            <span style="font-size:0.78rem; color:var(--muted); margin-left:8px;">${escapeHtml(d.category)} • ₱${Number(d.price || 0).toFixed(2)}</span>
                         </div>
                         <div style="display:flex; gap:6px;">
                             <button type="button" class="btn btn-sm" onclick="publishDraftListing(${d.id})">Publish Now</button>
@@ -2589,36 +4244,25 @@
         if (document.getElementById('statProducts')) {
             document.getElementById('statProducts').innerText = myPublished.length;
         }
-        const listEl = document.getElementById('sellerListingsContainer');
-        if (!listEl) return;
 
-        listEl.innerHTML = myPublished.length ? myPublished.map(p => {
-            const photoCount = Array.isArray(p.gallery) ? p.gallery.length : 1;
-            const shopUpper = (p.shop_display_name || p.seller_name || 'SHOP').toUpperCase();
-            const catUpper = (p.category || 'DIGITAL').toUpperCase();
-            const stockText = p.stock_licenses >= 999999 ? '∞ Unlimited' : p.stock_licenses;
-            return `
-            <div class="prod-card">
-                <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${p.title}">
-                <div class="prod-card-body">
-                    <div>
-                        <span class="cat-pill">${catUpper} • ${shopUpper}</span>
-                        <h3 style="font-size:1.05rem; font-weight:800; line-height:1.3; margin-bottom:0.45rem; color:var(--text);">${p.title}</h3>
-                        <p class="desc-clamp-3">${p.description || 'No description provided.'}</p>
-                        <div style="font-size:0.78rem; color:var(--blue); font-weight:600; margin-bottom:0.85rem;">
-                            Photos: ${photoCount} • Stock: ${stockText}
-                        </div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid var(--border);">
-                        <strong style="font-size:1.1rem; color:var(--text);">₱${Number(p.price).toFixed(2)}</strong>
-                        <div style="display:flex; gap:6px;">
-                            <button type="button" class="btn btn-outline btn-sm" onclick="openEditListing(${p.id})">Edit</button>
-                            <button type="button" class="btn btn-outline btn-sm" style="color:#b91c1c;" onclick="deleteSellerListing(${p.id})">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `}).join('') : `<div class="panel" style="grid-column:1/-1; text-align:center; color:var(--muted);">No published listings yet. Click <strong>+ New Listing</strong> to publish your first product.</div>`;
+        const publishedCardsHtml = myPublished.length
+            ? myPublished.map(p => buildSellerProductCardHtml(p)).join('')
+            : `<div class="panel" style="grid-column:1/-1; text-align:center; color:var(--muted);">No published listings yet. Click <strong>+ New Listing</strong> to publish your first product.</div>`;
+
+        const listEl = document.getElementById('sellerListingsContainer');
+        if (listEl) {
+            listEl.innerHTML = publishedCardsHtml;
+        }
+
+        // Also update Seller Shop Profile products grid & count heading
+        const profileGridEl = document.getElementById('sellerProfileProductsGrid');
+        if (profileGridEl) {
+            profileGridEl.innerHTML = publishedCardsHtml;
+        }
+        const profileHeadingEl = document.getElementById('sellerProfileItemsHeading');
+        if (profileHeadingEl) {
+            profileHeadingEl.innerText = `All Items (${myPublished.length})`;
+        }
     }
 
     async function createSellerListing(saveAsDraft = false) {
@@ -3187,6 +4831,195 @@
         document.getElementById('receiptModal').classList.remove('hidden');
     }
 
+    function copyTextValue(text, successMsg = 'Copied to clipboard!') {
+        if (!text || text === '#') return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => notify(successMsg)).catch(() => notify(successMsg));
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            notify(successMsg);
+        }
+    }
+
+    function setSellerOrderFilter(status) {
+        sellerOrderStatusFilter = status;
+        renderSellerOrdersWorkspace();
+    }
+
+    function setSellerOrderSearch(val) {
+        sellerOrderSearchQuery = (val || '').toLowerCase().trim();
+        renderSellerOrdersWorkspace();
+    }
+
+    function setSellerOrderSort(val) {
+        sellerOrderSortMode = val || 'newest';
+        renderSellerOrdersWorkspace();
+    }
+
+    function renderSellerOrdersWorkspace() {
+        const ordEl = document.getElementById('sellerOrdersContainer');
+        if (!ordEl) return;
+
+        const orders = allOrders || [];
+        const pendingOrders = orders.filter(o => o.status === 'PENDING');
+        const deliveredOrders = orders.filter(o => o.status === 'DELIVERED');
+        const fulfilledRevenue = deliveredOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+
+        const kpiStripHtml = `
+            <div class="orders-kpi-strip">
+                <div class="orders-kpi-card ${pendingOrders.length > 0 ? 'pending-alert' : ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.74rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Pending Delivery</span>
+                        <span style="font-size:0.72rem; font-weight:800; color:${pendingOrders.length > 0 ? '#b45309' : 'var(--muted)'};">${pendingOrders.length > 0 ? 'ACTION NEEDED' : 'ALL CAUGHT UP'}</span>
+                    </div>
+                    <div style="font-size:1.55rem; font-weight:800; color:${pendingOrders.length > 0 ? '#b45309' : 'var(--text)'}; margin-top:6px;">${pendingOrders.length}</div>
+                    <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Awaiting digital link email</div>
+                </div>
+                <div class="orders-kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.74rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Delivered via Email</span>
+                        <span style="color:var(--success); font-weight:800; font-size:0.8rem;">✓ Sent</span>
+                    </div>
+                    <div style="font-size:1.55rem; font-weight:800; color:var(--success); margin-top:6px;">${deliveredOrders.length}</div>
+                    <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Completed digital fulfillments</div>
+                </div>
+                <div class="orders-kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.74rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Total Orders</span>
+                        <span class="cat-pill" style="margin:0;">ALL TIME</span>
+                    </div>
+                    <div style="font-size:1.55rem; font-weight:800; color:var(--text); margin-top:6px;">${orders.length}</div>
+                    <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Customer purchases received</div>
+                </div>
+                <div class="orders-kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.74rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Fulfilled Revenue</span>
+                        <span style="font-size:0.74rem; font-weight:700; color:var(--blue);">PHP</span>
+                    </div>
+                    <div style="font-size:1.55rem; font-weight:800; color:var(--blue); margin-top:6px;">₱${fulfilledRevenue.toFixed(2)}</div>
+                    <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">From delivered orders</div>
+                </div>
+            </div>
+        `;
+
+        const pendingBannerHtml = (pendingOrders.length > 0 && sellerOrderStatusFilter !== 'PENDING') ? `
+            <div class="pending-action-banner">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="width:28px; height:28px; border-radius:50%; background:#fef3c7; color:#b45309; font-weight:800; display:inline-flex; align-items:center; justify-content:center;">!</span>
+                    <div style="font-size:0.86rem; color:#78350f;">
+                        <strong>${pendingOrders.length} ${pendingOrders.length === 1 ? 'order is' : 'orders are'} awaiting email delivery.</strong> Send the download link so your buyer receives their file.
+                    </div>
+                </div>
+                <button type="button" class="btn btn-orange btn-sm" onclick="setSellerOrderFilter('PENDING')">Show Pending Only</button>
+            </div>
+        ` : '';
+
+        const toolbarHtml = `
+            <div class="orders-toolbar">
+                <div class="order-filter-pills">
+                    <button type="button" class="order-filter-pill ${sellerOrderStatusFilter === 'ALL' ? 'active' : ''}" onclick="setSellerOrderFilter('ALL')">All (${orders.length})</button>
+                    <button type="button" class="order-filter-pill ${sellerOrderStatusFilter === 'PENDING' ? 'active' : ''}" onclick="setSellerOrderFilter('PENDING')">Pending Delivery (${pendingOrders.length})</button>
+                    <button type="button" class="order-filter-pill ${sellerOrderStatusFilter === 'DELIVERED' ? 'active' : ''}" onclick="setSellerOrderFilter('DELIVERED')">Delivered (${deliveredOrders.length})</button>
+                </div>
+                <div class="orders-search-sort">
+                    <input type="text" value="${escapeHtml(sellerOrderSearchQuery)}" placeholder="Search tracking code, buyer, email, or item..." oninput="setSellerOrderSearch(this.value)">
+                    <select onchange="setSellerOrderSort(this.value)">
+                        <option value="newest" ${sellerOrderSortMode === 'newest' ? 'selected' : ''}>Newest First</option>
+                        <option value="oldest" ${sellerOrderSortMode === 'oldest' ? 'selected' : ''}>Oldest First</option>
+                        <option value="amount" ${sellerOrderSortMode === 'amount' ? 'selected' : ''}>Highest Amount</option>
+                    </select>
+                </div>
+            </div>
+        `;
+
+        let filtered = orders.filter(o => {
+            if (sellerOrderStatusFilter === 'PENDING' && o.status !== 'PENDING') return false;
+            if (sellerOrderStatusFilter === 'DELIVERED' && o.status !== 'DELIVERED') return false;
+            if (!sellerOrderSearchQuery) return true;
+            const hay = `${o.delivery_tracking_code || ''} ${o.product_title || ''} ${o.customer_username || ''} ${o.customer_full_name || ''} ${o.customer_email || ''} ${o.selected_size || ''}`.toLowerCase();
+            return hay.includes(sellerOrderSearchQuery);
+        });
+
+        if (sellerOrderSortMode === 'oldest') {
+            filtered = [...filtered].reverse();
+        } else if (sellerOrderSortMode === 'amount') {
+            filtered = [...filtered].sort((a, b) => Number(b.total_amount || 0) - Number(a.total_amount || 0));
+        }
+
+        const cardsHtml = filtered.length ? filtered.map(o => {
+            const prod = allProducts.find(p => String(p.id) === String(o.product)) || allProducts.find(p => p.title === o.product_title);
+            const thumbUrl = normalizeMediaUrl((prod && prod.gallery && prod.gallery[0]) || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80');
+            const isPending = o.status === 'PENDING';
+            const buyerInitial = (o.customer_full_name || o.customer_username || 'C')[0].toUpperCase();
+            const dateStr = o.created_at
+                ? new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+                : 'Recent order';
+            const isUploadedFile = (o.download_link || '').includes('/digital_files/');
+            const deliveryTypeBadge = isUploadedFile
+                ? `<span style="font-size:0.72rem; font-weight:700; color:var(--blue); background:var(--blue-light); padding:2px 8px; border-radius:6px;">Uploaded File</span>`
+                : `<span style="font-size:0.72rem; font-weight:700; color:#475569; background:#f1f5f9; padding:2px 8px; border-radius:6px;">External Link</span>`;
+
+            return `
+                <div class="order-fulfill-card ${isPending ? 'is-pending' : ''}">
+                    <div class="order-thumb-box">
+                        <img src="${thumbUrl}" alt="${escapeHtml(o.product_title)}">
+                        <span class="order-qty-badge">&times;${o.quantity || 1}</span>
+                    </div>
+
+                    <div style="min-width:0;">
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+                            <span class="order-code-chip">${escapeHtml(o.delivery_tracking_code)}</span>
+                            <button type="button" class="mini-copy-btn" onclick="copyTextValue('${escapeHtml(o.delivery_tracking_code)}', 'Tracking code copied!')">Copy</button>
+                            <span style="font-size:0.76rem; color:var(--muted);">&bull; ${dateStr}</span>
+                            ${deliveryTypeBadge}
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                            <h3 style="font-size:1rem; font-weight:800; color:var(--text); line-height:1.3;">${escapeHtml(o.product_title)}</h3>
+                            <span class="cat-pill" style="margin:0; text-transform:none;">${escapeHtml(o.selected_size || 'Standard Digital')}</span>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:0.83rem; color:var(--muted);">
+                            <span class="buyer-avatar-pill">${buyerInitial}</span>
+                            <strong style="color:var(--text);">@${escapeHtml(o.customer_username)}</strong>
+                            <span>(${escapeHtml(o.customer_email || 'No email')})</span>
+                            ${o.customer_email ? `<button type="button" class="mini-copy-btn" onclick="copyTextValue('${escapeHtml(o.customer_email)}', 'Customer email copied!')">Copy Email</button>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="order-card-right">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <strong style="font-size:1.15rem; font-weight:800; color:var(--text);">₱${Number(o.total_amount).toFixed(2)}</strong>
+                            <span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : 'badge-pending'}">${o.status}</span>
+                        </div>
+                        <div style="display:flex; gap:7px; align-items:center; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="openOrderDetailsModal(${o.id})">Details</button>
+                            ${o.status === 'DELIVERED'
+                                ? `<button type="button" class="btn btn-outline btn-sm" onclick="openReceiptModal(${o.id})">Receipt</button>
+                                   <button type="button" class="btn btn-success btn-sm" onclick="openConfirmSendModal(${o.id})">Resend Email</button>`
+                                : `<button type="button" class="btn btn-success btn-sm" onclick="openConfirmSendModal(${o.id})">Send via Email</button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('') : `
+            <div class="panel" style="text-align:center; padding:2.75rem 1.5rem; color:var(--muted);">
+                <div style="width:48px; height:48px; border-radius:50%; background:#f1f5f9; color:var(--muted); display:flex; align-items:center; justify-content:center; margin:0 auto 10px; font-size:1.3rem;">📭</div>
+                <h3 style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:4px;">No matching orders found</h3>
+                <p style="font-size:0.85rem; margin-bottom:1rem;">${orders.length ? 'Try clearing your search filter or switching tabs.' : 'Customer digital purchases will appear here once checked out.'}</p>
+                ${orders.length ? `<button type="button" class="btn btn-outline btn-sm" onclick="sellerOrderStatusFilter='ALL'; sellerOrderSearchQuery=''; renderSellerOrdersWorkspace();">Reset Filters</button>` : ''}
+            </div>
+        `;
+
+        ordEl.innerHTML = kpiStripHtml + pendingBannerHtml + toolbarHtml + cardsHtml;
+    }
+
     async function loadOrders() {
         if (!isAuth) return;
         const res = await fetch('/api/orders/');
@@ -3202,6 +5035,16 @@
 
             const totalRev = orders.filter(o => o.status !== 'REFUNDED').reduce((acc, o) => acc + Number(o.total_amount || 0), 0);
             if (document.getElementById('statRevenue')) document.getElementById('statRevenue').innerText = `₱${totalRev.toFixed(2)}`;
+
+            const salesEl = document.getElementById('sellerDashShopSales');
+            if (salesEl) {
+                const validCount = orders.filter(o => o.status !== 'REFUNDED').length;
+                const matchingShop = allShops.find(s => s.username === currentUsername || s.id === currentProfileId);
+                const finalCount = matchingShop && typeof matchingShop.sales_count === 'number'
+                    ? Math.max(matchingShop.sales_count, validCount)
+                    : validCount;
+                salesEl.innerText = `${finalCount.toLocaleString()} Sales`;
+            }
 
             renderSellerEarningsCharts(orders);
 
@@ -3224,29 +5067,11 @@
                 </tr>`).join('') : `<tr><td colspan="6" style="text-align:center; color:var(--muted);">No orders yet.</td></tr>`;
             }
 
-            const ordEl = document.getElementById('sellerOrdersContainer');
-            if (ordEl) {
-                ordEl.innerHTML = orders.length ? orders.map(o => `
-                    <div class="panel" style="padding:1.15rem 1.35rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:0.85rem;">
-                        <div>
-                            <div style="font-weight:800; font-size:0.98rem; margin-bottom:3px;">${o.delivery_tracking_code} • ${o.product_title} (${o.selected_size})</div>
-                            <div style="font-size:0.84rem; color:var(--muted);">
-                                Customer: <strong>@${o.customer_username}</strong> (${o.customer_email || 'No email'}) • Amount: <strong>₱${Number(o.total_amount).toFixed(2)}</strong> • Status:
-                                <span class="badge ${o.status === 'DELIVERED' ? 'badge-delivered' : 'badge-pending'}">${o.status}</span>
-                            </div>
-                        </div>
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <button type="button" class="btn btn-outline btn-sm" onclick="openOrderDetailsModal(${o.id})">Details</button>
-                            ${o.status === 'DELIVERED'
-                                ? `<button type="button" class="btn btn-outline btn-sm" onclick="openReceiptModal(${o.id})">Receipt</button>
-                                   <button type="button" class="btn btn-success btn-sm" onclick="openConfirmSendModal(${o.id})">Resend Email</button>`
-                                : `<button type="button" class="btn btn-success btn-sm" onclick="openConfirmSendModal(${o.id})">Send via Email</button>`
-                            }
-                        </div>
-                    </div>
-                `).join('') : `<div class="panel" style="text-align:center; color:var(--muted);">No orders to deliver yet.</div>`;
-            }
+            renderSellerOrdersWorkspace();
         } else if (userRole === 'customer') {
+            const heroOrdEl = document.getElementById('custHeroOrderCount');
+            if (heroOrdEl) heroOrdEl.innerText = orders.length;
+            renderCustomerWalletActivity();
             const pending = orders.filter(o => o.status !== 'DELIVERED');
             const completed = orders.filter(o => o.status === 'DELIVERED');
 
@@ -3307,6 +5132,16 @@
                 updateLiveListingPreview();
             }
             await loadOrders();
+            let savedTab = '';
+            try {
+                const hashTab = (window.location.hash || '').replace(/^#/, '').trim();
+                savedTab = (hashTab && document.getElementById('tab-' + hashTab))
+                    ? hashTab
+                    : (localStorage.getItem(getTabStorageKey()) || '');
+            } catch (e) {}
+            if (savedTab && document.getElementById('tab-' + savedTab)) {
+                showTab(savedTab, document.getElementById('navBtn-' + savedTab));
+            }
         }
     }
 

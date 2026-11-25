@@ -319,9 +319,16 @@ class CartViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def checkout(self, request):
         customer = request.user
+        item_ids = request.data.get('item_ids', None)
+
         cart_items = CartItem.objects.filter(customer=customer)
+        if item_ids is not None:
+            if not isinstance(item_ids, list) or len(item_ids) == 0:
+                return Response({"error": "Please select at least one item to checkout."}, status=status.HTTP_400_BAD_REQUEST)
+            cart_items = cart_items.filter(id__in=item_ids)
+
         if not cart_items.exists():
-            return Response({"error": "Your shopping cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "No valid cart items selected for checkout."}, status=status.HTTP_400_BAD_REQUEST)
 
         total_cost = sum(item.product.price * item.quantity for item in cart_items)
         if customer.suki_wallet_balance < total_cost:
