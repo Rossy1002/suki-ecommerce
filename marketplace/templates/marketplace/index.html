@@ -30,39 +30,268 @@
 
         /* Landing Navbar */
         .landing-nav { background: #fff; border-bottom: 1px solid var(--border); padding: 0.9rem 3rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 50; }
-        .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); cursor: pointer; }
+        .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); cursor: pointer; flex-shrink: 0; }
         .logo-icon { width: 34px; height: 34px; background: transparent; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
         .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .logo-text { font-size: 1.3rem; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
 
-        .nav-search-bar { display: flex; align-items: center; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 4px 10px; flex: 1; max-width: 480px; }
+        .nav-center-shortcuts { flex: 1; display: flex; justify-content: center; align-items: center; }
+        .nav-search-popover-wrap { position: relative; display: flex; align-items: center; }
+        .nav-search-icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: var(--text);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .nav-search-icon-btn:hover, .nav-search-icon-btn.active {
+            background: var(--blue-light);
+            color: var(--blue);
+            border-color: #bfdbfe;
+        }
+        .nav-search-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 500px;
+            max-width: 90vw;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 10px 12px;
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.16);
+            z-index: 90;
+        }
+        .nav-search-bar { display: flex; align-items: center; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 4px 10px; width: 100%; }
         .nav-search-bar select { border: none; background: transparent; font-size: 0.82rem; font-weight: 600; color: var(--text); padding: 6px; border-right: 1px solid var(--border); outline: none; width: auto; }
         .nav-search-bar input { border: none; background: transparent; padding: 6px 10px; font-size: 0.85rem; outline: none; flex: 1; }
 
-        /* Hero Section */
-        .hero-wrap { background: linear-gradient(135deg, #f0f5ff 0%, #fffbf2 100%); border-bottom: 1px solid var(--border); padding: 4rem 3rem; }
-        .hero-inner { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 2.5rem; align-items: center; }
-        .pill-badge { display: inline-block; background: var(--blue-light); color: var(--blue); font-size: 0.7rem; font-weight: 800; padding: 5px 12px; border-radius: 99px; letter-spacing: 0.6px; margin-bottom: 1rem; text-transform: uppercase; }
-        .hero-left h1 { font-size: 3.1rem; font-weight: 800; line-height: 1.12; letter-spacing: -1px; margin-bottom: 1rem; }
-        .hero-left h1 span { color: var(--blue); }
-        .hero-left p { color: var(--muted); font-size: 1.05rem; max-width: 490px; margin-bottom: 1.75rem; }
-        .hero-trust { display: flex; gap: 1.5rem; margin-top: 1.75rem; font-size: 0.8rem; color: var(--muted); font-weight: 600; }
-        .hero-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
-        .hero-shop-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 12px 24px rgba(15,23,42,0.06); cursor: pointer; transition: 0.2s; }
-        .hero-shop-card:hover { transform: translateY(-4px); }
-        .hero-shop-card:nth-child(2) { margin-top: 2rem; }
-        .hero-shop-card img { width: 100%; height: 150px; object-fit: cover; }
-        .hero-shop-card-body { padding: 1rem; }
+        /* Hero Section - Suki Royal Blue Theme */
+        .hero-wrap {
+            background: linear-gradient(135deg, #0f2573 0%, #1638a6 58%, #1e40af 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 4.5rem 2.5rem;
+            color: #ffffff;
+        }
+        .hero-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 0.92fr 1.08fr; gap: 2.25rem; align-items: center; }
+        .pill-badge { display: inline-block; background: rgba(255, 255, 255, 0.16); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); font-size: 0.7rem; font-weight: 800; padding: 5px 13px; border-radius: 99px; letter-spacing: 0.6px; margin-bottom: 1rem; text-transform: uppercase; }
+        .hero-left h1 { font-size: 3.1rem; font-weight: 800; line-height: 1.12; letter-spacing: -1px; margin-bottom: 1rem; color: #ffffff; }
+        .hero-left h1 span { color: #93c5fd; }
+        .hero-left p { color: #dbeafe; font-size: 1.05rem; max-width: 490px; margin-bottom: 1.75rem; }
+        .hero-trust { display: flex; gap: 1.5rem; margin-top: 1.75rem; font-size: 0.82rem; color: #dbeafe; font-weight: 600; flex-wrap: wrap; }
+        .hero-cards {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.95rem;
+            min-height: 340px;
+            padding: 0.75rem 0;
+        }
+        .hero-cards::before {
+            content: '';
+            position: absolute;
+            width: 390px;
+            height: 290px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(147, 197, 253, 0.28) 0%, rgba(255, 255, 255, 0.08) 55%, transparent 75%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-tilt-card {
+            position: relative;
+            z-index: 1;
+            width: 215px;
+            flex-shrink: 0;
+            background: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 18px 36px rgba(7, 18, 56, 0.32);
+            cursor: pointer;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+        .hero-tilt-card:nth-child(1) {
+            transform: rotate(-5.5deg) translateY(12px);
+            z-index: 1;
+        }
+        .hero-tilt-card:nth-child(2) {
+            transform: rotate(0deg) translateY(-12px) scale(1.05);
+            z-index: 3;
+            border-color: #93c5fd;
+            box-shadow: 0 24px 46px rgba(7, 18, 56, 0.42);
+        }
+        .hero-tilt-card:nth-child(3) {
+            transform: rotate(5.5deg) translateY(12px);
+            z-index: 2;
+        }
+        .hero-tilt-card:hover {
+            transform: translateY(-16px) scale(1.07) rotate(0deg);
+            z-index: 10;
+            box-shadow: 0 28px 52px rgba(7, 18, 56, 0.48);
+        }
+        .hero-tilt-thumb {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            height: 138px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 1px solid var(--border);
+            background: #f1f5f9;
+        }
+        .hero-tilt-body {
+            padding: 0.9rem 1rem 1rem;
+        }
+        .hero-tilt-seller {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.74rem;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .hero-tilt-avatar {
+            width: 19px;
+            height: 19px;
+            border-radius: 50%;
+            background: var(--blue);
+            color: #fff;
+            font-size: 0.62rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .hero-tilt-title {
+            font-size: 0.94rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.28;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+        .hero-tilt-cat {
+            font-size: 0.74rem;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 9px;
+        }
+        .hero-tilt-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            padding-top: 8px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .hero-verified-pill {
+            background: var(--blue-light);
+            color: var(--blue);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 99px;
+        }
+        @media (max-width: 980px) {
+            .hero-inner { grid-template-columns: 1fr; }
+            .hero-cards { margin-top: 1rem; }
+        }
+        @media (max-width: 580px) {
+            .hero-cards { flex-wrap: wrap; }
+            .hero-tilt-card, .hero-tilt-card:nth-child(1), .hero-tilt-card:nth-child(2), .hero-tilt-card:nth-child(3) {
+                transform: none;
+                width: calc(50% - 0.5rem);
+            }
+        }
 
-        /* Featured Seller Shops Section */
-        .section-box { max-width: 1180px; margin: 3.5rem auto; padding: 0 1.5rem; }
+        /* Navbar Quick Shortcuts & About Us Section */
+        .nav-shortcuts {
+            display: flex;
+            align-items: center;
+            gap: 1.15rem;
+            flex-wrap: wrap;
+        }
+        .nav-shortcut-link {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: color 0.15s;
+        }
+        .nav-shortcut-link:hover {
+            color: var(--blue);
+        }
+        /* About Us Section - Soft White-Grey Band */
+        .about-band-wrap {
+            background: #f1f5f9;
+            border-bottom: 1px solid var(--border);
+            padding: 3.75rem 1.5rem;
+        }
+        .about-suki-card {
+            max-width: 1220px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 22px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        .about-pillars-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.95rem;
+        }
+        .about-pillar-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.05rem 1.15rem;
+        }
+        @media (max-width: 900px) {
+            .about-suki-card { grid-template-columns: 1fr; }
+        }
+
+        /* Featured Seller Shops Section - Suki Royal Blue Band */
+        .featured-shops-band {
+            background: linear-gradient(135deg, #0f2573 0%, #1638a6 60%, #1e40af 100%);
+            padding: 4.25rem 1.5rem;
+            color: #ffffff;
+        }
+        .featured-shops-inner {
+            max-width: 1220px;
+            margin: 0 auto;
+        }
+        .section-box { max-width: 1220px; margin: 3.75rem auto; padding: 0 1.5rem; }
         .eyebrow { color: var(--orange); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
-        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-        .section-header h2 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; }
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem; }
+        .section-header h2 { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.5px; }
 
-        .shops-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 1.5rem; }
-        .shop-feature-card { background: #fff; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: 0 4px 12px rgba(15,23,42,0.03); transition: 0.15s; cursor: pointer; }
-        .shop-feature-card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(15,23,42,0.06); }
+        .shops-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(510px, 1fr)); gap: 1.75rem; }
+        @media (max-width: 600px) {
+            .shops-grid { grid-template-columns: 1fr; }
+        }
+        .shop-feature-card { background: #fff; color: var(--text); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 20px; overflow: hidden; box-shadow: 0 16px 34px rgba(7, 18, 56, 0.28); transition: 0.18s; cursor: pointer; }
+        .shop-feature-card:hover { transform: translateY(-4px); box-shadow: 0 22px 44px rgba(7, 18, 56, 0.38); }
 
         /* Discover & Seller Listing Cards */
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(265px, 1fr)); gap: 1.25rem; }
@@ -1057,32 +1286,59 @@
         <span class="logo-text">Suki</span>
     </div>
 
-    <div class="nav-search-bar" id="landingSearchWrap">
-        <select id="catFilterSelect" onchange="filterLandingProducts()">
-            <option value="All">All Categories</option>
-            <option value="Canva Templates">Canva Templates</option>
-            <option value="E-books & Guides">E-books &amp; Guides</option>
-            <option value="Notion Systems">Notion Systems</option>
-            <option value="Spreadsheets & Trackers">Spreadsheets &amp; Trackers</option>
-            <option value="Digital Planners & Journals">Digital Planners &amp; Journals</option>
-            <option value="Printables & Wall Art">Printables &amp; Wall Art</option>
-            <option value="Presets & Filters">Presets &amp; Filters</option>
-            <option value="Graphics, Fonts & Icons">Graphics, Fonts &amp; Icons</option>
-            <option value="Creative Services">Creative Services</option>
-            <option value="Others">Others</option>
-        </select>
-        <input type="text" id="landingSearchInput" name="suki_catalog_filter" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search e-books, Canva templates, and services..." onkeyup="filterLandingProducts()">
+    <div class="nav-center-shortcuts" id="landingCenterNav">
+        <div class="nav-shortcuts">
+            <a href="#heroSection" onclick="showGuestView('landing')" class="nav-shortcut-link">Explore</a>
+            <a href="#aboutUsSection" onclick="showGuestView('landing')" class="nav-shortcut-link">About Us</a>
+            <a href="#verifiedSellersSection" onclick="showGuestView('landing')" class="nav-shortcut-link">Verified Sellers</a>
+            <a href="#discoverSection" onclick="showGuestView('landing')" class="nav-shortcut-link">Products</a>
+        </div>
     </div>
 
     {% if not user.is_authenticated %}
-    <div style="display:flex; gap:0.75rem; align-items:center;" id="landingNavActions">
-        <a href="#discoverSection" onclick="showGuestView('landing')" style="text-decoration:none; color:var(--text); font-weight:600; font-size:0.88rem;">Explore</a>
-        <a href="#" onclick="openAuthModal('login'); return false;" style="text-decoration:none; color:var(--text); font-weight:600; font-size:0.88rem;">🛒 Cart</a>
+    <div style="display:flex; gap:0.85rem; align-items:center;" id="landingNavActions">
+        <div class="nav-search-popover-wrap" id="landingSearchWrap">
+            <button type="button" class="nav-search-icon-btn" id="landingSearchToggleBtn" onclick="toggleLandingSearchBox(event)" title="Search &amp; Filter Products" aria-label="Search Products">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <div class="nav-search-dropdown hidden" id="landingSearchDropdown" onclick="event.stopPropagation()">
+                <div class="nav-search-bar">
+                    <select id="catFilterSelect" onchange="filterLandingProducts(); scrollToDiscoverIfSearching();">
+                        <option value="All">All Categories</option>
+                        <option value="Canva Templates">Canva Templates</option>
+                        <option value="E-books & Guides">E-books &amp; Guides</option>
+                        <option value="Notion Systems">Notion Systems</option>
+                        <option value="Spreadsheets & Trackers">Spreadsheets &amp; Trackers</option>
+                        <option value="Digital Planners & Journals">Digital Planners &amp; Journals</option>
+                        <option value="Printables & Wall Art">Printables &amp; Wall Art</option>
+                        <option value="Presets & Filters">Presets &amp; Filters</option>
+                        <option value="Graphics, Fonts & Icons">Graphics, Fonts &amp; Icons</option>
+                        <option value="Creative Services">Creative Services</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    <input type="text" id="landingSearchInput" name="suki_catalog_filter" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search e-books, Canva templates, and services..." onkeyup="filterLandingProducts()" onkeydown="if(event.key==='Enter') scrollToDiscoverIfSearching()">
+                </div>
+            </div>
+        </div>
+        <a href="#" onclick="openAuthModal('login'); return false;" class="nav-shortcut-link">🛒 Cart</a>
         <a href="#" onclick="openAuthModal('login'); return false;" class="btn btn-outline btn-sm">Log In</a>
         <a href="#" onclick="openAuthModal('shop'); return false;" class="btn btn-sm">Create a Shop</a>
     </div>
     {% else %}
     <div style="display:flex; gap:0.75rem; align-items:center;" id="landingNavActions">
+        <div class="nav-search-popover-wrap" id="landingSearchWrap">
+            <button type="button" class="nav-search-icon-btn" id="landingSearchToggleBtn" onclick="toggleLandingSearchBox(event)" title="Search &amp; Filter Products" aria-label="Search Products">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <div class="nav-search-dropdown hidden" id="landingSearchDropdown" onclick="event.stopPropagation()">
+                <div class="nav-search-bar">
+                    <select id="catFilterSelect" onchange="filterLandingProducts(); scrollToDiscoverIfSearching();">
+                        <option value="All">All Categories</option>
+                    </select>
+                    <input type="text" id="landingSearchInput" name="suki_catalog_filter" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search e-books, Canva templates, and services..." onkeyup="filterLandingProducts()" onkeydown="if(event.key==='Enter') scrollToDiscoverIfSearching()">
+                </div>
+            </div>
+        </div>
         <span style="font-size:0.82rem; color:var(--muted); font-weight:600;">Viewing Marketplace as <strong>{{ user.username }}</strong></span>
         <button type="button" class="btn btn-sm" onclick="toggleMarketplaceMode(false)">&larr; Return to {{ user.role|title }} Workspace</button>
     </div>
@@ -1095,15 +1351,15 @@
 
 <!-- 1. MAIN LANDING VIEW -->
 <div id="guest-landing">
-    <section class="hero-wrap">
+    <section class="hero-wrap" id="heroSection">
         <div class="hero-inner">
             <div class="hero-left">
                 <span class="pill-badge">MADE IN THE PHILIPPINES</span>
                 <h1>Find digital products from creators you can <span>trust.</span></h1>
                 <p>Shop practical e-books, beautiful Canva templates, and creative services from verified Filipino sellers.</p>
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                    <a href="#discoverSection" class="btn" style="padding: 12px 24px;">Explore products</a>
-                    <a href="#" onclick="openAuthModal('shop'); return false;" class="btn btn-outline" style="padding: 12px 24px;">Create a Shop</a>
+                    <a href="#discoverSection" class="btn" style="background:#ffffff; color:var(--blue); padding: 12px 24px; font-weight:700;">Explore products</a>
+                    <a href="#" onclick="openAuthModal('shop'); return false;" class="btn" style="background:rgba(255,255,255,0.14); color:#ffffff; border:1px solid rgba(255,255,255,0.35); padding: 12px 24px;">Create a Shop</a>
                 </div>
                 <div class="hero-trust">
                     <span>✓ Verified sellers</span>
@@ -1115,13 +1371,49 @@
         </div>
     </section>
 
-    <section class="section-box">
-        <div class="eyebrow">SHOP BY CREATOR</div>
-        <div class="section-header">
-            <h2>Featured seller shops</h2>
-            <span style="color:var(--muted); font-size:0.86rem;">Explore verified Suki shops, each with a distinct creative specialty.</span>
+    <section class="about-band-wrap" id="aboutUsSection">
+        <div class="about-suki-card">
+            <div>
+                <div class="eyebrow">ABOUT US</div>
+                <h2 style="font-size:1.8rem; font-weight:800; letter-spacing:-0.5px; margin-bottom:0.75rem; color:var(--text);">Built for Filipino digital creators &amp; everyday buyers.</h2>
+                <p style="color:var(--muted); font-size:0.95rem; line-height:1.65; margin-bottom:1.25rem;">
+                    Suki is a curated digital marketplace where independent Filipino designers, educators, and freelancers sell ready-to-use templates, e-books, trackers, and creative services—with automatic email delivery and buyer protection on every checkout.
+                </p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="#verifiedSellersSection" class="btn btn-sm">Meet Verified Sellers</a>
+                    <a href="#discoverSection" class="btn btn-outline btn-sm">Browse All Products</a>
+                </div>
+            </div>
+            <div class="about-pillars-grid">
+                <div class="about-pillar-box">
+                    <div style="font-weight:800; color:var(--blue); font-size:0.92rem; margin-bottom:4px;">✓ Verified Creators</div>
+                    <p style="font-size:0.82rem; color:var(--muted);">Every shop is reviewed so you know exactly who made your digital download.</p>
+                </div>
+                <div class="about-pillar-box">
+                    <div style="font-weight:800; color:var(--success); font-size:0.92rem; margin-bottom:4px;">↓ Instant Email Delivery</div>
+                    <p style="font-size:0.82rem; color:var(--muted);">Receive Canva links, Notion systems, or PDF files straight to your inbox.</p>
+                </div>
+                <div class="about-pillar-box">
+                    <div style="font-weight:800; color:var(--orange); font-size:0.92rem; margin-bottom:4px;">₱ Local-First Checkout</div>
+                    <p style="font-size:0.82rem; color:var(--muted);">Transparent PHP pricing with Suki Wallet credits and official digital receipts.</p>
+                </div>
+                <div class="about-pillar-box">
+                    <div style="font-weight:800; color:var(--text); font-size:0.92rem; margin-bottom:4px;">★ Real Buyer Reviews</div>
+                    <p style="font-size:0.82rem; color:var(--muted);">Honest ratings from verified purchasers help you pick the right tool.</p>
+                </div>
+            </div>
         </div>
-        <div class="shops-grid" id="featuredShopsGrid"></div>
+    </section>
+
+    <section class="featured-shops-band" id="verifiedSellersSection">
+        <div class="featured-shops-inner">
+            <div class="eyebrow" style="color:#fcd34d;">VERIFIED SELLERS</div>
+            <div class="section-header">
+                <h2 style="color:#ffffff;">Featured seller shops</h2>
+                <span style="color:#dbeafe; font-size:0.9rem;">Explore verified Suki shops, each with a distinct creative specialty.</span>
+            </div>
+            <div class="shops-grid" id="featuredShopsGrid"></div>
+        </div>
     </section>
 
     <section class="section-box" id="discoverSection">
@@ -1345,7 +1637,7 @@
 <div id="buyerSignupModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAllAuthModals()">
     <div class="modal-card" style="max-width:420px; position:relative; padding:2rem; max-height:92vh; overflow-y:auto;">
         <button type="button" onclick="closeAllAuthModals()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
-        <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1rem;">Create Buyer Account</h2>
+        <h2 style="font-size:1.25rem; font-weight:800; margin-bottom:1rem;">Create Account</h2>
         <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Name</div>
         <div class="form-grid">
             <div class="form-group"><input type="text" id="bFirstName" placeholder="First name"></div>
@@ -2764,16 +3056,28 @@
         const publishedProducts = allProducts.filter(p => !p.is_draft);
 
         const heroCards = document.getElementById('heroShopCards');
-        if (heroCards && allShops.length) {
-            heroCards.innerHTML = allShops.slice(0, 2).map(s => {
-                const pubShopProds = (s.products || []).filter(p => !p.is_draft);
-                const img = normalizeMediaUrl(s.shop_banner_url || (pubShopProds[0] && pubShopProds[0].gallery[0]) || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80');
-                return `<div class="hero-shop-card" onclick="openPublicShop(${s.id})">
-                    <img src="${img}" alt="${s.shop_name}">
-                    <div class="hero-shop-card-body">
-                        <span class="cat-pill">${s.shop_tagline}</span>
-                        <div style="font-weight:800; font-size:0.95rem;">${s.shop_name} ✓</div>
-                        <div style="font-size:0.78rem; color:var(--muted);">${pubShopProds.length} digital items</div>
+        if (heroCards) {
+            const top3Products = publishedProducts.slice(0, 3);
+            heroCards.innerHTML = top3Products.map(p => {
+                const thumb = normalizeMediaUrl((p.gallery && p.gallery[0]) || p.image || p.image_url || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80');
+                const sellerDisplay = escapeHtml(p.shop_display_name || p.seller_name || 'Suki Creator');
+                const matchingShop = allShops.find(s => s.id === p.seller || s.username === p.seller_name);
+                const avatarHtml = matchingShop && matchingShop.shop_logo_url
+                    ? `<span class="hero-tilt-avatar"><img src="${normalizeMediaUrl(matchingShop.shop_logo_url)}" style="width:100%;height:100%;object-fit:cover;"></span>`
+                    : `<span class="hero-tilt-avatar">${sellerDisplay.slice(0, 1).toUpperCase()}</span>`;
+                return `<div class="hero-tilt-card" onclick="openProductDetail(${p.id})" title="${escapeHtml(p.title)}">
+                    <img class="hero-tilt-thumb" src="${thumb}" alt="${escapeHtml(p.title)}">
+                    <div class="hero-tilt-body">
+                        <div class="hero-tilt-seller">
+                            ${avatarHtml}
+                            <span>by <strong>${sellerDisplay}</strong> <span style="color:var(--blue);">✓</span></span>
+                        </div>
+                        <div class="hero-tilt-title">${escapeHtml(p.title)}</div>
+                        <div class="hero-tilt-cat">${escapeHtml(p.category || 'Digital Product')}</div>
+                        <div class="hero-tilt-footer">
+                            <span class="hero-verified-pill">Verified seller</span>
+                            <strong style="font-size:0.78rem; color:var(--blue);">₱${Number(p.price).toFixed(0)}</strong>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
@@ -2783,23 +3087,27 @@
         if (shopsGrid) {
             shopsGrid.innerHTML = allShops.map(s => {
                 const shopProducts = (s.products || []).filter(p => !p.is_draft).slice(0, 3);
-                const thumbs = shopProducts.map(p => `<img src="${normalizeMediaUrl(p.gallery[0])}" style="width:100%; height:68px; object-fit:cover; border-radius:8px; border:1px solid var(--border);">`).join('');
+                const thumbs = shopProducts.map(p => `
+                    <div style="border-radius:11px; overflow:hidden; border:1px solid var(--border); background:#f8fafc;">
+                        <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${escapeHtml(p.title)}" style="width:100%; height:112px; object-fit:cover; display:block;">
+                    </div>
+                `).join('');
                 const avatar = s.shop_logo_url
-                    ? `<img src="${normalizeMediaUrl(s.shop_logo_url)}" style="width:46px; height:46px; border-radius:12px; object-fit:cover; border:1px solid var(--border);">`
-                    : `<div style="width:46px; height:46px; border-radius:12px; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">${(s.shop_name || s.username)[0].toUpperCase()}</div>`;
-                return `<div class="shop-feature-card" style="padding:1.35rem;" onclick="openPublicShop(${s.id})">
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:0.75rem;">
-                        <div style="display:flex; align-items:center; gap:12px;">
+                    ? `<img src="${normalizeMediaUrl(s.shop_logo_url)}" style="width:56px; height:56px; border-radius:14px; object-fit:cover; border:1px solid var(--border); flex-shrink:0;">`
+                    : `<div style="width:56px; height:56px; border-radius:14px; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.2rem; flex-shrink:0;">${(s.shop_name || s.username)[0].toUpperCase()}</div>`;
+                return `<div class="shop-feature-card" style="padding:1.75rem;" onclick="openPublicShop(${s.id})">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:1rem;">
+                        <div style="display:flex; align-items:center; gap:14px;">
                             ${avatar}
                             <div>
-                                <div style="font-weight:800; font-size:1rem;">${s.shop_name} <span style="color:var(--blue);">✓</span></div>
-                                <div style="font-size:0.78rem; color:var(--muted);">@${s.username} • ${s.shop_tagline}</div>
+                                <div style="font-weight:800; font-size:1.15rem; color:var(--text);">${escapeHtml(s.shop_name)} <span style="color:var(--blue);">✓</span></div>
+                                <div style="font-size:0.82rem; color:var(--muted); margin-top:2px;">@${escapeHtml(s.username)} &bull; ${escapeHtml(s.shop_tagline)}</div>
                             </div>
                         </div>
-                        <span style="font-size:0.8rem; font-weight:700; color:var(--blue);">Visit Shop &rarr;</span>
+                        <span style="font-size:0.86rem; font-weight:700; color:var(--blue); white-space:nowrap;">Visit Shop &rarr;</span>
                     </div>
-                    <p style="font-size:0.85rem; color:var(--muted); margin-bottom:0.9rem;">${s.bio || 'Digital templates, guides, and creative assets.'}</p>
-                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">${thumbs}</div>
+                    <p style="font-size:0.9rem; color:var(--muted); line-height:1.55; margin-bottom:1.15rem;">${escapeHtml(s.bio || 'Digital templates, guides, and creative assets.')}</p>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;">${thumbs}</div>
                 </div>`;
             }).join('');
         }
@@ -2857,11 +3165,42 @@
         `).join('');
     }
 
+    function toggleLandingSearchBox(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('landingSearchDropdown');
+        const btn = document.getElementById('landingSearchToggleBtn');
+        const inp = document.getElementById('landingSearchInput');
+        if (!dd) return;
+        const willOpen = dd.classList.contains('hidden');
+        dd.classList.toggle('hidden', !willOpen);
+        if (btn) btn.classList.toggle('active', willOpen);
+        if (willOpen && inp) {
+            inp.removeAttribute('readonly');
+            setTimeout(() => inp.focus(), 40);
+        }
+    }
+
+    function scrollToDiscoverIfSearching() {
+        const disc = document.getElementById('discoverSection');
+        if (disc) disc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('landingSearchWrap');
+        const dd = document.getElementById('landingSearchDropdown');
+        const btn = document.getElementById('landingSearchToggleBtn');
+        if (wrap && dd && !wrap.contains(e.target)) {
+            dd.classList.add('hidden');
+            if (btn) btn.classList.remove('active');
+        }
+    });
+
     function showGuestView(viewName) {
         ['guest-landing', 'guest-shop', 'guest-detail'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
         document.getElementById('guest-' + viewName)?.classList.remove('hidden');
         const isLanding = viewName === 'landing';
         document.getElementById('landingSearchWrap')?.classList.toggle('hidden', !isLanding);
+        document.getElementById('landingCenterNav')?.classList.toggle('hidden', !isLanding);
         document.getElementById('landingNavActions')?.classList.toggle('hidden', !isLanding);
         document.getElementById('backMarketWrap')?.classList.toggle('hidden', isLanding);
         window.scrollTo(0, 0);

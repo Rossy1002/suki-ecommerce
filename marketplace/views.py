@@ -33,9 +33,14 @@ def api_login_view(request):
 
     user = authenticate(request, username=login_id, password=password)
     if user is None:
-        matched = User.objects.filter(email__iexact=login_id).first() or User.objects.filter(username__iexact=login_id).first()
-        if matched:
-            user = authenticate(request, username=matched.username, password=password)
+        candidates = User.objects.filter(
+            Q(email__iexact=login_id) | Q(username__iexact=login_id)
+        )
+        for candidate in candidates:
+            user = authenticate(request, username=candidate.username, password=password)
+            if user is not None:
+                break
+
     if user is not None:
         login(request, user)
         return Response({'message': 'Logged in successfully!', 'role': user.role})
