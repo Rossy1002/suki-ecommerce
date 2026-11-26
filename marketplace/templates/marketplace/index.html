@@ -1062,6 +1062,22 @@
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
         th { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; background: #f8fafc; }
         tr.cart-row-selected { background: #f8fbff; }
+        .item-thumb-cell { display: flex; align-items: center; gap: 12px; }
+        .item-cover-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .item-cover-box:hover {
+            transform: scale(1.04);
+            border-color: var(--blue);
+        }
         .badge { padding: 4px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; background: #e2e8f0; }
         .badge-delivered { background: #dcfce7; color: #166534; }
         .badge-pending { background: #fef3c7; color: #b45309; }
@@ -2281,12 +2297,6 @@
                             <span>Orders &amp; Reviews</span>
                         </span>
                     </button>
-                    <button class="side-btn" id="navBtn-support" onclick="showTab('support', this)">
-                        <span class="side-btn-left">
-                            <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
-                            <span>Customer Support</span>
-                        </span>
-                    </button>
                     <button class="side-btn" id="navBtn-profile" onclick="showTab('profile', this)">
                         <span class="side-btn-left">
                             <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
@@ -2300,26 +2310,26 @@
                     <button class="side-btn seller-active" id="navBtn-overview" onclick="showTab('overview', this)">
                         <span class="side-btn-left">
                             <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
-                            <span>Overview &amp; Analytics</span>
+                            <span>Overview</span>
                         </span>
                     </button>
                     <button class="side-btn" id="navBtn-seller-listings" onclick="showTab('seller-listings', this)">
                         <span class="side-btn-left">
                             <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-                            <span>My Shop Listings</span>
+                            <span>Shop Listing</span>
                         </span>
                     </button>
                     <button class="side-btn" id="navBtn-seller-orders" onclick="showTab('seller-orders', this)">
                         <span class="side-btn-left">
                             <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
-                            <span>Orders &amp; Email Delivery</span>
+                            <span>Orders</span>
                         </span>
                         <span class="count-pill" id="orderCount">0</span>
                     </button>
                     <button class="side-btn" id="navBtn-seller-add" onclick="showTab('seller-add', this)">
                         <span class="side-btn-left">
                             <span class="side-ico"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>
-                            <span>+ Create Listing</span>
+                            <span>Create Listing</span>
                         </span>
                     </button>
                     <button class="side-btn" id="navBtn-profile" onclick="showTab('profile', this)">
@@ -2523,7 +2533,7 @@
                             <strong id="cartTotal" style="font-size:1.15rem; display:block;">Selected Total: ₱0.00</strong>
                             <span id="cartTotalHint" style="font-size:0.78rem; color:var(--muted);">Check the items you want to pay for</span>
                         </div>
-                        <button type="button" id="cartPayBtn" class="btn btn-success" onclick="openConfirmCheckoutModal()">Pay Selected with Suki Wallet</button>
+                        <button type="button" id="cartPayBtn" class="btn btn-success" onclick="openConfirmCheckoutModal()">Checkout</button>
                     </div>
                 </div>
             </div>
@@ -2557,23 +2567,9 @@
                 </div>
             </div>
 
-            <!-- CUSTOMER SUPPORT -->
-            <div id="tab-support" class="tab-section hidden">
-                <div class="panel">
-                    <h3 style="margin-bottom:1rem;">Contact Suki Support</h3>
-                    <div class="form-group"><label>Subject</label><input type="text" id="supSubject" placeholder="e.g. Issue accessing template link"></div>
-                    <div class="form-group"><label>Message</label><textarea id="supMessage" rows="3" placeholder="Describe how we can help..."></textarea></div>
-                    <button class="btn" onclick="submitSupport()">Send Ticket</button>
-                </div>
-            </div>
-
             <!-- SELLER TAB: MY SHOP LISTINGS (CARD GRID BOXES + SAVED DRAFTS) -->
             <div id="tab-seller-listings" class="tab-section hidden">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
-                    <div>
-                        <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">My Shop Listings</h2>
-                        <p style="margin:0.25rem 0 0;font-size:0.88rem;color:#64748b;">Manage your published Canva templates, e-books, and digital downloads.</p>
-                    </div>
+                <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:1.25rem;">
                     <button type="button" class="btn" onclick="showTab('seller-add', document.getElementById('navBtn-seller-add'))">+ New Listing</button>
                 </div>
 
@@ -2593,20 +2589,11 @@
 
             <!-- SELLER TAB: ORDERS & EMAIL DELIVERY -->
             <div id="tab-seller-orders" class="tab-section hidden">
-                <div style="margin-bottom:1.25rem;">
-                    <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">Orders &amp; Email Delivery</h2>
-                    <p style="margin:0.25rem 0 0;font-size:0.88rem;color:#64748b;">Track customer purchases, review customer details, and send instant digital download links.</p>
-                </div>
                 <div id="sellerOrdersContainer"></div>
             </div>
 
             <!-- SELLER TAB: CREATE LISTING (2-COLUMN WITH LIVE BUYER CARD PREVIEW) -->
             <div id="tab-seller-add" class="tab-section hidden">
-                <div style="margin-bottom:1.25rem;">
-                    <h2 style="margin:0;font-size:1.35rem;color:#0f172a;">Create New Digital Listing</h2>
-                    <p style="margin:0.25rem 0 0;font-size:0.88rem;color:#64748b;">Publish a new Canva template, Notion system, or e-book to your shop.</p>
-                </div>
-
                 <div class="create-listing-layout">
                     <!-- LEFT COLUMN: CREATE LISTING FORM -->
                     <div class="panel" style="margin-bottom:0;">
@@ -3133,7 +3120,7 @@
             <input type="url" id="csDeliveryLinkInput" placeholder="https://www.canva.com/design/...">
         </div>
         <div class="form-group">
-            <label>Message / Note to Customer (Optional)</label>
+            <label>Note to Customer</label>
             <textarea id="csSellerNote" rows="2" placeholder="Thank you for your order! Click the link above to access your template."></textarea>
         </div>
 
@@ -3176,7 +3163,7 @@
 
         <div style="display:flex; justify-content:space-between; gap:8px;">
             <button type="button" class="btn btn-outline" onclick="document.getElementById('receiptModal').classList.add('hidden')">Close</button>
-            <a id="recOpenBtn" href="#" target="_blank" class="btn">Open Template / File &rarr;</a>
+            <a id="recOpenBtn" href="#" target="_blank" class="btn">Open File &rarr;</a>
         </div>
     </div>
 </div>
@@ -3908,11 +3895,10 @@
         'cart': 'Shopping Cart',
         'wishlist': 'My Saved Wishlist',
         'orders': 'Orders & Reviews',
-        'support': 'Customer Support',
         'profile': userRole === 'seller' ? 'Shop Profile' : 'My Profile & Wallet',
-        'seller-listings': 'My Shop Listings',
-        'seller-orders': 'Orders & Email Delivery',
-        'seller-add': 'Create New Listing'
+        'seller-listings': 'Shop Listing',
+        'seller-orders': 'Orders',
+        'seller-add': 'Create Listing'
     };
 
     function getTabStorageKey() {
@@ -4531,11 +4517,26 @@
                 selectedTotal += sub;
                 selectedCount += 1;
             }
+            const prod = allProducts.find(p => String(p.id) === String(item.product)) || allProducts.find(p => p.title === item.product_title);
+            const coverUrl = normalizeMediaUrl(
+                item.product_image ||
+                (prod && ((prod.gallery && prod.gallery[0]) || prod.image || prod.image_url)) ||
+                'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80'
+            );
+            const shopSub = prod ? `${prod.shop_display_name || prod.seller_name} • ${prod.category}` : 'Digital Product';
             return `<tr class="${isChecked ? 'cart-row-selected' : ''}">
                 <td style="text-align:center;">
                     <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleCartItemSelect(${item.id}, this.checked)">
                 </td>
-                <td><strong>${escapeHtml(item.product_title)}</strong></td>
+                <td>
+                    <div class="item-thumb-cell">
+                        <img src="${coverUrl}" alt="${escapeHtml(item.product_title)}" class="item-cover-box" onclick="openCustomerProductModal(${item.product})">
+                        <div style="min-width:0;">
+                            <strong style="display:block; color:var(--text); cursor:pointer;" onclick="openCustomerProductModal(${item.product})">${escapeHtml(item.product_title)}</strong>
+                            <span style="font-size:0.75rem; color:var(--muted);">${escapeHtml(shopSub)}</span>
+                        </div>
+                    </div>
+                </td>
                 <td>${escapeHtml(item.selected_size)}</td>
                 <td>₱${Number(item.product_price).toFixed(2)}</td>
                 <td>${item.quantity}</td>
@@ -4703,14 +4704,33 @@
         if (heroWishEl) heroWishEl.innerText = items.length;
         const tbody = document.getElementById('wishlistBody');
         if (!tbody) return;
-        tbody.innerHTML = items.length ? items.map(w => `<tr>
-            <td><strong>${w.product_title}</strong></td>
-            <td>${new Date(w.added_at).toLocaleDateString()}</td>
-            <td>
-                <button class="btn btn-sm" onclick="addToCart(${w.product})">+ Move to Cart</button>
-                <button class="btn btn-outline btn-sm" onclick="removeWishlist(${w.id})">Remove</button>
-            </td>
-        </tr>`).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--muted);">No items in your wishlist yet.</td></tr>`;
+        tbody.innerHTML = items.length ? items.map(w => {
+            const prod = allProducts.find(p => String(p.id) === String(w.product)) || allProducts.find(p => p.title === w.product_title);
+            const coverUrl = normalizeMediaUrl(
+                w.product_image ||
+                (prod && ((prod.gallery && prod.gallery[0]) || prod.image || prod.image_url)) ||
+                'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80'
+            );
+            const metaLine = prod
+                ? `₱${Number(prod.price).toFixed(2)} • ${prod.shop_display_name || prod.seller_name}`
+                : 'Saved Digital Item';
+            return `<tr>
+                <td>
+                    <div class="item-thumb-cell">
+                        <img src="${coverUrl}" alt="${escapeHtml(w.product_title)}" class="item-cover-box" onclick="openCustomerProductModal(${w.product})">
+                        <div style="min-width:0;">
+                            <strong style="display:block; color:var(--text); cursor:pointer;" onclick="openCustomerProductModal(${w.product})">${escapeHtml(w.product_title)}</strong>
+                            <span style="font-size:0.75rem; color:var(--blue); font-weight:600;">${escapeHtml(metaLine)}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>${new Date(w.added_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm" onclick="addToCart(${w.product})">+ Move to Cart</button>
+                    <button class="btn btn-outline btn-sm" onclick="removeWishlist(${w.id})">Remove</button>
+                </td>
+            </tr>`;
+        }).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--muted);">No items in your wishlist yet.</td></tr>`;
     }
 
     async function removeWishlist(id) {
@@ -4720,26 +4740,6 @@
             headers: { 'X-CSRFToken': getCsrfToken() }
         });
         if (res.ok) await loadWishlist();
-    }
-
-    async function submitSupport() {
-        const subject = document.getElementById('supSubject')?.value.trim();
-        const message = document.getElementById('supMessage')?.value.trim();
-        if (!subject || !message) {
-            notify('Please enter both subject and message.');
-            return;
-        }
-        const res = await fetch('/api/support/', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
-            body: JSON.stringify({ subject, message })
-        });
-        if (res.ok) {
-            document.getElementById('supSubject').value = '';
-            document.getElementById('supMessage').value = '';
-            showSukiPopup('Ticket Submitted', 'Our support team has received your message.');
-        }
     }
 
     function openReviewModal(productId, title) {
@@ -5825,7 +5825,6 @@
                 <div class="orders-kpi-card ${pendingOrders.length > 0 ? 'pending-alert' : ''}">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:0.74rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Pending Delivery</span>
-                        <span style="font-size:0.72rem; font-weight:800; color:${pendingOrders.length > 0 ? '#b45309' : 'var(--muted)'};">${pendingOrders.length > 0 ? 'ACTION NEEDED' : 'ALL CAUGHT UP'}</span>
                     </div>
                     <div style="font-size:1.55rem; font-weight:800; color:${pendingOrders.length > 0 ? '#b45309' : 'var(--text)'}; margin-top:6px;">${pendingOrders.length}</div>
                     <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Awaiting digital link email</div>
@@ -5833,7 +5832,6 @@
                 <div class="orders-kpi-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:0.74rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Delivered via Email</span>
-                        <span style="color:var(--success); font-weight:800; font-size:0.8rem;">✓ Sent</span>
                     </div>
                     <div style="font-size:1.55rem; font-weight:800; color:var(--success); margin-top:6px;">${deliveredOrders.length}</div>
                     <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Completed digital fulfillments</div>
@@ -5841,7 +5839,6 @@
                 <div class="orders-kpi-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:0.74rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Total Orders</span>
-                        <span class="cat-pill" style="margin:0;">ALL TIME</span>
                     </div>
                     <div style="font-size:1.55rem; font-weight:800; color:var(--text); margin-top:6px;">${orders.length}</div>
                     <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Customer purchases received</div>
@@ -5849,25 +5846,12 @@
                 <div class="orders-kpi-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:0.74rem; font-weight:800; color:var(--muted); text-transform:uppercase;">Fulfilled Revenue</span>
-                        <span style="font-size:0.74rem; font-weight:700; color:var(--blue);">PHP</span>
                     </div>
                     <div style="font-size:1.55rem; font-weight:800; color:var(--blue); margin-top:6px;">₱${fulfilledRevenue.toFixed(2)}</div>
                     <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">From delivered orders</div>
                 </div>
             </div>
         `;
-
-        const pendingBannerHtml = (pendingOrders.length > 0 && sellerOrderStatusFilter !== 'PENDING') ? `
-            <div class="pending-action-banner">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="width:28px; height:28px; border-radius:50%; background:#fef3c7; color:#b45309; font-weight:800; display:inline-flex; align-items:center; justify-content:center;">!</span>
-                    <div style="font-size:0.86rem; color:#78350f;">
-                        <strong>${pendingOrders.length} ${pendingOrders.length === 1 ? 'order is' : 'orders are'} awaiting email delivery.</strong> Send the download link so your buyer receives their file.
-                    </div>
-                </div>
-                <button type="button" class="btn btn-orange btn-sm" onclick="setSellerOrderFilter('PENDING')">Show Pending Only</button>
-            </div>
-        ` : '';
 
         const toolbarHtml = `
             <div class="orders-toolbar">
@@ -5967,7 +5951,7 @@
             </div>
         `;
 
-        ordEl.innerHTML = kpiStripHtml + pendingBannerHtml + toolbarHtml + cardsHtml;
+        ordEl.innerHTML = kpiStripHtml + toolbarHtml + cardsHtml;
     }
 
     async function loadOrders() {
@@ -6025,30 +6009,61 @@
             const pending = orders.filter(o => o.status !== 'DELIVERED');
             const completed = orders.filter(o => o.status === 'DELIVERED');
 
+            const getOrderCoverUrl = (o) => {
+                const prod = allProducts.find(p => String(p.id) === String(o.product)) || allProducts.find(p => p.title === o.product_title);
+                return normalizeMediaUrl(
+                    o.product_image ||
+                    (prod && ((prod.gallery && prod.gallery[0]) || prod.image || prod.image_url)) ||
+                    'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80'
+                );
+            };
+
             const pendBody = document.getElementById('customerPendingBody');
             if (pendBody) {
-                pendBody.innerHTML = pending.length ? pending.map(o => `<tr>
-                    <td><strong>${o.delivery_tracking_code}</strong></td>
-                    <td>${o.product_title} (${o.selected_size})</td>
-                    <td>₱${Number(o.total_amount).toFixed(2)}</td>
-                    <td><span class="badge badge-pending">${o.status}</span></td>
-                    <td style="color:var(--muted); font-size:0.82rem;">Waiting for seller email</td>
-                </tr>`).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No pending orders.</td></tr>`;
+                pendBody.innerHTML = pending.length ? pending.map(o => {
+                    const coverUrl = getOrderCoverUrl(o);
+                    return `<tr>
+                        <td><strong>${escapeHtml(o.delivery_tracking_code)}</strong></td>
+                        <td>
+                            <div class="item-thumb-cell">
+                                <img src="${coverUrl}" alt="${escapeHtml(o.product_title)}" class="item-cover-box" onclick="openCustomerProductModal(${o.product})">
+                                <div style="min-width:0;">
+                                    <strong style="display:block; color:var(--text);">${escapeHtml(o.product_title)}</strong>
+                                    <span style="font-size:0.75rem; color:var(--muted);">${escapeHtml(o.selected_size)} &bull; Qty: ${o.quantity || 1}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>₱${Number(o.total_amount).toFixed(2)}</td>
+                        <td><span class="badge badge-pending">${o.status}</span></td>
+                        <td style="color:var(--muted); font-size:0.82rem;">Waiting for seller email</td>
+                    </tr>`;
+                }).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No pending orders.</td></tr>`;
             }
 
             const compBody = document.getElementById('customerCompletedBody');
             if (compBody) {
-                compBody.innerHTML = completed.length ? completed.map(o => `<tr>
-                    <td><strong>${o.delivery_tracking_code}</strong></td>
-                    <td>${o.product_title} (${o.selected_size})</td>
-                    <td>₱${Number(o.total_amount).toFixed(2)}</td>
-                    <td><span class="badge badge-delivered">DELIVERED</span></td>
-                    <td style="display:flex; flex-wrap:wrap; gap:6px;">
-                        <button type="button" class="btn btn-outline btn-sm" onclick="openReceiptModal(${o.id})">Details / Receipt</button>
-                        <a href="${o.download_link}" target="_blank" class="btn btn-sm">Open File Link</a>
-                        <button type="button" class="btn btn-outline btn-sm" onclick="openReviewModal(${o.product}, '${o.product_title.replace(/'/g, "\\'")}')">★ Review</button>
-                    </td>
-                </tr>`).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No completed orders yet.</td></tr>`;
+                compBody.innerHTML = completed.length ? completed.map(o => {
+                    const coverUrl = getOrderCoverUrl(o);
+                    return `<tr>
+                        <td><strong>${escapeHtml(o.delivery_tracking_code)}</strong></td>
+                        <td>
+                            <div class="item-thumb-cell">
+                                <img src="${coverUrl}" alt="${escapeHtml(o.product_title)}" class="item-cover-box" onclick="openCustomerProductModal(${o.product})">
+                                <div style="min-width:0;">
+                                    <strong style="display:block; color:var(--text);">${escapeHtml(o.product_title)}</strong>
+                                    <span style="font-size:0.75rem; color:var(--muted);">${escapeHtml(o.selected_size)} &bull; Qty: ${o.quantity || 1}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>₱${Number(o.total_amount).toFixed(2)}</td>
+                        <td><span class="badge badge-delivered">DELIVERED</span></td>
+                        <td style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="openReceiptModal(${o.id})">Details / Receipt</button>
+                            <a href="${o.download_link}" target="_blank" class="btn btn-sm">Open File Link</a>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="openReviewModal(${o.product}, '${o.product_title.replace(/'/g, "\\'")}')">★ Review</button>
+                        </td>
+                    </tr>`;
+                }).join('') : `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No completed orders yet.</td></tr>`;
             }
         }
     }
