@@ -42,7 +42,7 @@ def api_login_view(request):
                 break
 
     if user is not None:
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         return Response({'message': 'Logged in successfully!', 'role': user.role})
     return Response({'error': 'Incorrect email/username or password. Please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -104,7 +104,7 @@ def api_register_view(request):
         user.shop_banner = request.FILES['shop_banner']
     user.save()
 
-    login(request, user)
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     return Response({'message': 'Shop created!', 'role': user.role, 'username': user.username}, status=status.HTTP_201_CREATED)
 
 

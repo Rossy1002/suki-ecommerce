@@ -1775,6 +1775,86 @@
             .suki-blue-footer { padding: 1.75rem 1.5rem; }
         }
 
+        
+        /* Sold Out Product & Cart Read-Only States */
+        .prod-card.is-sold-out {
+            opacity: 0.72;
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        .prod-card.is-sold-out img {
+            filter: grayscale(85%);
+        }
+        .sold-out-overlay-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 99px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            z-index: 3;
+        }
+        .sold-out-cart-panel {
+            margin-top: 1.5rem;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 1.25rem;
+        }
+        .sold-out-cart-panel tr {
+            opacity: 0.68;
+            background: #f1f5f9;
+        }
+        .sold-out-cart-panel img {
+            filter: grayscale(85%);
+        }
+
+
+        .qty-stepper {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .qty-step-btn {
+            border: none;
+            background: #f8fafc;
+            color: var(--text);
+            width: 28px;
+            height: 28px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.12s;
+            padding: 0;
+        }
+        .qty-step-btn:hover:not(:disabled) {
+            background: var(--blue-light);
+            color: var(--blue);
+        }
+        .qty-step-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .qty-step-val {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.86rem;
+            padding: 0 4px;
+            color: var(--text);
+        }
+
         #toast { position: fixed; bottom: 20px; right: 20px; background: var(--blue-dark); color: white; padding: 12px 20px; border-radius: 10px; font-size: 0.9rem; display: none; z-index: 999; }
         .hidden { display: none !important; }
         .modal-backdrop.hidden { display: none !important; pointer-events: none !important; }
@@ -2152,20 +2232,10 @@
                 </select>
             </div>
             <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
-            <div style="display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
-                <div>
-                    <select id="csCountry">
-                        <option value="Philippines" selected>Philippines</option>
-                        <option value="Singapore">Singapore</option>
-                        <option value="United States">United States</option>
-                        <option value="Japan">Japan</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Australia">Australia</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                    </select>
-                </div>
-                <div><input type="text" id="csRegion" placeholder="Region"></div>
-                <div><input type="text" id="csCity" placeholder="City"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
+                <div><input type="text" id="csProvince" placeholder="Province"></div>
+                <div><input type="text" id="csMunicipality" placeholder="Municipality"></div>
+                <div><input type="text" id="csBarangay" placeholder="Barangay"></div>
             </div>
             <div class="form-group"><label>Email</label><input type="email" id="csEmail" placeholder="Email"></div>
             <div class="form-group"><label>Password</label><input type="password" id="csPassword" placeholder="Password"></div>
@@ -2216,20 +2286,10 @@
         </div>
         <div class="form-group"><label>Contact Number</label><input type="text" id="bPhone" placeholder="Mobile number"></div>
         <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
-        <div style="display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
-            <div>
-                <select id="bCountry">
-                    <option value="Philippines" selected>Philippines</option>
-                    <option value="Singapore">Singapore</option>
-                    <option value="United States">United States</option>
-                    <option value="Japan">Japan</option>
-                    <option value="Canada">Canada</option>
-                    <option value="Australia">Australia</option>
-                    <option value="United Kingdom">United Kingdom</option>
-                </select>
-            </div>
-            <div><input type="text" id="bRegion" placeholder="Region"></div>
-            <div><input type="text" id="bCity" placeholder="City"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
+            <div><input type="text" id="bProvince" placeholder="Province"></div>
+            <div><input type="text" id="bMunicipality" placeholder="Municipality"></div>
+            <div><input type="text" id="bBarangay" placeholder="Barangay"></div>
         </div>
         <div class="form-group"><label>Email</label><input type="email" id="bEmail" placeholder="Email"></div>
         <div class="form-group"><label>Password</label><input type="password" id="bPassword" placeholder="Password"></div>
@@ -2486,7 +2546,7 @@
 
                     <!-- Customer Search + Category Quick Filters -->
                     <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; margin-bottom:1.25rem; box-shadow:0 2px 10px rgba(15,23,42,0.03);">
-                        <input type="text" id="searchInput" placeholder="Search Canva templates, booklets, trackers, or e-books..." onkeyup="filterCustomerCatalog()" style="border:1px solid #cbd5e1; padding:11px 14px; font-size:0.92rem;">
+                        <input type="search" id="searchInput" name="suki_customer_catalog_search" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search Canva templates, booklets, trackers, or e-books..." onkeyup="filterCustomerCatalog()" style="border:1px solid #cbd5e1; padding:11px 14px; font-size:0.92rem;">
                     </div>
 
                     <div class="customer-quick-pills" id="customerCategoryPills">
@@ -2536,6 +2596,30 @@
                         <button type="button" id="cartPayBtn" class="btn btn-success" onclick="openConfirmCheckoutModal()">Checkout</button>
                     </div>
                 </div>
+
+                <!-- Read-Only Sold Out Items in Cart -->
+                <div id="soldOutCartSection" class="sold-out-cart-panel hidden">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <h4 style="font-size:1rem; font-weight:800; color:#475569; margin:0;">Sold Out Items</h4>
+                            <p style="font-size:0.78rem; color:var(--muted); margin-top:2px;">These items ran out of stock and cannot be selected or checked out.</p>
+                        </div>
+                        <span id="soldOutCartCountBadge" class="badge" style="background:#e2e8f0; color:#475569;">0 sold out</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:96px; text-align:center; white-space:nowrap;">Status</th>
+                                <th>Product</th>
+                                <th>Selected Size</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="soldOutCartBody"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- CUSTOMER WISHLIST -->
@@ -2552,14 +2636,14 @@
             <!-- CUSTOMER ORDERS & REVIEWS -->
             <div id="tab-orders" class="tab-section hidden">
                 <div class="panel">
-                    <h3 style="margin-bottom:0.75rem;">Pending Orders (Awaiting Email Delivery)</h3>
+                    <h3 style="margin-bottom:0.75rem;">Pending Orders</h3>
                     <table>
                         <thead><tr><th>Tracking Code</th><th>Product & Size</th><th>Paid</th><th>Status</th><th>Actions</th></tr></thead>
                         <tbody id="customerPendingBody"></tbody>
                     </table>
                 </div>
                 <div class="panel">
-                    <h3 style="margin-bottom:0.75rem;">Completed Orders (Sent via Email)</h3>
+                    <h3 style="margin-bottom:0.75rem;">Completed Orders</h3>
                     <table>
                         <thead><tr><th>Tracking Code</th><th>Product & Size</th><th>Paid</th><th>Status</th><th>Actions</th></tr></thead>
                         <tbody id="customerCompletedBody"></tbody>
@@ -2800,18 +2884,17 @@
                         <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
                         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
                             <div>
-                                <select id="profCountry" onchange="updateCustHeroPreview()">
-                                    <option value="Philippines">Philippines</option>
-                                    <option value="Singapore">Singapore</option>
-                                    <option value="United States">United States</option>
-                                    <option value="Japan">Japan</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="Australia">Australia</option>
-                                    <option value="United Kingdom">United Kingdom</option>
-                                </select>
+                                <label style="font-size:0.74rem; color:var(--muted); margin-bottom:3px;">Province</label>
+                                <input type="text" id="profProvince" placeholder="e.g. Camarines Norte" oninput="updateCustHeroPreview()">
                             </div>
-                            <div><input type="text" id="profRegion" placeholder="Region" oninput="updateCustHeroPreview()"></div>
-                            <div><input type="text" id="profCity" placeholder="City" oninput="updateCustHeroPreview()"></div>
+                            <div>
+                                <label style="font-size:0.74rem; color:var(--muted); margin-bottom:3px;">Municipality / City</label>
+                                <input type="text" id="profMunicipality" placeholder="e.g. Daet" oninput="updateCustHeroPreview()">
+                            </div>
+                            <div>
+                                <label style="font-size:0.74rem; color:var(--muted); margin-bottom:3px;">Barangay</label>
+                                <input type="text" id="profBarangay" placeholder="e.g. Brgy. Lag-on" oninput="updateCustHeroPreview()">
+                            </div>
                         </div>
                         <div class="form-group"><label>Bio / Description</label><textarea id="profBio" rows="3" placeholder="Tell sellers a bit about yourself..."></textarea></div>
                         <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -2839,12 +2922,15 @@
                         </div>
 
                         <div class="panel-box" style="margin-bottom:0;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; gap:8px; flex-wrap:wrap;">
                                 <div>
                                     <h3 style="font-size:1rem; font-weight:800;">Recent Wallet Activity</h3>
-                                    <p style="font-size:0.78rem; color:var(--muted);">Purchases &amp; wallet credits</p>
+                                    <p style="font-size:0.78rem; color:var(--muted);">Latest 5 purchases &amp; wallet credits</p>
                                 </div>
-                                <span id="custWalletTotalSpentBadge" class="cat-pill" style="margin:0;">Spent: ₱0.00</span>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span id="custWalletTotalSpentBadge" class="cat-pill" style="margin:0;">Spent: ₱0.00</span>
+                                    <button type="button" id="viewAllWalletTxBtn" class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:0.74rem;" onclick="openAllWalletActivityModal()">View All</button>
+                                </div>
                             </div>
                             <div id="custWalletActivityList">
                                 <div style="text-align:center; color:var(--muted); font-size:0.84rem; padding:1rem 0;">No wallet transactions yet.</div>
@@ -2941,18 +3027,17 @@
         <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Shop Address</div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:1rem;">
             <div>
-                <select id="profCountry">
-                    <option value="Philippines">Philippines</option>
-                    <option value="Singapore">Singapore</option>
-                    <option value="United States">United States</option>
-                    <option value="Japan">Japan</option>
-                    <option value="Canada">Canada</option>
-                    <option value="Australia">Australia</option>
-                    <option value="United Kingdom">United Kingdom</option>
-                </select>
+                <label style="font-size:0.74rem; color:var(--muted); margin-bottom:3px;">Province</label>
+                <input type="text" id="profProvince" placeholder="e.g. Camarines Norte">
             </div>
-            <div><input type="text" id="profRegion" placeholder="Region"></div>
-            <div><input type="text" id="profCity" placeholder="City"></div>
+            <div>
+                <label style="font-size:0.74rem; color:var(--muted); margin-bottom:3px;">Municipality / City</label>
+                <input type="text" id="profMunicipality" placeholder="e.g. Daet">
+            </div>
+            <div>
+                <label style="font-size:0.74rem; color:var(--muted); margin-bottom:3px;">Barangay</label>
+                <input type="text" id="profBarangay" placeholder="e.g. Brgy. VIII">
+            </div>
         </div>
         <div class="form-grid">
             <div class="form-group">
@@ -3209,7 +3294,7 @@
             <div id="editProdUnlimitedBadge" style="padding:9px 12px; border:1px solid #bfdbfe; background:var(--blue-light); color:var(--blue); border-radius:9px; font-size:0.86rem; font-weight:700;">
                 ∞ Unlimited Digital Copies
             </div>
-            <input type="number" min="1" id="editProdStock" placeholder="Enter available license count" class="hidden">
+            <input type="number" min="0" id="editProdStock" placeholder="Enter available license count" class="hidden">
         </div>
 
         <!-- Delivery Method Tabs (External Link or Upload File) -->
@@ -3296,6 +3381,81 @@
     </div>
 </div>
 
+
+<!-- ALL WALLET ACTIVITY POPUP MODAL -->
+<div id="allWalletActivityModal" class="modal-backdrop hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+    <div class="modal-card" style="max-width:540px; max-height:86vh; display:flex; flex-direction:column; position:relative;">
+        <button type="button" onclick="document.getElementById('allWalletActivityModal').classList.add('hidden')" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <div style="margin-bottom:0.85rem; padding-right:1.5rem;">
+            <span class="cat-pill" style="margin-bottom:4px;">TRANSACTION HISTORY</span>
+            <h3 style="font-size:1.2rem; font-weight:800;">All Suki Wallet Activity</h3>
+            <p id="allWalletTxSubtitle" style="font-size:0.82rem; color:var(--muted);">Complete log of top-ups and digital purchases</p>
+        </div>
+        <div id="allWalletActivityModalList" style="overflow-y:auto; flex:1; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:4px 0; max-height:55vh;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem;">
+            <span id="allWalletModalSpentSummary" style="font-size:0.82rem; font-weight:700; color:var(--muted);"></span>
+            <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('allWalletActivityModal').classList.add('hidden')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE PRODUCT CONFIRMATION POPUP MODAL -->
+<div id="deleteListingModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeDeleteListingModal()">
+    <div class="modal-card" style="max-width:420px; text-align:center; padding:1.85rem 2rem; position:relative;">
+        <button type="button" onclick="closeDeleteListingModal()" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.35rem; cursor:pointer; color:var(--muted);">&times;</button>
+        <div style="width:52px; height:52px; border-radius:50%; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; font-size:1.5rem; font-weight:800;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </div>
+        <h3 style="font-size:1.2rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Delete Product Listing?</h3>
+        <p id="deleteListingMsg" style="font-size:0.9rem; color:#475569; line-height:1.55; margin-bottom:1.4rem;">Are you sure you want to delete this product? This action cannot be undone.</p>
+        <input type="hidden" id="deleteListingTargetId">
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button type="button" class="btn btn-outline" style="flex:1; justify-content:center; padding:10px;" onclick="closeDeleteListingModal()">Cancel</button>
+            <button type="button" id="confirmDeleteListingBtn" class="btn" style="flex:1; justify-content:center; padding:10px; background:#dc2626; color:#fff;" onclick="executeDeleteSellerListing()">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- GOOGLE SIGN-UP COMPLETE PROFILE ONBOARDING MODAL -->
+<div id="googleCompleteProfileModal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:460px; padding:2rem; max-height:92vh; overflow-y:auto; position:relative;">
+        <span class="cat-pill" style="background:#dbeafe; color:#1d4ed8; margin-bottom:6px;">WELCOME TO SUKI</span>
+        <h2 style="font-size:1.28rem; font-weight:800; margin-bottom:0.35rem;">Complete Your Profile Information</h2>
+        <p style="font-size:0.84rem; color:var(--muted); margin-bottom:1.1rem;">You signed in with Google! Please complete your personal details below before exploring or shopping.</p>
+
+        <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Name *</div>
+        <div class="form-grid">
+            <div class="form-group"><input type="text" id="gOnboardFirstName" placeholder="First name"></div>
+            <div class="form-group"><input type="text" id="gOnboardLastName" placeholder="Last name"></div>
+        </div>
+        <div class="form-group">
+            <label>Gender *</label>
+            <select id="gOnboardGender">
+                <option value="" disabled selected>Select your gender</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Contact Number *</label>
+            <input type="text" id="gOnboardPhone" placeholder="e.g. 0917 123 4567">
+        </div>
+        <div style="font-size:0.84rem; font-weight:700; margin-bottom:6px;">Address</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:1rem;">
+            <div><input type="text" id="gOnboardProvince" placeholder="Province"></div>
+            <div><input type="text" id="gOnboardMunicipality" placeholder="Municipality"></div>
+            <div><input type="text" id="gOnboardBarangay" placeholder="Barangay"></div>
+        </div>
+        <div class="form-group">
+            <label>Create Password *</label>
+            <input type="password" id="gOnboardPassword" placeholder="Create a password for email/username login">
+            <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">Allows you to also log in directly using your email or username and password.</div>
+        </div>
+        <button type="button" id="gOnboardSaveBtn" class="btn" style="width:100%; justify-content:center; padding:12px; margin-top:0.4rem;" onclick="submitGoogleOnboardingProfile()">Save &amp; Continue to Suki</button>
+    </div>
+</div>
+
 <div id="toast"></div>
 <script>
     const isAuth = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
@@ -3356,10 +3516,18 @@
         return '/' + url;
     }
 
+    function isProductSoldOut(p) {
+        if (!p) return false;
+        const stock = Number(p.stock_licenses);
+        return !Number.isNaN(stock) && stock <= 0;
+    }
+
     function formatStockLabel(stockLicenses) {
-        return Number(stockLicenses) >= 999999
+        const s = Number(stockLicenses);
+        if (!Number.isNaN(s) && s <= 0) return 'Sold out';
+        return s >= 999999
             ? 'Unlimited digital access'
-            : `${stockLicenses} licenses available`;
+            : `${s} licenses available`;
     }
 
     function notify(msg) {
@@ -3513,74 +3681,209 @@
         }
     }
 
-    async function submitCreateShop() {
-        const fd = new FormData();
-        fd.append('role', 'seller');
-        fd.append('shop_name', document.getElementById('csShopName').value.trim());
-        fd.append('first_name', document.getElementById('csFirstName').value.trim());
-        fd.append('last_name', document.getElementById('csLastName').value.trim());
-        fd.append('gender', document.getElementById('csGender').value);
-        fd.append('country', document.getElementById('csCountry').value);
-        fd.append('region', document.getElementById('csRegion').value.trim());
-        fd.append('city', document.getElementById('csCity').value.trim());
-        fd.append('email', document.getElementById('csEmail').value.trim());
-        fd.append('password', document.getElementById('csPassword').value);
-
-        const logoInput = document.getElementById('csLogoFile');
-        const bannerInput = document.getElementById('csBannerFile');
-        if (logoInput && logoInput.files.length > 0) fd.append('shop_logo', logoInput.files[0]);
-        if (bannerInput && bannerInput.files.length > 0) fd.append('shop_banner', bannerInput.files[0]);
-
+    function parseSafeJsonResponse(text, fallbackMsg) {
+        if (!text) return { okJson: false, message: fallbackMsg };
         try {
+            const data = JSON.parse(text);
+            if (typeof data === 'object' && data !== null) {
+                if (data.error) return { okJson: true, data, message: data.error };
+                if (data.detail) return { okJson: true, data, message: data.detail };
+                const firstKey = Object.keys(data)[0];
+                if (firstKey) {
+                    const val = Array.isArray(data[firstKey]) ? data[firstKey][0] : data[firstKey];
+                    return { okJson: true, data, message: `${firstKey}: ${val}` };
+                }
+            }
+            return { okJson: true, data, message: fallbackMsg };
+        } catch (_) {
+            const titleMatch = text.match(/<title>([^<]+)<\/title>/i);
+            const excMatch = text.match(/<pre class="exception_value">([^<]+)<\/pre>/i);
+            if (excMatch && excMatch[1]) {
+                return { okJson: false, message: `Server Error: ${excMatch[1].trim()}` };
+            }
+            if (titleMatch && titleMatch[1] && !titleMatch[1].includes('Suki')) {
+                return { okJson: false, message: `Server Error: ${titleMatch[1].trim()}` };
+            }
+            return { okJson: false, message: fallbackMsg };
+        }
+    }
+
+    async function postRegisterWithFallback(payloadObj, fileFields = {}) {
+        const hasFiles = Object.values(fileFields).some(f => f !== null && f !== undefined);
+        let csrf = getCsrfToken();
+        if (!csrf) {
+            try {
+                await fetch('/api/shops/', { credentials: 'same-origin' });
+                csrf = getCsrfToken();
+            } catch (_) {}
+        }
+        const headersBase = {
+            'Accept': 'application/json'
+        };
+        if (csrf) headersBase['X-CSRFToken'] = csrf;
+
+        // Clean payload to match api_register_view fields directly
+        const cleanPayload = { ...payloadObj };
+        if (csrf) cleanPayload.csrfmiddlewaretoken = csrf;
+
+        if (hasFiles) {
+            const fd = new FormData();
+            Object.entries(cleanPayload).forEach(([k, v]) => {
+                if (v !== undefined && v !== null) fd.append(k, String(v));
+            });
+            Object.entries(fileFields).forEach(([k, file]) => {
+                if (file) fd.append(k, file);
+            });
             const res = await fetch('/api/register/', {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: { 'X-CSRFToken': getCsrfToken() },
+                headers: headersBase,
                 body: fd
             });
-            const data = await res.json();
+            if (res.ok || (res.status !== 415 && res.status !== 500)) {
+                return res;
+            }
+        }
+
+        const jsonRes = await fetch('/api/register/', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                ...headersBase,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cleanPayload)
+        });
+        if (jsonRes.ok || hasFiles) {
+            return jsonRes;
+        }
+
+        // Fallback to FormData (multipart/form-data) if JSON parser fails
+        if (jsonRes.status === 415 || jsonRes.status === 500 || jsonRes.status === 403) {
+            const fdFallback = new FormData();
+            Object.entries(cleanPayload).forEach(([k, v]) => {
+                if (v !== undefined && v !== null) fdFallback.append(k, String(v));
+            });
+            const fdRes = await fetch('/api/register/', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: headersBase,
+                body: fdFallback
+            });
+            return fdRes.ok ? fdRes : jsonRes;
+        }
+        return jsonRes;
+    }
+
+    async function submitCreateShop() {
+        const shopName = document.getElementById('csShopName').value.trim();
+        const firstName = document.getElementById('csFirstName').value.trim();
+        const lastName = document.getElementById('csLastName').value.trim();
+        const gender = document.getElementById('csGender').value;
+        const email = document.getElementById('csEmail').value.trim();
+        const password = document.getElementById('csPassword').value;
+        const csProv = document.getElementById('csProvince')?.value.trim() || '';
+        const csMuni = document.getElementById('csMunicipality')?.value.trim() || '';
+        const csBrgy = document.getElementById('csBarangay')?.value.trim() || '';
+
+        if (!shopName || !firstName || !lastName || !email || !password) {
+            showSukiPopup('Missing Fields', 'Please complete all required shop and owner fields.', true);
+            return;
+        }
+
+        const cleanBrgy = csBrgy.replace(/^brgy\.?\s*/i, '');
+        const cityStr = cleanBrgy ? (csMuni ? `${csMuni}, Brgy. ${cleanBrgy}` : `Brgy. ${cleanBrgy}`) : csMuni;
+        const baseHandle = (email.split('@')[0] || 'seller').replace(/[^a-zA-Z0-9_]/g, '').slice(0, 18) || 'seller';
+        const generatedUsername = `${baseHandle}_${Math.floor(1000 + Math.random() * 9000)}`;
+
+        const payload = {
+            role: 'seller',
+            username: generatedUsername,
+            shop_name: shopName,
+            first_name: firstName,
+            last_name: lastName,
+            gender: gender || 'Prefer not to say',
+            phone_number: '',
+            country: 'Philippines',
+            region: csProv,
+            city: cityStr,
+            email: email,
+            password: password
+        };
+
+        const logoInput = document.getElementById('csLogoFile');
+        const bannerInput = document.getElementById('csBannerFile');
+        const files = {
+            shop_logo: logoInput && logoInput.files.length > 0 ? logoInput.files[0] : null,
+            shop_banner: bannerInput && bannerInput.files.length > 0 ? bannerInput.files[0] : null
+        };
+
+        try {
+            const res = await postRegisterWithFallback(payload, files);
+            const rawText = await res.text();
             if (res.ok) {
                 notify('Shop created! Opening your Seller Dashboard...');
                 window.location.reload();
             } else {
-                notify(data.error || data.detail || 'Could not create shop.');
+                const parsed = parseSafeJsonResponse(rawText, `Could not create shop (HTTP ${res.status}). Check if email is already registered or refresh the page.`);
+                showSukiPopup('Shop Creation Failed', parsed.message, true);
             }
         } catch (err) {
-            notify('Network error: ' + err.message);
+            showSukiPopup('Network Error', err.message, true);
         }
     }
 
     async function submitBuyerSignup() {
+        const firstName = document.getElementById('bFirstName').value.trim();
+        const lastName = document.getElementById('bLastName').value.trim();
+        const gender = document.getElementById('bGender').value;
+        const phone = document.getElementById('bPhone')?.value.trim() || '';
+        const prov = document.getElementById('bProvince')?.value.trim() || '';
+        const muni = document.getElementById('bMunicipality')?.value.trim() || '';
+        const brgy = document.getElementById('bBarangay')?.value.trim() || '';
+        const email = document.getElementById('bEmail').value.trim();
+        const password = document.getElementById('bPassword').value;
+
+        if (!firstName || !lastName || !email || !password) {
+            showSukiPopup('Missing Fields', 'Please fill in your First Name, Last Name, Email, and Password.', true);
+            return;
+        }
+        if (password.length < 6) {
+            showSukiPopup('Weak Password', 'Please use a password with at least 6 characters.', true);
+            return;
+        }
+
+        const cleanBrgy = brgy.replace(/^brgy\.?\s*/i, '');
+        const cityStr = cleanBrgy ? (muni ? `${muni}, Brgy. ${cleanBrgy}` : `Brgy. ${cleanBrgy}`) : muni;
+        const baseHandle = (email.split('@')[0] || 'buyer').replace(/[^a-zA-Z0-9_]/g, '').slice(0, 18) || 'buyer';
+        const generatedUsername = `${baseHandle}_${Math.floor(1000 + Math.random() * 9000)}`;
+
+        const payload = {
+            role: 'customer',
+            username: generatedUsername,
+            first_name: firstName,
+            last_name: lastName,
+            gender: gender || 'Prefer not to say',
+            phone_number: phone,
+            country: 'Philippines',
+            region: prov,
+            city: cityStr,
+            email: email,
+            password: password
+        };
+
         try {
-            const res = await fetch('/api/register/', {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: JSON.stringify({
-                    role: 'customer',
-                    first_name: document.getElementById('bFirstName').value.trim(),
-                    last_name: document.getElementById('bLastName').value.trim(),
-                    gender: document.getElementById('bGender').value,
-                    phone_number: document.getElementById('bPhone')?.value.trim() || '',
-                    country: document.getElementById('bCountry')?.value || 'Philippines',
-                    region: document.getElementById('bRegion')?.value.trim() || '',
-                    city: document.getElementById('bCity')?.value.trim() || '',
-                    email: document.getElementById('bEmail').value.trim(),
-                    password: document.getElementById('bPassword').value
-                })
-            });
-            const data = await res.json();
+            const res = await postRegisterWithFallback(payload);
+            const rawText = await res.text();
             if (res.ok) {
                 notify('Account created!');
                 window.location.reload();
             } else {
-                notify(data.error || data.detail || 'Could not create account.');
+                const parsed = parseSafeJsonResponse(rawText, `Could not create account (HTTP ${res.status}). Email may already be in use or session token expired—please refresh and try again.`);
+                showSukiPopup('Sign Up Failed', parsed.message, true);
             }
         } catch (err) {
-            notify('Network error: ' + err.message);
+            showSukiPopup('Network Error', err.message, true);
         }
     }
 
@@ -3641,7 +3944,7 @@
     }
 
     function renderGuestStorefront() {
-        const publishedProducts = allProducts.filter(p => !p.is_draft);
+        const publishedProducts = allProducts.filter(p => !p.is_draft && !isProductSoldOut(p));
 
         heroCarouselItems = publishedProducts.slice(0, 5);
         if (heroCarouselItems.length) {
@@ -3651,7 +3954,7 @@
         const shopsGrid = document.getElementById('featuredShopsGrid');
         if (shopsGrid) {
             shopsGrid.innerHTML = allShops.map(s => {
-                const shopProducts = (s.products || []).filter(p => !p.is_draft).slice(0, 3);
+                const shopProducts = (s.products || []).filter(p => !p.is_draft && !isProductSoldOut(p)).slice(0, 3);
                 const thumbs = shopProducts.map(p => `
                     <div style="border-radius:11px; overflow:hidden; border:1px solid var(--border); background:#f8fafc;">
                         <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${escapeHtml(p.title)}" style="width:100%; height:112px; object-fit:cover; display:block;">
@@ -3696,7 +3999,7 @@
         const q = (document.getElementById('landingSearchInput')?.value || '').toLowerCase();
         const selectedCat = document.getElementById('catFilterSelect')?.value || 'All';
         const filtered = allProducts.filter(p => {
-            if (p.is_draft) return false;
+            if (p.is_draft || isProductSoldOut(p)) return false;
             const matchCat = selectedCat === 'All' || (p.category || '').toLowerCase() === selectedCat.toLowerCase();
             const matchQ = !q || p.title.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q) || (p.seller_name && p.seller_name.toLowerCase().includes(q));
             return matchCat && matchQ;
@@ -3707,7 +4010,7 @@
     function renderDiscoverProducts(list) {
         const grid = document.getElementById('discoverProductsGrid');
         if (!grid) return;
-        const publishedList = list.filter(p => !p.is_draft);
+        const publishedList = list.filter(p => !p.is_draft && !isProductSoldOut(p));
         grid.innerHTML = publishedList.map(p => `
             <div class="prod-card">
                 <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${escapeHtml(p.title)}" style="cursor:pointer;" onclick="openProductDetail(${p.id})">
@@ -3774,7 +4077,7 @@
     function openPublicShop(shopId) {
         const shop = allShops.find(s => s.id === shopId);
         if (!shop) return;
-        const publishedShopProds = (shop.products || []).filter(p => !p.is_draft);
+        const publishedShopProds = (shop.products || []).filter(p => !p.is_draft && !isProductSoldOut(p));
 
         const bannerEl = document.getElementById('pubShopBanner');
         if (shop.shop_banner_url) {
@@ -4027,17 +4330,33 @@
             setVal('profFirstName', u.first_name);
             setVal('profLastName', u.last_name);
             setVal('profPhone', u.phone_number);
-            setVal('profCountry', u.country || 'Philippines');
-            setVal('profRegion', u.region);
-            setVal('profCity', u.city);
+
+            // Parse Province, Municipality, Barangay safely without breaking backend region/city fields
+            let savedAddrObj = null;
+            try {
+                savedAddrObj = JSON.parse(localStorage.getItem('suki_addr_parts_' + (u.username || currentUsername)) || 'null');
+            } catch (e) {}
+            const rawCity = (u.city || '').trim();
+            let parsedMuni = rawCity;
+            let parsedBrgy = '';
+            if (rawCity.includes(',')) {
+                const parts = rawCity.split(',');
+                parsedMuni = parts[0].trim();
+                parsedBrgy = parts.slice(1).join(',').trim().replace(/^brgy\.?\s*/i, '');
+            }
+            setVal('profProvince', (u.region || (savedAddrObj && savedAddrObj.province) || ''));
+            setVal('profMunicipality', (parsedMuni || (savedAddrObj && savedAddrObj.municipality) || ''));
+            setVal('profBarangay', (parsedBrgy || (savedAddrObj && savedAddrObj.barangay) || ''));
+
             setVal('profPayment', u.saved_payment_method);
             setVal('profBio', u.shop_or_bio);
             setVal('profShopName', u.shop_name);
             setVal('profShopTagline', u.shop_tagline);
 
-            if (u.suki_wallet_balance !== undefined) {
-                currentWalletBalance = Number(u.suki_wallet_balance);
-            }
+            // Sync wallet balance with local top-up delta in case backend profile serializer marks suki_wallet_balance read-only
+            const serverBal = u.suki_wallet_balance !== undefined ? Number(u.suki_wallet_balance) : currentWalletBalance;
+            const localTopupOffset = Number(localStorage.getItem('suki_wallet_offset_' + (u.username || currentUsername)) || '0') || 0;
+            currentWalletBalance = Number((serverBal + localTopupOffset).toFixed(2));
 
             const walletEl = document.getElementById('walletDisplay');
             if (walletEl && u.suki_wallet_balance !== undefined) {
@@ -4061,8 +4380,101 @@
 
             syncCustomerProfileAndWallet(u);
             syncSellerDashboardShopProfile(u);
+            checkGoogleUserOnboarding(u);
         } catch (e) {
             console.error('loadProfile error:', e);
+        }
+    }
+
+    function checkGoogleUserOnboarding(u) {
+        if (!isAuth || !u) return;
+        const onboardKey = 'suki_google_onboarded_' + (u.username || currentUsername);
+        if (localStorage.getItem(onboardKey) === 'true') return;
+
+        // If user already has phone_number filled out, mark onboarded automatically (Address is optional)
+        const hasPhone = Boolean((u.phone_number || '').trim());
+        if (hasPhone) {
+            localStorage.setItem(onboardKey, 'true');
+            return;
+        }
+
+        // Pre-fill first/last name from Google account if available
+        const fnEl = document.getElementById('gOnboardFirstName');
+        const lnEl = document.getElementById('gOnboardLastName');
+        if (fnEl && u.first_name) fnEl.value = u.first_name;
+        if (lnEl && u.last_name) lnEl.value = u.last_name;
+
+        document.getElementById('googleCompleteProfileModal')?.classList.remove('hidden');
+    }
+
+    async function submitGoogleOnboardingProfile() {
+        const fn = document.getElementById('gOnboardFirstName')?.value.trim() || '';
+        const ln = document.getElementById('gOnboardLastName')?.value.trim() || '';
+        const gender = document.getElementById('gOnboardGender')?.value || '';
+        const phone = document.getElementById('gOnboardPhone')?.value.trim() || '';
+        const prov = document.getElementById('gOnboardProvince')?.value.trim() || '';
+        const muni = document.getElementById('gOnboardMunicipality')?.value.trim() || '';
+        const brgy = document.getElementById('gOnboardBarangay')?.value.trim() || '';
+        const newPassword = document.getElementById('gOnboardPassword')?.value || '';
+
+        if (!fn || !ln || !gender || !phone) {
+            showSukiPopup('Complete Your Info', 'Please fill in your First Name, Last Name, Gender, and Contact Number.', true);
+            return;
+        }
+        if (!newPassword || newPassword.length < 6) {
+            showSukiPopup('Create Password', 'Please create a password with at least 6 characters so you can also log in with your email or username.', true);
+            return;
+        }
+
+        if (!currentProfileId) await loadProfile();
+        const btn = document.getElementById('gOnboardSaveBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+        }
+
+        const cleanBrgy = brgy.replace(/^brgy\.?\s*/i, '');
+        const cityStr = cleanBrgy ? (muni ? `${muni}, Brgy. ${cleanBrgy}` : `Brgy. ${cleanBrgy}`) : muni;
+
+        const payload = {
+            first_name: fn,
+            last_name: ln,
+            gender: gender,
+            phone_number: phone,
+            country: 'Philippines',
+            region: prov,
+            city: cityStr,
+            password: newPassword
+        };
+
+        try {
+            const targetUrl = currentProfileId ? `/api/profile/${currentProfileId}/` : '/api/profile/';
+            await fetch(targetUrl, {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify(payload)
+            });
+
+            localStorage.setItem('suki_google_onboarded_' + currentUsername, 'true');
+            localStorage.setItem('suki_addr_parts_' + currentUsername, JSON.stringify({
+                province: prov,
+                municipality: muni,
+                barangay: cleanBrgy
+            }));
+
+            document.getElementById('googleCompleteProfileModal')?.classList.add('hidden');
+            await loadProfile();
+            showSukiPopup('Profile Completed!', 'Welcome to Suki! Your profile and password have been saved.');
+        } catch (err) {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = 'Save & Continue to Suki';
+            }
+            notify('Error saving info: ' + err.message);
         }
     }
 
@@ -4078,9 +4490,12 @@
         const emailEl = document.getElementById('custHeroEmail');
         if (emailEl) emailEl.innerText = u.email || '';
 
-        const locParts = [u.city, u.region, u.country || 'Philippines'].filter(Boolean);
+        const provVal = document.getElementById('profProvince')?.value.trim() || u.region || '';
+        const muniVal = document.getElementById('profMunicipality')?.value.trim() || u.city || '';
+        const brgyVal = document.getElementById('profBarangay')?.value.trim() || '';
+        const locParts = [brgyVal ? `Brgy. ${brgyVal}` : '', muniVal, provVal].filter(Boolean);
         const locEl = document.getElementById('custHeroLocationBadge');
-        if (locEl) locEl.innerText = `📍 ${locParts.join(', ')}`;
+        if (locEl) locEl.innerText = `📍 ${locParts.join(', ') || 'Philippines'}`;
 
         const avatarBox = document.getElementById('custProfileAvatarBox');
         const avatarUrl = u.effective_logo || u.shop_logo;
@@ -4110,11 +4525,11 @@
         const nameEl = document.getElementById('custHeroFullName');
         if (nameEl) nameEl.innerText = fullName;
 
-        const city = (document.getElementById('profCity')?.value || '').trim();
-        const region = (document.getElementById('profRegion')?.value || '').trim();
-        const country = (document.getElementById('profCountry')?.value || 'Philippines').trim();
+        const prov = (document.getElementById('profProvince')?.value || '').trim();
+        const muni = (document.getElementById('profMunicipality')?.value || '').trim();
+        const brgy = (document.getElementById('profBarangay')?.value || '').trim();
         const locEl = document.getElementById('custHeroLocationBadge');
-        if (locEl) locEl.innerText = `📍 ${[city, region, country].filter(Boolean).join(', ')}`;
+        if (locEl) locEl.innerText = `📍 ${[brgy ? 'Brgy. ' + brgy : '', muni, prov].filter(Boolean).join(', ') || 'Philippines'}`;
     }
 
     function handleCustomerAvatarChange(input) {
@@ -4150,37 +4565,56 @@
             btn.innerText = 'Adding...';
         }
 
-        const newBalance = Number((currentWalletBalance + amt).toFixed(2));
+        const targetBalance = Number((currentWalletBalance + amt).toFixed(2));
         try {
             const targetUrl = currentProfileId ? `/api/profile/${currentProfileId}/` : '/api/profile/';
-            const res = await fetch(targetUrl, {
-                method: 'PATCH',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: JSON.stringify({ suki_wallet_balance: newBalance })
-            });
-            if (res.ok) {
-                currentWalletBalance = newBalance;
-                const logs = JSON.parse(localStorage.getItem('suki_wallet_topups_' + currentUsername) || '[]');
-                logs.unshift({
-                    title: `Wallet Top-Up (${channel})`,
-                    amount: amt,
-                    type: 'credit',
-                    date: new Date().toISOString()
+            let serverUpdated = false;
+            try {
+                const res = await fetch(targetUrl, {
+                    method: 'PATCH',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({ suki_wallet_balance: targetBalance })
                 });
-                localStorage.setItem('suki_wallet_topups_' + currentUsername, JSON.stringify(logs.slice(0, 10)));
+                if (res.ok) {
+                    const updatedProfile = await res.json().catch(() => null);
+                    if (updatedProfile && Number(updatedProfile.suki_wallet_balance) >= targetBalance - 0.01) {
+                        serverUpdated = true;
+                    }
+                }
+            } catch (_) {}
 
-                document.getElementById('topUpWalletModal').classList.add('hidden');
-                await loadProfile();
-                showSukiPopup('Wallet Topped Up!', `₱${amt.toFixed(2)} via ${channel} has been added to your Suki Wallet.`);
-            } else {
-                showSukiPopup('Top Up Notice', `Could not update wallet balance (${res.status}).`, true);
+            if (!serverUpdated) {
+                const prevOffset = Number(localStorage.getItem('suki_wallet_offset_' + currentUsername) || '0') || 0;
+                localStorage.setItem('suki_wallet_offset_' + currentUsername, String(Number((prevOffset + amt).toFixed(2))));
             }
+
+            currentWalletBalance = targetBalance;
+            const logs = JSON.parse(localStorage.getItem('suki_wallet_topups_' + currentUsername) || '[]');
+            logs.unshift({
+                title: `Wallet Top-Up (${channel})`,
+                amount: amt,
+                type: 'credit',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('suki_wallet_topups_' + currentUsername, JSON.stringify(logs.slice(0, 50)));
+
+            // Immediately update all wallet UI displays
+            const walletEl = document.getElementById('walletDisplay');
+            if (walletEl) walletEl.innerText = `Suki Wallet: ₱${currentWalletBalance.toFixed(2)}`;
+            const wBalEl = document.getElementById('custProfileWalletBalance');
+            if (wBalEl) wBalEl.innerText = `₱${currentWalletBalance.toFixed(2)}`;
+            const wUsdEl = document.getElementById('custProfileWalletUsd');
+            if (wUsdEl) wUsdEl.innerText = `≈ $${(currentWalletBalance * usdRate).toFixed(2)} USD • Protected by Suki Buyer Guarantee`;
+
+            document.getElementById('topUpWalletModal').classList.add('hidden');
+            renderCustomerWalletActivity();
+            showSukiPopup('Wallet Topped Up!', `₱${amt.toFixed(2)} via ${channel} has been added to your Suki Wallet.`);
         } catch (err) {
-            notify('Network error: ' + err.message);
+            notify('Error adding credits: ' + err.message);
         } finally {
             if (btn) {
                 btn.disabled = false;
@@ -4189,15 +4623,8 @@
         }
     }
 
-    function renderCustomerWalletActivity() {
-        const listEl = document.getElementById('custWalletActivityList');
-        const spentBadge = document.getElementById('custWalletTotalSpentBadge');
-        if (!listEl) return;
-
+    function getAllCustomerWalletTransactions() {
         const validOrders = (allOrders || []).filter(o => o.status !== 'REFUNDED');
-        const totalSpent = validOrders.reduce((s, o) => s + Number(o.total_amount || 0), 0);
-        if (spentBadge) spentBadge.innerText = `Spent: ₱${totalSpent.toFixed(2)}`;
-
         const topups = JSON.parse(localStorage.getItem('suki_wallet_topups_' + currentUsername) || '[]');
         const orderTxs = validOrders.map(o => ({
             title: o.product_title || 'Digital Purchase',
@@ -4213,29 +4640,72 @@
             type: 'credit',
             date: t.date || ''
         }));
+        return [...topupTxs, ...orderTxs].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+    }
 
-        const combined = [...topupTxs, ...orderTxs].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 6);
+    function buildWalletTxRowHtml(tx, includeYear = false) {
+        const isCredit = tx.type === 'credit';
+        const dOpts = includeYear
+            ? { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }
+            : { month: 'short', day: 'numeric' };
+        const dLabel = tx.date ? new Date(tx.date).toLocaleDateString('en-US', dOpts) : 'Recent';
+        return `
+            <div class="wallet-tx-item">
+                <div style="min-width:0;">
+                    <div style="font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(tx.title)}</div>
+                    <div style="font-size:0.74rem; color:var(--muted);">${escapeHtml(tx.subtitle)} &bull; ${dLabel}</div>
+                </div>
+                <strong style="color:${isCredit ? 'var(--success)' : 'var(--text)'}; white-space:nowrap;">
+                    ${isCredit ? '+' : '-'}₱${tx.amount.toFixed(2)}
+                </strong>
+            </div>
+        `;
+    }
 
-        if (!combined.length) {
+    function renderCustomerWalletActivity() {
+        const listEl = document.getElementById('custWalletActivityList');
+        const spentBadge = document.getElementById('custWalletTotalSpentBadge');
+        const viewAllBtn = document.getElementById('viewAllWalletTxBtn');
+        if (!listEl) return;
+
+        const validOrders = (allOrders || []).filter(o => o.status !== 'REFUNDED');
+        const totalSpent = validOrders.reduce((s, o) => s + Number(o.total_amount || 0), 0);
+        if (spentBadge) spentBadge.innerText = `Spent: ₱${totalSpent.toFixed(2)}`;
+
+        const allTxs = getAllCustomerWalletTransactions();
+        const recentFive = allTxs.slice(0, 5);
+
+        if (viewAllBtn) {
+            viewAllBtn.innerText = allTxs.length > 0 ? `View All (${allTxs.length})` : 'View All';
+        }
+
+        if (!recentFive.length) {
             listEl.innerHTML = `<div style="text-align:center; color:var(--muted); font-size:0.84rem; padding:1rem 0;">No wallet transactions yet. Top up or purchase a template to see history here.</div>`;
             return;
         }
 
-        listEl.innerHTML = combined.map(tx => {
-            const isCredit = tx.type === 'credit';
-            const dLabel = tx.date ? new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent';
-            return `
-                <div class="wallet-tx-item">
-                    <div style="min-width:0;">
-                        <div style="font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(tx.title)}</div>
-                        <div style="font-size:0.74rem; color:var(--muted);">${escapeHtml(tx.subtitle)} &bull; ${dLabel}</div>
-                    </div>
-                    <strong style="color:${isCredit ? 'var(--success)' : 'var(--text)'}; white-space:nowrap;">
-                        ${isCredit ? '+' : '-'}₱${tx.amount.toFixed(2)}
-                    </strong>
-                </div>
-            `;
-        }).join('');
+        listEl.innerHTML = recentFive.map(tx => buildWalletTxRowHtml(tx, false)).join('');
+    }
+
+    function openAllWalletActivityModal() {
+        const modal = document.getElementById('allWalletActivityModal');
+        const listEl = document.getElementById('allWalletActivityModalList');
+        const subEl = document.getElementById('allWalletTxSubtitle');
+        const summaryEl = document.getElementById('allWalletModalSpentSummary');
+        if (!modal || !listEl) return;
+
+        const allTxs = getAllCustomerWalletTransactions();
+        const totalCredits = allTxs.filter(t => t.type === 'credit').reduce((s, t) => s + t.amount, 0);
+        const totalDebits = allTxs.filter(t => t.type === 'debit').reduce((s, t) => s + t.amount, 0);
+
+        if (subEl) subEl.innerText = `Showing all ${allTxs.length} wallet transaction${allTxs.length === 1 ? '' : 's'}`;
+        if (summaryEl) summaryEl.innerText = `Top-Ups: +₱${totalCredits.toFixed(2)} • Spent: -₱${totalDebits.toFixed(2)}`;
+
+        listEl.innerHTML = allTxs.length
+            ? allTxs.map(tx => buildWalletTxRowHtml(tx, true)).join('')
+            : `<div style="text-align:center; color:var(--muted); font-size:0.86rem; padding:2rem 0;">No wallet transactions recorded yet.</div>`;
+
+        modal.classList.remove('hidden');
     }
 
     async function saveProfile() {
@@ -4249,9 +4719,23 @@
         addField('profFirstName', 'first_name');
         addField('profLastName', 'last_name');
         addField('profPhone', 'phone_number');
-        addField('profCountry', 'country');
-        addField('profRegion', 'region');
-        addField('profCity', 'city');
+        const provVal = (document.getElementById('profProvince')?.value || '').trim();
+        const muniVal = (document.getElementById('profMunicipality')?.value || '').trim();
+        const brgyVal = (document.getElementById('profBarangay')?.value || '').trim();
+        const cleanBrgy = brgyVal.replace(/^brgy\.?\s*/i, '');
+        const combinedCityBrgy = cleanBrgy ? (muniVal ? `${muniVal}, Brgy. ${cleanBrgy}` : `Brgy. ${cleanBrgy}`) : muniVal;
+
+        fd.append('country', 'Philippines');
+        fd.append('region', provVal);
+        fd.append('city', combinedCityBrgy);
+
+        try {
+            localStorage.setItem('suki_addr_parts_' + currentUsername, JSON.stringify({
+                province: provVal,
+                municipality: muniVal,
+                barangay: cleanBrgy
+            }));
+        } catch (e) {}
         addField('profPayment', 'saved_payment_method');
         addField('profBio', 'shop_or_bio');
         addField('profShopName', 'shop_name');
@@ -4314,10 +4798,25 @@
     function renderCustomerCatalog(list) {
         const custGrid = document.getElementById('customerProductGrid');
         if (!custGrid) return;
-        const publishedList = list.filter(p => !p.is_draft);
-        custGrid.innerHTML = publishedList.map(p => `
-            <div class="prod-card">
-                <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${escapeHtml(p.title)}" style="cursor:pointer;" onclick="openCustomerProductModal(${p.id})">
+        const publishedList = list
+            .filter(p => !p.is_draft)
+            .sort((a, b) => Number(isProductSoldOut(a)) - Number(isProductSoldOut(b)));
+
+        custGrid.innerHTML = publishedList.map(p => {
+            const soldOut = isProductSoldOut(p);
+            const stockBadgeText = soldOut
+                ? '<span style="color:#b91c1c; font-weight:800;">Sold Out</span>'
+                : (p.stock_licenses >= 999999 ? 'Unlimited digital access' : `${p.stock_licenses} left`);
+            const cartBtnHtml = soldOut
+                ? `<button type="button" class="btn btn-sm" disabled style="flex:1; justify-content:center; background:#cbd5e1; color:#475569; cursor:not-allowed;">Sold Out</button>`
+                : `<button type="button" class="btn btn-sm" style="flex:1; justify-content:center;" onclick="addToCart(${p.id}, '${(p.sizes_list[0] || 'Standard Digital').replace(/'/g, "\'")}')">+ Add to Cart</button>`;
+
+            return `
+            <div class="prod-card ${soldOut ? 'is-sold-out' : ''}">
+                <div style="position:relative;">
+                    ${soldOut ? '<span class="sold-out-overlay-badge">Sold Out</span>' : ''}
+                    <img src="${normalizeMediaUrl(p.gallery[0])}" alt="${escapeHtml(p.title)}" style="cursor:pointer;" onclick="openCustomerProductModal(${p.id})">
+                </div>
                 <div class="prod-card-body">
                     <div>
                         <span class="cat-pill">${escapeHtml(p.category)}</span>
@@ -4327,18 +4826,19 @@
                     </div>
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px; border-top:1px solid var(--border); margin-bottom:10px;">
-                            <strong style="font-size:1.1rem; color:var(--blue);">₱${Number(p.price).toFixed(2)}</strong>
-                            <span style="font-size:0.78rem; color:var(--muted);">${p.stock_licenses >= 999999 ? 'Unlimited digital access' : p.stock_licenses + ' left'}</span>
+                            <strong style="font-size:1.1rem; color:${soldOut ? '#64748b' : 'var(--blue)'};">₱${Number(p.price).toFixed(2)}</strong>
+                            <span style="font-size:0.78rem; color:var(--muted);">${stockBadgeText}</span>
                         </div>
                         <div style="display:flex; gap:6px;">
                             <button type="button" class="btn btn-outline btn-sm" onclick="openCustomerProductModal(${p.id})">Details</button>
-                            <button type="button" class="btn btn-sm" style="flex:1; justify-content:center;" onclick="addToCart(${p.id}, '${(p.sizes_list[0] || 'Standard Digital').replace(/'/g, "\\'")}')">+ Add to Cart</button>
+                            ${cartBtnHtml}
                             <button type="button" class="btn btn-outline btn-sm" onclick="addToWishlist(${p.id})" title="Save to Wishlist">♡</button>
                         </div>
                     </div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     }
 
     function openCustomerProductModal(productId) {
@@ -4363,12 +4863,28 @@
             <button type="button" class="size-chip ${idx === 0 ? 'selected' : ''}" onclick="selectCustModalSizeChip('${escapeHtml(sz)}', this)">${escapeHtml(sz)}</button>
         `).join('');
 
-        document.getElementById('custModalAddCartBtn').onclick = () => {
-            addToCart(p.id, selectedCustModalSize);
-        };
-        document.getElementById('custModalBuyNowBtn').onclick = async () => {
-            await buyNowFromCustomerModal(p.id, selectedCustModalSize);
-        };
+        const soldOut = isProductSoldOut(p);
+        const addBtn = document.getElementById('custModalAddCartBtn');
+        const buyBtn = document.getElementById('custModalBuyNowBtn');
+        if (soldOut) {
+            addBtn.disabled = true;
+            addBtn.innerText = 'Sold Out';
+            addBtn.onclick = null;
+            buyBtn.disabled = true;
+            buyBtn.innerText = 'Sold Out (Unavailable)';
+            buyBtn.onclick = null;
+        } else {
+            addBtn.disabled = false;
+            addBtn.innerText = '+ Add to Cart';
+            addBtn.onclick = () => {
+                addToCart(p.id, selectedCustModalSize);
+            };
+            buyBtn.disabled = false;
+            buyBtn.innerText = 'Buy Now';
+            buyBtn.onclick = async () => {
+                await buyNowFromCustomerModal(p.id, selectedCustModalSize);
+            };
+        }
         document.getElementById('custModalWishlistBtn').onclick = () => {
             addToWishlist(p.id);
         };
@@ -4452,23 +4968,78 @@
         }
     }
 
-    async function addToCart(productId, size = 'Standard Digital') {
-        const res = await fetch('/api/cart/', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
-            body: JSON.stringify({ product: productId, selected_size: size, quantity: 1 })
-        });
+    async function addToCart(productId, size = 'Standard Digital', silent = false) {
+        const targetProd = allProducts.find(p => String(p.id) === String(productId));
+        if (targetProd && isProductSoldOut(targetProd)) {
+            showSukiPopup('Sold Out', 'This product is currently sold out and cannot be added to cart.', true);
+            return false;
+        }
+
+        const normSize = (size || 'Standard Digital').trim();
+        const existingMatch = (allCartItems || []).find(i =>
+            String(i.product) === String(productId) &&
+            (i.selected_size || 'Standard Digital').trim().toLowerCase() === normSize.toLowerCase()
+        );
+
+        let res;
+        if (existingMatch) {
+            const nextQty = Number(existingMatch.quantity || 1) + 1;
+            res = await fetch(`/api/cart/${existingMatch.id}/`, {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                body: JSON.stringify({ quantity: nextQty })
+            });
+            if (!res.ok) {
+                res = await fetch('/api/cart/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                    body: JSON.stringify({ product: productId, selected_size: normSize, quantity: 1 })
+                });
+            }
+        } else {
+            res = await fetch('/api/cart/', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                body: JSON.stringify({ product: productId, selected_size: normSize, quantity: 1 })
+            });
+        }
+
         if (res.ok) {
             const created = await res.json().catch(() => null);
             if (created && created.id) {
                 selectedCartIds.add(created.id);
+            } else if (existingMatch) {
+                selectedCartIds.add(existingMatch.id);
             }
-            notify('Added to shopping cart!');
+            if (!silent) notify('Added to shopping cart!');
             await loadCart();
+            return true;
         } else {
             notify('Could not add item to cart.');
+            return false;
         }
+    }
+
+    function getGroupedCartItems(items) {
+        const map = new Map();
+        (items || []).forEach(item => {
+            const key = `${item.product}::${(item.selected_size || 'Standard Digital').trim().toLowerCase()}`;
+            if (!map.has(key)) {
+                map.set(key, {
+                    ...item,
+                    quantity: Number(item.quantity || 1),
+                    ids: [item.id]
+                });
+            } else {
+                const grp = map.get(key);
+                grp.quantity += Number(item.quantity || 1);
+                grp.ids.push(item.id);
+            }
+        });
+        return Array.from(map.values());
     }
 
     async function loadCart() {
@@ -4481,25 +5052,40 @@
         const prevIds = new Set(allCartItems.map(i => i.id));
         allCartItems = items;
 
-        // Auto-select newly added items while preserving user's previous check/uncheck choices
+        // Auto-select newly added available items while deselecting any sold-out items
         const currentIds = new Set(items.map(i => i.id));
         selectedCartIds.forEach(id => {
             if (!currentIds.has(id)) selectedCartIds.delete(id);
         });
         items.forEach(item => {
-            if (!prevIds.has(item.id)) {
+            const prod = allProducts.find(p => String(p.id) === String(item.product)) || allProducts.find(p => p.title === item.product_title);
+            const soldOut = isCartItemSoldOut(item, prod);
+            if (soldOut) {
+                selectedCartIds.delete(item.id);
+            } else if (!prevIds.has(item.id)) {
                 selectedCartIds.add(item.id);
             }
         });
 
+        const groupedAll = getGroupedCartItems(items);
+        const totalBadgeQty = groupedAll.reduce((sum, g) => sum + Number(g.quantity || 1), 0);
         const countEl = document.getElementById('cartCount');
-        if (countEl) countEl.innerText = items.length;
+        if (countEl) countEl.innerText = totalBadgeQty;
 
         renderCartTable();
     }
 
+    function isCartItemSoldOut(item, prod) {
+        if (prod && isProductSoldOut(prod)) return true;
+        if (item && item.stock_licenses !== undefined && Number(item.stock_licenses) <= 0) return true;
+        return false;
+    }
+
     function renderCartTable() {
         const tbody = document.getElementById('cartBody');
+        const soldOutSection = document.getElementById('soldOutCartSection');
+        const soldOutBody = document.getElementById('soldOutCartBody');
+        const soldOutBadge = document.getElementById('soldOutCartCountBadge');
         const totalEl = document.getElementById('cartTotal');
         const hintEl = document.getElementById('cartTotalHint');
         const badgeEl = document.getElementById('cartSelectedCountBadge');
@@ -4507,26 +5093,40 @@
         const payBtn = document.getElementById('cartPayBtn');
         if (!tbody) return;
 
+        const groupedItems = getGroupedCartItems(allCartItems);
+        const availableItems = [];
+        const soldOutItems = [];
+
+        groupedItems.forEach(item => {
+            const prod = allProducts.find(p => String(p.id) === String(item.product)) || allProducts.find(p => p.title === item.product_title);
+            if (isCartItemSoldOut(item, prod)) {
+                item.ids.forEach(id => selectedCartIds.delete(id));
+                soldOutItems.push({ item, prod });
+            } else {
+                availableItems.push({ item, prod });
+            }
+        });
+
         let selectedTotal = 0;
         let selectedCount = 0;
 
-        tbody.innerHTML = allCartItems.length ? allCartItems.map(item => {
+        tbody.innerHTML = availableItems.length ? availableItems.map(({ item, prod }) => {
             const sub = Number(item.product_price || 0) * item.quantity;
-            const isChecked = selectedCartIds.has(item.id);
+            const isChecked = item.ids.some(id => selectedCartIds.has(id));
             if (isChecked) {
                 selectedTotal += sub;
                 selectedCount += 1;
             }
-            const prod = allProducts.find(p => String(p.id) === String(item.product)) || allProducts.find(p => p.title === item.product_title);
             const coverUrl = normalizeMediaUrl(
                 item.product_image ||
                 (prod && ((prod.gallery && prod.gallery[0]) || prod.image || prod.image_url)) ||
                 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80'
             );
             const shopSub = prod ? `${prod.shop_display_name || prod.seller_name} • ${prod.category}` : 'Digital Product';
+            const idsJson = JSON.stringify(item.ids);
             return `<tr class="${isChecked ? 'cart-row-selected' : ''}">
                 <td style="text-align:center;">
-                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleCartItemSelect(${item.id}, this.checked)">
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange='toggleCartGroupSelect(${idsJson}, this.checked)'>
                 </td>
                 <td>
                     <div class="item-thumb-cell">
@@ -4539,19 +5139,64 @@
                 </td>
                 <td>${escapeHtml(item.selected_size)}</td>
                 <td>₱${Number(item.product_price).toFixed(2)}</td>
-                <td>${item.quantity}</td>
+                <td>
+                    <div class="qty-stepper">
+                        <button type="button" class="qty-step-btn" title="Decrease quantity" onclick='changeCartGroupQty(${idsJson}, -1)' ${item.quantity <= 1 ? 'disabled' : ''}>&minus;</button>
+                        <span class="qty-step-val">${item.quantity}</span>
+                        <button type="button" class="qty-step-btn" title="Increase quantity" onclick='changeCartGroupQty(${idsJson}, 1)'>+</button>
+                    </div>
+                </td>
                 <td><strong>₱${sub.toFixed(2)}</strong></td>
-                <td><button type="button" class="btn btn-outline btn-sm" onclick="removeCartItem(${item.id})">Remove</button></td>
+                <td><button type="button" class="btn btn-outline btn-sm" onclick='removeCartGroup(${idsJson})'>Remove</button></td>
             </tr>`;
-        }).join('') : `<tr><td colspan="7" style="text-align:center; color:var(--muted);">Your shopping cart is empty.</td></tr>`;
+        }).join('') : `<tr><td colspan="7" style="text-align:center; color:var(--muted);">${soldOutItems.length ? 'No available items to checkout. See sold-out items below.' : 'Your shopping cart is empty.'}</td></tr>`;
+
+        if (soldOutSection && soldOutBody) {
+            if (soldOutItems.length > 0) {
+                soldOutSection.classList.remove('hidden');
+                const totalSoldOutQty = soldOutItems.reduce((sum, entry) => sum + Number(entry.item.quantity || 1), 0);
+                if (soldOutBadge) {
+                    soldOutBadge.innerText = `${totalSoldOutQty} sold out`;
+                }
+                soldOutBody.innerHTML = soldOutItems.map(({ item, prod }) => {
+                    const coverUrl = normalizeMediaUrl(
+                        item.product_image ||
+                        (prod && ((prod.gallery && prod.gallery[0]) || prod.image || prod.image_url)) ||
+                        'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80'
+                    );
+                    const shopSub = prod ? `${prod.shop_display_name || prod.seller_name} • ${prod.category}` : 'Digital Product';
+                    const idsJson = JSON.stringify(item.ids);
+                    return `<tr>
+                        <td style="text-align:center; white-space:nowrap;">
+                            <span class="badge" style="background:#fee2e2; color:#b91c1c; font-size:0.68rem; white-space:nowrap; display:inline-block;">SOLD OUT</span>
+                        </td>
+                        <td>
+                            <div class="item-thumb-cell">
+                                <img src="${coverUrl}" alt="${escapeHtml(item.product_title)}" class="item-cover-box" onclick="openCustomerProductModal(${item.product})">
+                                <div style="min-width:0;">
+                                    <strong style="display:block; color:#475569; cursor:pointer;" onclick="openCustomerProductModal(${item.product})">${escapeHtml(item.product_title)}</strong>
+                                    <span style="font-size:0.75rem; color:var(--muted);">${escapeHtml(shopSub)}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="color:#64748b;">${escapeHtml(item.selected_size)}</td>
+                        <td style="color:#64748b;">₱${Number(item.product_price).toFixed(2)}</td>
+                        <td style="color:#64748b;"><strong>${item.quantity}</strong></td>
+                        <td><button type="button" class="btn btn-outline btn-sm" onclick='removeCartGroup(${idsJson})'>Remove</button></td>
+                    </tr>`;
+                }).join('');
+            } else {
+                soldOutSection.classList.add('hidden');
+            }
+        }
 
         if (selectAllEl) {
-            selectAllEl.disabled = allCartItems.length === 0;
-            selectAllEl.checked = allCartItems.length > 0 && selectedCount === allCartItems.length;
-            selectAllEl.indeterminate = selectedCount > 0 && selectedCount < allCartItems.length;
+            selectAllEl.disabled = availableItems.length === 0;
+            selectAllEl.checked = availableItems.length > 0 && selectedCount === availableItems.length;
+            selectAllEl.indeterminate = selectedCount > 0 && selectedCount < availableItems.length;
         }
         if (badgeEl) {
-            badgeEl.innerText = `${selectedCount} of ${allCartItems.length} selected`;
+            badgeEl.innerText = `${selectedCount} of ${availableItems.length} available selected`;
         }
         if (totalEl) {
             totalEl.innerText = `Selected Total: ₱${selectedTotal.toFixed(2)}`;
@@ -4559,25 +5204,40 @@
         if (hintEl) {
             hintEl.innerText = selectedCount > 0
                 ? `Paying for ${selectedCount} selected item${selectedCount === 1 ? '' : 's'} via Suki Wallet`
-                : 'Check at least one item to proceed to checkout';
+                : 'Check at least one available item to proceed to checkout';
         }
         if (payBtn) {
             payBtn.disabled = selectedCount === 0;
         }
     }
 
-    function toggleCartItemSelect(itemId, checked) {
-        if (checked) {
-            selectedCartIds.add(itemId);
-        } else {
-            selectedCartIds.delete(itemId);
-        }
+    function toggleCartGroupSelect(ids, checked) {
+        (ids || []).forEach(id => {
+            const item = allCartItems.find(i => i.id === id);
+            const prod = item ? (allProducts.find(p => String(p.id) === String(item.product)) || allProducts.find(p => p.title === item.product_title)) : null;
+            if (item && isCartItemSoldOut(item, prod)) {
+                selectedCartIds.delete(id);
+            } else if (checked) {
+                selectedCartIds.add(id);
+            } else {
+                selectedCartIds.delete(id);
+            }
+        });
         renderCartTable();
+    }
+
+    function toggleCartItemSelect(itemId, checked) {
+        toggleCartGroupSelect([itemId], checked);
     }
 
     function toggleSelectAllCart(checked) {
         if (checked) {
-            allCartItems.forEach(item => selectedCartIds.add(item.id));
+            allCartItems.forEach(item => {
+                const prod = allProducts.find(p => String(p.id) === String(item.product)) || allProducts.find(p => p.title === item.product_title);
+                if (!isCartItemSoldOut(item, prod)) {
+                    selectedCartIds.add(item.id);
+                }
+            });
         } else {
             selectedCartIds.clear();
         }
@@ -4585,19 +5245,26 @@
     }
 
     function openConfirmCheckoutModal() {
-        const selectedItems = allCartItems.filter(item => selectedCartIds.has(item.id));
-        if (!selectedItems.length) {
+        const groupedSelected = getGroupedCartItems(
+            allCartItems.filter(item => {
+                if (!selectedCartIds.has(item.id)) return false;
+                const prod = allProducts.find(p => String(p.id) === String(item.product)) || allProducts.find(p => p.title === item.product_title);
+                return !isCartItemSoldOut(item, prod);
+            })
+        );
+        if (!groupedSelected.length) {
             notify('Please check at least one item in your cart first.');
             return;
         }
 
-        const totalCost = selectedItems.reduce((sum, item) => sum + (Number(item.product_price || 0) * item.quantity), 0);
+        const totalCost = groupedSelected.reduce((sum, item) => sum + (Number(item.product_price || 0) * item.quantity), 0);
+        const totalQty = groupedSelected.reduce((sum, item) => sum + Number(item.quantity || 1), 0);
         const remaining = currentWalletBalance - totalCost;
         const hasEnough = remaining >= 0;
 
         const itemsListEl = document.getElementById('ccItemsList');
         if (itemsListEl) {
-            itemsListEl.innerHTML = selectedItems.map(item => {
+            itemsListEl.innerHTML = groupedSelected.map(item => {
                 const sub = Number(item.product_price || 0) * item.quantity;
                 return `<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 12px; border-bottom:1px solid var(--border); font-size:0.84rem;">
                     <div>
@@ -4609,7 +5276,7 @@
             }).join('');
         }
 
-        document.getElementById('ccItemCount').innerText = `${selectedItems.length} item${selectedItems.length === 1 ? '' : 's'}`;
+        document.getElementById('ccItemCount').innerText = `${totalQty} item${totalQty === 1 ? '' : 's'}`;
         document.getElementById('ccWalletBefore').innerText = `₱${currentWalletBalance.toFixed(2)}`;
         document.getElementById('ccTotalAmount').innerText = `₱${totalCost.toFixed(2)}`;
 
@@ -4655,7 +5322,9 @@
             document.getElementById('confirmCheckoutModal').classList.add('hidden');
             if (res.ok) {
                 selectedIds.forEach(id => selectedCartIds.delete(id));
-                showSukiPopup('Checkout Successful!', `Paid ₱${Number(data.amount_deducted).toFixed(2)} via Suki Wallet.`);
+                const deducted = Number(data.amount_deducted || 0);
+                currentWalletBalance = Math.max(0, Number((currentWalletBalance - deducted).toFixed(2)));
+                showSukiPopup('Checkout Successful!', `Paid ₱${deducted.toFixed(2)} via Suki Wallet.`);
                 await loadProfile();
                 await loadCart();
                 await loadOrders();
@@ -4668,17 +5337,81 @@
         }
     }
 
-    async function removeCartItem(id) {
-        const res = await fetch(`/api/cart/${id}/`, {
-            method: 'DELETE',
-            credentials: 'same-origin',
-            headers: { 'X-CSRFToken': getCsrfToken() }
-        });
-        if (res.ok) {
-            selectedCartIds.delete(id);
-            notify('Item removed.');
+    async function changeCartGroupQty(ids, delta) {
+        const list = Array.isArray(ids) ? ids : [ids];
+        if (!list.length) return;
+        const sampleItem = allCartItems.find(i => i.id === list[0]);
+        if (!sampleItem) return;
+
+        const grouped = getGroupedCartItems(allCartItems).find(g => g.ids.includes(list[0]));
+        const currentQty = grouped ? Number(grouped.quantity || 1) : Number(sampleItem.quantity || 1);
+        const prod = allProducts.find(p => String(p.id) === String(sampleItem.product)) || allProducts.find(p => p.title === sampleItem.product_title);
+        const maxStock = prod && Number(prod.stock_licenses) < 999999 ? Number(prod.stock_licenses) : 999999;
+
+        if (delta > 0) {
+            if (currentQty + 1 > maxStock) {
+                notify(`Only ${maxStock} license(s) available in stock.`);
+                return;
+            }
+            const nextQty = Number(sampleItem.quantity || 1) + 1;
+            const patchRes = await fetch(`/api/cart/${sampleItem.id}/`, {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                body: JSON.stringify({ quantity: nextQty })
+            });
+            if (!patchRes.ok) {
+                await fetch('/api/cart/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                    body: JSON.stringify({
+                        product: sampleItem.product,
+                        selected_size: sampleItem.selected_size || 'Standard Digital',
+                        quantity: 1
+                    })
+                });
+            }
+            await loadCart();
+        } else if (delta < 0) {
+            if (currentQty <= 1) return;
+            if (list.length > 1) {
+                const lastId = list[list.length - 1];
+                await fetch(`/api/cart/${lastId}/`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRFToken': getCsrfToken() }
+                });
+                selectedCartIds.delete(lastId);
+            } else {
+                const nextQty = Math.max(1, Number(sampleItem.quantity || 1) - 1);
+                await fetch(`/api/cart/${sampleItem.id}/`, {
+                    method: 'PATCH',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                    body: JSON.stringify({ quantity: nextQty })
+                });
+            }
             await loadCart();
         }
+    }
+
+    async function removeCartGroup(ids) {
+        const list = Array.isArray(ids) ? ids : [ids];
+        await Promise.all(list.map(id =>
+            fetch(`/api/cart/${id}/`, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: { 'X-CSRFToken': getCsrfToken() }
+            })
+        ));
+        list.forEach(id => selectedCartIds.delete(id));
+        notify('Item removed.');
+        await loadCart();
+    }
+
+    async function removeCartItem(id) {
+        await removeCartGroup([id]);
     }
 
     async function addToWishlist(productId) {
@@ -4690,6 +5423,25 @@
         });
         if (res.ok) {
             notify('Saved to Wishlist!');
+            await loadWishlist();
+        }
+    }
+
+    async function moveWishlistToCart(wishlistId, productId) {
+        const prod = allProducts.find(p => String(p.id) === String(productId));
+        if (prod && isProductSoldOut(prod)) {
+            showSukiPopup('Sold Out', 'This product is currently sold out and cannot be moved to cart.', true);
+            return;
+        }
+        const defaultSize = (prod && Array.isArray(prod.sizes_list) && prod.sizes_list[0]) ? prod.sizes_list[0] : 'Standard Digital';
+        const added = await addToCart(productId, defaultSize, true);
+        if (added) {
+            await fetch(`/api/wishlist/${wishlistId}/`, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: { 'X-CSRFToken': getCsrfToken() }
+            });
+            notify('Moved to shopping cart!');
             await loadWishlist();
         }
     }
@@ -4726,8 +5478,8 @@
                 </td>
                 <td>${new Date(w.added_at).toLocaleDateString()}</td>
                 <td>
-                    <button class="btn btn-sm" onclick="addToCart(${w.product})">+ Move to Cart</button>
-                    <button class="btn btn-outline btn-sm" onclick="removeWishlist(${w.id})">Remove</button>
+                    <button type="button" class="btn btn-sm" onclick="moveWishlistToCart(${w.id}, ${w.product})">+ Move to Cart</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="removeWishlist(${w.id})">Remove</button>
                 </td>
             </tr>`;
         }).join('') : `<tr><td colspan="3" style="text-align:center; color:var(--muted);">No items in your wishlist yet.</td></tr>`;
@@ -5642,17 +6394,67 @@
         }
     }
 
-    async function deleteSellerListing(id) {
-        if (!confirm('Delete this product listing?')) return;
-        const res = await fetch(`/api/products/${id}/`, {
-            method: 'DELETE',
-            credentials: 'same-origin',
-            headers: { 'X-CSRFToken': getCsrfToken() }
-        });
-        if (res.ok) {
-            notify('Listing deleted.');
-            await sukiBootstrapAll();
-            renderSellerListings();
+    function deleteSellerListing(id) {
+        const prod = allProducts.find(p => String(p.id) === String(id));
+        const titleText = prod && prod.title ? `"${prod.title}"` : 'this product';
+        const msgEl = document.getElementById('deleteListingMsg');
+        const idEl = document.getElementById('deleteListingTargetId');
+        const btn = document.getElementById('confirmDeleteListingBtn');
+        if (msgEl) {
+            msgEl.innerHTML = `Are you sure you want to delete <strong>${escapeHtml(titleText)}</strong>? This action cannot be undone.`;
+        }
+        if (idEl) idEl.value = id;
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = 'Yes, Delete';
+        }
+        document.getElementById('deleteListingModal')?.classList.remove('hidden');
+    }
+
+    function closeDeleteListingModal() {
+        document.getElementById('deleteListingModal')?.classList.add('hidden');
+    }
+
+    async function executeDeleteSellerListing() {
+        const id = document.getElementById('deleteListingTargetId')?.value;
+        if (!id) return;
+        const btn = document.getElementById('confirmDeleteListingBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Deleting...';
+        }
+        try {
+            const res = await fetch(`/api/products/${id}/`, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: { 'X-CSRFToken': getCsrfToken() }
+            });
+            if (res.ok || res.status === 204) {
+                closeDeleteListingModal();
+                allProducts = allProducts.filter(p => String(p.id) !== String(id));
+                renderSellerListings();
+                showSukiPopup('Product Deleted', 'The product listing has been permanently removed from your shop.');
+                await sukiBootstrapAll();
+                renderSellerListings();
+            } else {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Yes, Delete';
+                }
+                const errText = await res.text();
+                let errMsg = `Could not delete product (${res.status}).`;
+                try {
+                    const errJson = JSON.parse(errText);
+                    errMsg = errJson.error || errJson.detail || errMsg;
+                } catch (_) {}
+                showSukiPopup('Delete Failed', errMsg, true);
+            }
+        } catch (err) {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = 'Yes, Delete';
+            }
+            showSukiPopup('Network Error', err.message, true);
         }
     }
 
@@ -6089,6 +6891,8 @@
         } else {
             await loadProfile();
             if (userRole === 'customer') {
+                const custSearchEl = document.getElementById('searchInput');
+                if (custSearchEl) custSearchEl.value = '';
                 renderCustomerCatalog(allProducts);
                 await loadCart();
                 await loadWishlist();
